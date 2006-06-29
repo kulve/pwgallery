@@ -1,0 +1,14 @@
+This package was created by Tuomas Kulve <tuomas@kulve.fi> on
+Tue Jun 27 15:38:17 EEST 2006.
+
+Copyright:
+
+ This program is free software; you can redistribute it and/or modify it
+ under the terms of the GNU General Public License as published by the
+ Free Software Foundation; either version 2, or (at your option) any
+ later version.
+
+ On Debian GNU/Linux systems, the complete text of the GNU General
+ Public License can be found in `/usr/share/common-licenses/GPL'.
+      
+This copyright also applies to the Debian-related build scripts.

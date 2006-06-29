@@ -1,0 +1,14 @@
+Source: pwgallery
+Section: graphics
+Priority: optional
+Maintainer: Tuomas Kulve <tuomas@kulve.fi>
+Build-Depends: debhelper (>= 4.0.0), libmagick6-dev, libgtk2.0-dev
+Standards-Version: 3.6.0
+
+Package: pwgallery
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Penguin Web Gallery
+ PWGallery is used to create image galleries for
+ WWW use. It creates an image gallery from an HTML template
+ and fills in the photo descriptions.
