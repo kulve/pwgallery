@@ -21,43 +21,65 @@
 #  include <config.h>
 #endif
 
-
 #include "main.h"
 #include "callbacks.h"
-
-#include <stdlib.h>           /* exit */
 
 #include <glib.h>
 #include <gtk/gtk.h>
 #include <glade/glade-xml.h>
 
-int
-main (int argc, char *argv[])
+void 
+on_button_pwg_quit_clicked( GtkToolButton *toolbutton,
+                            gpointer user_data)
+{
+    g_debug("in on_button_pwg_quit_clicked\n");
+
+    gtk_main_quit();
+}
+
+
+
+void
+on_button_gallery_configure_clicked(GtkToolButton *toolbutton,
+                                    gpointer user_data)
 {
     GladeXML  *glade;
 
-#ifdef ENABLE_NLS
-    bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
-    bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-    textdomain (GETTEXT_PACKAGE);
-#endif
-    
-    gtk_set_locale ();
-    gtk_init (&argc, &argv);
+    g_debug("in on_button_gallery_configure_clicked\n");
 
-    glade = glade_xml_new(PWGALLERY_GLADE_FILE, "mainwindow", NULL);
-
-    if (glade == NULL) {
-        g_warning("Error reading glade file: %s\n", PWGALLERY_GLADE_FILE);
-        exit(1);
-    }
-
-    glade_xml_signal_autoconnect(glade);
-
-    gtk_main ();
-
-    return 0;
+    /* FIXME: this leaks, right? */
+    glade = glade_xml_new(PWGALLERY_GLADE_FILE, "gallerywindow", NULL);
 }
+
+
+
+void
+on_button_pwg_pref_clicked(GtkToolButton *toolbutton,
+                           gpointer user_data)
+{
+    GladeXML  *glade;
+
+    g_debug("in on_button_pwg_pref_clicked\n");
+
+    /* FIXME: this leaks, right? */
+    glade = glade_xml_new(PWGALLERY_GLADE_FILE, "preferenceswindow", NULL);
+}
+
+
+
+gboolean
+on_mainwindow_delete_event(GtkWidget *widget,
+                           GdkEvent *event,
+                           gpointer user_data)
+{
+    g_debug("in on_mainwindow_delete_event");
+
+    gtk_main_quit();
+
+    return FALSE;
+}
+
+
 
 /* Emacs indentatation information
    Local Variables:

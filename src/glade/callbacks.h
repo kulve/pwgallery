@@ -1,6 +1,11 @@
 #include <gtk/gtk.h>
 
 
+gboolean
+on_mainwindow_delete_event             (GtkWidget       *widget,
+                                        GdkEvent        *event,
+                                        gpointer         user_data);
+
 void
 on_button_gallery_open_clicked         (GtkToolButton   *toolbutton,
                                         gpointer         user_data);

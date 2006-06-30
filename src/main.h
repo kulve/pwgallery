@@ -21,43 +21,7 @@
 #  include <config.h>
 #endif
 
-
-#include "main.h"
-#include "callbacks.h"
-
-#include <stdlib.h>           /* exit */
-
-#include <glib.h>
-#include <gtk/gtk.h>
-#include <glade/glade-xml.h>
-
-int
-main (int argc, char *argv[])
-{
-    GladeXML  *glade;
-
-#ifdef ENABLE_NLS
-    bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
-    bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-    textdomain (GETTEXT_PACKAGE);
-#endif
-    
-    gtk_set_locale ();
-    gtk_init (&argc, &argv);
-
-    glade = glade_xml_new(PWGALLERY_GLADE_FILE, "mainwindow", NULL);
-
-    if (glade == NULL) {
-        g_warning("Error reading glade file: %s\n", PWGALLERY_GLADE_FILE);
-        exit(1);
-    }
-
-    glade_xml_signal_autoconnect(glade);
-
-    gtk_main ();
-
-    return 0;
-}
+#define PWGALLERY_GLADE_FILE      "src/glade/pwgallery.glade"   
 
 /* Emacs indentatation information
    Local Variables:

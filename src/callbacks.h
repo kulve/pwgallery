@@ -21,43 +21,33 @@
 #  include <config.h>
 #endif
 
-
-#include "main.h"
-#include "callbacks.h"
-
-#include <stdlib.h>           /* exit */
-
-#include <glib.h>
 #include <gtk/gtk.h>
-#include <glade/glade-xml.h>
 
-int
-main (int argc, char *argv[])
-{
-    GladeXML  *glade;
+/*
+ * Quit clicked
+ */
+void on_button_pwg_quit_clicked(GtkToolButton *toolbutton,
+                                gpointer user_data);
 
-#ifdef ENABLE_NLS
-    bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
-    bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-    textdomain (GETTEXT_PACKAGE);
-#endif
-    
-    gtk_set_locale ();
-    gtk_init (&argc, &argv);
+/*
+ * Configure gallery clicked
+ */
+void on_button_gallery_configure_clicked(GtkToolButton *toolbutton,
+                                         gpointer user_data);
 
-    glade = glade_xml_new(PWGALLERY_GLADE_FILE, "mainwindow", NULL);
+/*
+ * PWGallery preferences clicked
+ */
+void on_button_pwg_pref_clicked(GtkToolButton *toolbutton,
+                                gpointer user_data);
 
-    if (glade == NULL) {
-        g_warning("Error reading glade file: %s\n", PWGALLERY_GLADE_FILE);
-        exit(1);
-    }
+/* 
+ * Window manager sent delete event to main window (i.e. close)
+ */
+gboolean on_mainwindow_delete_event(GtkWidget *widget,
+                                    GdkEvent *event,
+                                    gpointer user_data);
 
-    glade_xml_signal_autoconnect(glade);
-
-    gtk_main ();
-
-    return 0;
-}
 
 /* Emacs indentatation information
    Local Variables:

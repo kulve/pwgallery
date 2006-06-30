@@ -384,6 +384,9 @@ create_mainwindow (void)
   gtk_frame_set_label_widget (GTK_FRAME (frame2), label5);
   gtk_label_set_use_markup (GTK_LABEL (label5), TRUE);
 
+  g_signal_connect ((gpointer) mainwindow, "delete_event",
+                    G_CALLBACK (on_mainwindow_delete_event),
+                    NULL);
   g_signal_connect ((gpointer) button_gallery_open, "clicked",
                     G_CALLBACK (on_button_gallery_open_clicked),
                     NULL);
