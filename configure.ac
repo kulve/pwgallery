@@ -14,7 +14,7 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 
-CFLAGS="-Wall -ansi -pedantic -Wmissing-prototypes -Wmissing-declarations -O0 -ggdb -std=gnu99"
+CFLAGS="-Wall -Werror -pedantic -Wmissing-prototypes -Wmissing-declarations -O0 -ggdb -std=gnu99"
 
 dnl FIXME: NO HARDCODING!
 AH_TEMPLATE([PACKAGE_DATA_DIR], [Application's data directory])
@@ -36,6 +36,14 @@ AC_SUBST(WAND_CFLAGS)
 PKG_CHECK_MODULES(GLADE, libglade-2.0 >= 2.5.1)
 AC_SUBST(GLADE_LIBS)
 AC_SUBST(GLADE_CFLAGS)
+
+PKG_CHECK_MODULES(GNOMEVFS, gnome-vfs-2.0 >= 2.14.2)
+AC_SUBST(GNOMEVFS_LIBS)
+AC_SUBST(GNOMEVFS_CFLAGS)
+
+PKG_CHECK_MODULES(GMODULE, gmodule-2.0 >= 2.10.2)
+AC_SUBST(GMODULE_LIBS)
+AC_SUBST(GMODULE_CFLAGS)
 
 dnl Checks for header files.
 AC_HEADER_STDC

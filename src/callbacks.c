@@ -23,6 +23,8 @@
 
 #include "main.h"
 #include "callbacks.h"
+#include "widgets.h"
+#include "gallery.h"
 
 #include <glib.h>
 #include <gtk/gtk.h>
@@ -32,9 +34,51 @@ void
 on_button_pwg_quit_clicked( GtkToolButton *toolbutton,
                             gpointer user_data)
 {
-    g_debug("in on_button_pwg_quit_clicked\n");
+    g_debug("in on_button_pwg_quit_clicked");
 
     gtk_main_quit();
+}
+
+void 
+on_button_gallery_open_clicked(GtkToolButton *toolbutton,
+                               gpointer user_data)
+{
+
+    g_debug("in on_button_gallery_open_clicked");
+    
+}
+
+
+void 
+on_button_image_add_clicked(GtkToolButton *toolbutton,
+                            gpointer user_data)
+{
+    struct data *data;
+    GtkWidget *dialog;
+
+    g_debug("in on_button_gallery_open_clicked");
+    
+    g_assert(user_data != NULL);
+
+    data = user_data;
+
+    dialog = gtk_file_chooser_dialog_new("Select Images",
+                                         GTK_WINDOW(data->top_window),
+                                         GTK_FILE_CHOOSER_ACTION_OPEN,
+                                         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                         GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+                                         NULL);
+    
+    /* FIXME: gtk_file_chooser_set_current_folder () */
+    gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), TRUE);
+
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
+    {
+        gallery_add_images(data, 
+                           gtk_file_chooser_get_uris(GTK_FILE_CHOOSER(dialog)));
+    }
+
+    gtk_widget_destroy (dialog);
 }
 
 
@@ -43,12 +87,8 @@ void
 on_button_gallery_configure_clicked(GtkToolButton *toolbutton,
                                     gpointer user_data)
 {
-    GladeXML  *glade;
+    g_debug("in on_button_gallery_configure_clicked");
 
-    g_debug("in on_button_gallery_configure_clicked\n");
-
-    /* FIXME: this leaks, right? */
-    glade = glade_xml_new(PWGALLERY_GLADE_FILE, "gallerywindow", NULL);
 }
 
 
@@ -57,12 +97,9 @@ void
 on_button_pwg_pref_clicked(GtkToolButton *toolbutton,
                            gpointer user_data)
 {
-    GladeXML  *glade;
+    g_debug("in on_button_pwg_pref_clicked");
 
-    g_debug("in on_button_pwg_pref_clicked\n");
-
-    /* FIXME: this leaks, right? */
-    glade = glade_xml_new(PWGALLERY_GLADE_FILE, "preferenceswindow", NULL);
+    widgets_prefs_show(user_data);
 }
 
 

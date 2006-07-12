@@ -17,51 +17,39 @@
  * USA.
  */
 
+#ifndef PWGALLERY_WIDGETS_H
+#define PWGALLERY_WIDGETS_H
+
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
 
+#include <glib.h>
 #include <gtk/gtk.h>
 
-/*
- * Quit clicked
- */
-void on_button_pwg_quit_clicked(GtkToolButton *toolbutton,
-                                gpointer user_data);
-
-/*
- * Configure gallery button clicked
- */
-void on_button_gallery_configure_clicked(GtkToolButton *toolbutton,
-                                         gpointer user_data);
-
-/*
- * Open existing gallery button clicked
- */
-void 
-on_button_gallery_open_clicked(GtkToolButton *toolbutton,
-                               gpointer user_data);
-
-/*
- * Add images to gallery button  clicked
- */
-void 
-on_button_image_add_clicked(GtkToolButton *toolbutton,
-                            gpointer user_data);
-
-/*
- * PWGallery preferences button clicked
- */
-void on_button_pwg_pref_clicked(GtkToolButton *toolbutton,
-                                gpointer user_data);
 
 /* 
- * Window manager sent delete event to main window (i.e. close)
+ * Update thumbnail gtk table
  */
-gboolean on_mainwindow_delete_event(GtkWidget *widget,
-                                    GdkEvent *event,
-                                    gpointer user_data);
+void widgets_update_table(struct data *data);
 
+/* 
+ * Set progressbar progress
+ */
+void widgets_set_progress(struct data *data, gfloat fraction, 
+						  const gchar *text);
+
+/* 
+ * Set status text
+ */
+void widgets_set_status(struct data *data, const gchar *text);
+
+/*
+ * Show pwg preferences window
+ */
+void widgets_prefs_show(struct data *data);
+
+#endif
 
 /* Emacs indentatation information
    Local Variables:
