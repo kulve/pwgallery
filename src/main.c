@@ -61,12 +61,18 @@ main (int argc, char *argv[])
 
     data = init_data();
 
+    configrc_load(data);
+    gallery_init(data);
+
     /* connect signals */
     glade_xml_signal_autoconnect_full(data->glade, glade_xml_connect_func,
                                       data);
 
     /* show main window */
     gtk_widget_show_all(data->top_window);
+
+    /* set critical to be always fatal */
+    g_log_set_always_fatal(G_LOG_LEVEL_CRITICAL);
 
     gtk_main();
 
@@ -143,11 +149,6 @@ init_data(void)
     data->top_window = glade_xml_get_widget(data->glade, "mainwindow");
     g_assert(data->top_window);
 
-
-    configrc_load(data);
-
-    gallery_init(data);
-
     return data;
 }
 
@@ -162,10 +163,16 @@ free_data(struct data *data)
     g_assert(data);
 
     gallery_free(data);
+    g_free(data->img_dir);
     g_free(data->output_dir);
+    g_free(data->gal_dir);
+    g_free(data->templ_dir);
     g_free(data->templ_index);
     g_free(data->templ_indeximg);
+    g_free(data->templ_indexgen);
     g_free(data->templ_image);
+    g_free(data->templ_gen);
+    g_free(data->page_gen_prog);
     g_free(data);
 }
 

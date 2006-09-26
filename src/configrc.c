@@ -72,17 +72,9 @@ configrc_load(struct data *data)
 
     keyfile = g_key_file_new();
 
-    /* if the configrc file does not exist, save defaults */
-    if (vfs_is_file(data, configrc_file) == FALSE)
+    /* Try to load configrc values if the file exists */
+    if (vfs_is_file(data, configrc_file) == TRUE)
     {
-        set_defaults(keyfile);
-
-        /* save new configrc file to disk*/
-        configrc_data = g_key_file_to_data(keyfile, &configrc_data_len, NULL);
-        
-        vfs_write_file(data, configrc_file, configrc_data, configrc_data_len);
-
-    } else {
         gboolean ok;
 
         /* read values from configrc file */
@@ -94,10 +86,15 @@ configrc_load(struct data *data)
                                        G_KEY_FILE_KEEP_TRANSLATIONS ,
                                        NULL);
         g_assert(ok == TRUE);
-
-        /* set defaults for those keys that are missing */
-        set_defaults(keyfile);
     }
+
+    /* set defaults for those keys that are missing */
+    set_defaults(keyfile);
+    
+    /* save configrc file to disk (maybe if didn't exists or maybe new
+     * keys are introduced in a new version. ie. just be sure) */
+    configrc_data = g_key_file_to_data(keyfile, &configrc_data_len, NULL);
+    vfs_write_file(data, configrc_file, configrc_data, configrc_data_len);
 
     set_rc_values(data, keyfile);
 
@@ -218,6 +215,31 @@ set_defaults(GKeyFile *keyfile)
                                NULL);        
     }
 
+    /* Page generator style */
+    if (g_key_file_has_key(keyfile, "Default", PWGALLERY_RCKEY_PAGE_GEN,
+                           NULL ) == FALSE)
+    {        
+        g_key_file_set_value(keyfile, "Default", PWGALLERY_RCKEY_PAGE_GEN,
+                             PWGALLERY_DEFAULT_PAGE_GEN);
+
+        g_key_file_set_comment(keyfile, "Default", PWGALLERY_RCKEY_PAGE_GEN, 
+                               _("Default page generator style"),
+                               NULL);
+    }
+
+    /* Page generator program */
+    if (g_key_file_has_key(keyfile, "Default", PWGALLERY_RCKEY_PAGE_GEN_PROG,
+                           NULL ) == FALSE)
+    {        
+        g_key_file_set_value(keyfile, "Default", PWGALLERY_RCKEY_PAGE_GEN_PROG,
+                             PWGALLERY_DEFAULT_PAGE_GEN_PROG);
+
+        g_key_file_set_comment(keyfile, "Default", 
+                               PWGALLERY_RCKEY_PAGE_GEN_PROG, 
+                               _("Default page generator program"),
+                               NULL);
+    }
+
     /* Thumbnail width */
     if (g_key_file_has_key(keyfile, "Default", PWGALLERY_RCKEY_THUMB_W,
                            NULL ) == FALSE)
@@ -240,6 +262,42 @@ set_defaults(GKeyFile *keyfile)
 
         g_key_file_set_comment(keyfile, "Default", PWGALLERY_RCKEY_IMAGE_H, 
                                _("Default height of the images"),
+                               NULL);
+    }
+
+    /* Image height2 */
+    if (g_key_file_has_key(keyfile, "Default", PWGALLERY_RCKEY_IMAGE_H2,
+                           NULL ) == FALSE)
+    {        
+        g_key_file_set_value(keyfile, "Default", PWGALLERY_RCKEY_IMAGE_H2,
+                             PWGALLERY_DEFAULT_IMAGE_H2);
+
+        g_key_file_set_comment(keyfile, "Default", PWGALLERY_RCKEY_IMAGE_H2, 
+                               _("Default height of the second set of images"),
+                               NULL);
+    }
+
+    /* Image height3 */
+    if (g_key_file_has_key(keyfile, "Default", PWGALLERY_RCKEY_IMAGE_H3,
+                           NULL ) == FALSE)
+    {        
+        g_key_file_set_value(keyfile, "Default", PWGALLERY_RCKEY_IMAGE_H3,
+                             PWGALLERY_DEFAULT_IMAGE_H3);
+
+        g_key_file_set_comment(keyfile, "Default", PWGALLERY_RCKEY_IMAGE_H3, 
+                               _("Default height of the third set of images"),
+                               NULL);
+    }
+
+    /* Image height4 */
+    if (g_key_file_has_key(keyfile, "Default", PWGALLERY_RCKEY_IMAGE_H4,
+                           NULL ) == FALSE)
+    {        
+        g_key_file_set_value(keyfile, "Default", PWGALLERY_RCKEY_IMAGE_H4,
+                             PWGALLERY_DEFAULT_IMAGE_H4);
+
+        g_key_file_set_comment(keyfile, "Default", PWGALLERY_RCKEY_IMAGE_H4, 
+                               _("Default height of the fourth set of images"),
                                NULL);
     }
 
@@ -279,6 +337,24 @@ set_defaults(GKeyFile *keyfile)
                                NULL);
     }
 
+    /* Index page per generic template */
+    if (g_key_file_has_key(keyfile, "Default", PWGALLERY_RCKEY_TEMPL_INDEXGEN,
+                           NULL ) == FALSE)
+    {        
+        dir = g_strdup_printf("file://%s/%s/%s/%s", g_get_home_dir(), 
+                              PWGALLERY_CONFIGRC_DIR,
+                              PWGALLERY_DEFAULT_TEMPL_DIR,
+                              PWGALLERY_DEFAULT_TEMPL_INDEXGEN);
+        g_key_file_set_value(keyfile, "Default", PWGALLERY_RCKEY_TEMPL_INDEXGEN,
+                             dir);
+        g_free(dir);
+
+        g_key_file_set_comment(keyfile, "Default",
+                               PWGALLERY_RCKEY_TEMPL_INDEXGEN, 
+                               _("Default template for index page per generic"),
+                               NULL);
+    }
+
     /* Image page template */
     if (g_key_file_has_key(keyfile, "Default", PWGALLERY_RCKEY_TEMPL_IMAGE,
                            NULL ) == FALSE)
@@ -293,6 +369,23 @@ set_defaults(GKeyFile *keyfile)
 
         g_key_file_set_comment(keyfile, "Default", PWGALLERY_RCKEY_TEMPL_IMAGE, 
                                _("Default template for image page"),
+                               NULL);
+    }
+
+    /* Generic page template */
+    if (g_key_file_has_key(keyfile, "Default", PWGALLERY_RCKEY_TEMPL_GEN,
+                           NULL ) == FALSE)
+    {        
+        dir = g_strdup_printf("file://%s/%s/%s/%s", g_get_home_dir(), 
+                              PWGALLERY_CONFIGRC_DIR,
+                              PWGALLERY_DEFAULT_TEMPL_DIR,
+                              PWGALLERY_DEFAULT_TEMPL_GEN);
+        g_key_file_set_value(keyfile, "Default", PWGALLERY_RCKEY_TEMPL_GEN,
+                             dir);
+        g_free(dir);
+
+        g_key_file_set_comment(keyfile, "Default", PWGALLERY_RCKEY_TEMPL_GEN, 
+                               _("Default template for generic page"),
                                NULL);
     }
 
@@ -375,6 +468,17 @@ set_rc_values(struct data *data, GKeyFile *keyfile)
     g_free(data->output_dir);
     data->output_dir = value;
 
+    /* Page generator style, no error checking.. */
+    data->page_gen = g_key_file_get_integer(keyfile, "Default",
+                                            PWGALLERY_RCKEY_PAGE_GEN,  NULL);
+
+    /* Page generator program */
+    value = g_key_file_get_value(keyfile, "Default",
+                                 PWGALLERY_RCKEY_PAGE_GEN_PROG,  NULL);
+    g_assert(value != NULL);
+    g_free(data->page_gen_prog);
+    data->page_gen_prog = value;
+
     /* Thumbnail width, no error checking.. */
     data->thumb_w = g_key_file_get_integer(keyfile, "Default",
                                            PWGALLERY_RCKEY_THUMB_W,  NULL);
@@ -382,6 +486,18 @@ set_rc_values(struct data *data, GKeyFile *keyfile)
     /* Image height, no error checking.. */
     data->image_h = g_key_file_get_integer(keyfile, "Default",
                                            PWGALLERY_RCKEY_IMAGE_H,  NULL);
+
+    /* Image height2, no error checking.. */
+    data->image_h2 = g_key_file_get_integer(keyfile, "Default",
+                                            PWGALLERY_RCKEY_IMAGE_H2,  NULL);
+
+    /* Image height3, no error checking.. */
+    data->image_h3 = g_key_file_get_integer(keyfile, "Default",
+                                            PWGALLERY_RCKEY_IMAGE_H3,  NULL);
+
+    /* Image height4, no error checking.. */
+    data->image_h4 = g_key_file_get_integer(keyfile, "Default",
+                                            PWGALLERY_RCKEY_IMAGE_H4,  NULL);
 
     /* Index page template */
     value = g_key_file_get_value(keyfile, "Default",
@@ -397,12 +513,26 @@ set_rc_values(struct data *data, GKeyFile *keyfile)
     g_free(data->templ_indeximg);
     data->templ_indeximg = value;
 
+    /* Index page per generic template */
+    value = g_key_file_get_value(keyfile, "Default",
+                                 PWGALLERY_RCKEY_TEMPL_INDEXGEN,  NULL);
+    g_assert(value != NULL);
+    g_free(data->templ_indexgen);
+    data->templ_indexgen = value;
+
     /* Image page template */
     value = g_key_file_get_value(keyfile, "Default",
                                  PWGALLERY_RCKEY_TEMPL_IMAGE,  NULL);
     g_assert(value != NULL);
     g_free(data->templ_image);
     data->templ_image = value;
+
+    /* Generic page template */
+    value = g_key_file_get_value(keyfile, "Default",
+                                 PWGALLERY_RCKEY_TEMPL_GEN,  NULL);
+    g_assert(value != NULL);
+    g_free(data->templ_gen);
+    data->templ_gen = value;
 
     /* Remove exif info, no error checking */
     data->remove_exif = g_key_file_get_boolean(keyfile, "Default",
@@ -443,6 +573,15 @@ get_rc_values(struct data *data, GKeyFile *keyfile)
     g_key_file_set_value(keyfile, "Default",
                          PWGALLERY_RCKEY_OUTPUT_DIR, data->output_dir);
 
+    /* Page generator style */
+    g_key_file_set_integer(keyfile, "Default",
+                           PWGALLERY_RCKEY_PAGE_GEN, data->page_gen);
+
+    /* Page generator program */
+    g_assert(data->page_gen_prog != NULL);
+    g_key_file_set_value(keyfile, "Default",
+                         PWGALLERY_RCKEY_PAGE_GEN_PROG, data->page_gen_prog);
+
     /* Thumbnail width */
     g_key_file_set_integer(keyfile, "Default",
                            PWGALLERY_RCKEY_THUMB_W, data->thumb_w);
@@ -450,6 +589,18 @@ get_rc_values(struct data *data, GKeyFile *keyfile)
     /* Image height */
     g_key_file_set_integer(keyfile, "Default",
                            PWGALLERY_RCKEY_IMAGE_H, data->image_h);
+
+    /* Image height2 */
+    g_key_file_set_integer(keyfile, "Default",
+                           PWGALLERY_RCKEY_IMAGE_H2, data->image_h2);
+
+    /* Image height3 */
+    g_key_file_set_integer(keyfile, "Default",
+                           PWGALLERY_RCKEY_IMAGE_H3, data->image_h3);
+
+    /* Image height4 */
+    g_key_file_set_integer(keyfile, "Default",
+                           PWGALLERY_RCKEY_IMAGE_H4, data->image_h4);
 
     /* Index page template */
     g_assert(data->templ_index != NULL);
@@ -461,10 +612,20 @@ get_rc_values(struct data *data, GKeyFile *keyfile)
     g_key_file_set_value(keyfile, "Default",
                          PWGALLERY_RCKEY_TEMPL_INDEXIMG, data->templ_indeximg);
 
+    /* Index page per generic template */
+    g_assert(data->templ_indexgen != NULL);
+    g_key_file_set_value(keyfile, "Default",
+                         PWGALLERY_RCKEY_TEMPL_INDEXGEN, data->templ_indexgen);
+
     /* Image page template */
     g_assert(data->templ_image != NULL);
     g_key_file_set_value(keyfile, "Default",
                          PWGALLERY_RCKEY_TEMPL_IMAGE, data->templ_image);
+
+    /* Generic page template */
+    g_assert(data->templ_gen != NULL);
+    g_key_file_set_value(keyfile, "Default",
+                         PWGALLERY_RCKEY_TEMPL_GEN, data->templ_gen);
 
     /* Remove exif info, no error checking */
     g_key_file_set_boolean(keyfile, "Default",

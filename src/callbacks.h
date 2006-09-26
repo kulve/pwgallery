@@ -24,36 +24,34 @@
 #include <gtk/gtk.h>
 
 /*
- * Quit clicked
+ * Quit
  */
-void on_button_pwg_quit_clicked(GtkToolButton *toolbutton,
-                                gpointer user_data);
+void on_menu_quit_activate(GtkMenuItem *menuitem,
+                           gpointer user_data);
 
 /*
- * Configure gallery button clicked
+ * Configure gallery
  */
-void on_button_gallery_configure_clicked(GtkToolButton *toolbutton,
-                                         gpointer user_data);
+void on_menu_gal_settings_activate(GtkMenuItem *menuitem,
+                                   gpointer user_data);
 
 /*
- * Open existing gallery button clicked
+ * Open existing gallery
  */
-void 
-on_button_gallery_open_clicked(GtkToolButton *toolbutton,
-                               gpointer user_data);
+void on_button_gallery_open_clicked(GtkToolButton *toolbutton,
+                                    gpointer user_data);
 
 /*
- * Add images to gallery button  clicked
+ * Add images to gallery
  */
-void 
-on_button_image_add_clicked(GtkToolButton *toolbutton,
-                            gpointer user_data);
+void on_button_image_add_clicked(GtkToolButton *toolbutton,
+                                 gpointer user_data);
 
 /*
- * PWGallery preferences button clicked
+ * PWGallery preferences 
  */
-void on_button_pwg_pref_clicked(GtkToolButton *toolbutton,
-                                gpointer user_data);
+void on_menu_preferences_activate(GtkMenuItem *menuitem,
+                                  gpointer user_data);
 
 /* 
  * Window manager sent delete event to main window (i.e. close)

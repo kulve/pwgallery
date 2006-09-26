@@ -116,12 +116,20 @@ widgets_prefs_show(struct data *data)
     GtkWidget *filechooserbutton_pref_img_dir;
     GtkWidget *filechooserbutton_pref_output_dir;
     GtkWidget *filechooserbutton_pref_gal_dir;
+    GtkWidget *radiobutton_pref_gen_templ;
+    GtkWidget *radiobutton_pref_gen_prog;
+    GtkWidget *filechooserbutton_pref_page_gen_prog;
     GtkWidget *filechooserbutton_pref_templ_dir;
-    GtkWidget *filechooserbutton_pref_templ_image;
-    GtkWidget *filechooserbutton_pref_templ_indeximg;
     GtkWidget *filechooserbutton_pref_templ_index;
+    GtkWidget *filechooserbutton_pref_templ_indeximg;
+    GtkWidget *filechooserbutton_pref_templ_indexgen;
+    GtkWidget *filechooserbutton_pref_templ_image;
+    GtkWidget *filechooserbutton_pref_templ_gen;
     GtkWidget *spinbutton_pref_thumb_w;
     GtkWidget *spinbutton_pref_image_h;
+    GtkWidget *spinbutton_pref_image_h2;
+    GtkWidget *spinbutton_pref_image_h3;
+    GtkWidget *spinbutton_pref_image_h4;
     GtkWidget *togglebutton_pref_hideexif;
     GtkWidget *togglebutton_pref_rename;
     gint result;
@@ -146,13 +154,29 @@ widgets_prefs_show(struct data *data)
     filechooserbutton_pref_templ_indeximg = 
         glade_xml_get_widget( data->glade,
                               "filechooserbutton_pref_templ_indeximg");
+    filechooserbutton_pref_templ_indexgen = 
+        glade_xml_get_widget( data->glade,
+                              "filechooserbutton_pref_templ_indexgen");
     filechooserbutton_pref_templ_index =
         glade_xml_get_widget( data->glade,
                               "filechooserbutton_pref_templ_index");
+    filechooserbutton_pref_templ_gen =
+        glade_xml_get_widget( data->glade,
+                              "filechooserbutton_pref_templ_gen");
     spinbutton_pref_thumb_w = 
         glade_xml_get_widget( data->glade, "spinbutton_pref_thumb_w");
     spinbutton_pref_image_h = 
         glade_xml_get_widget( data->glade, "spinbutton_pref_image_h");
+    spinbutton_pref_image_h2 = 
+        glade_xml_get_widget(data->glade, "spinbutton_pref_image_h2");
+    spinbutton_pref_image_h3 = 
+        glade_xml_get_widget(data->glade, "spinbutton_pref_image_h3");
+    spinbutton_pref_image_h4 = 
+        glade_xml_get_widget(data->glade, "spinbutton_pref_image_h4");
+    radiobutton_pref_gen_templ = 
+        glade_xml_get_widget(data->glade, "radiobutton_pref_gen_templ");
+    radiobutton_pref_gen_prog = 
+        glade_xml_get_widget(data->glade, "radiobutton_pref_gen_prog");
     togglebutton_pref_hideexif = 
         glade_xml_get_widget( data->glade, "togglebutton_pref_hideexif");
     togglebutton_pref_rename = 
@@ -178,23 +202,51 @@ widgets_prefs_show(struct data *data)
         GTK_FILE_CHOOSER(filechooserbutton_pref_templ_indeximg),
         data->templ_indeximg);
     gtk_file_chooser_set_uri(
+        GTK_FILE_CHOOSER(filechooserbutton_pref_templ_indexgen),
+        data->templ_indexgen);
+    gtk_file_chooser_set_uri(
         GTK_FILE_CHOOSER(filechooserbutton_pref_templ_image),
         data->templ_image);
+    gtk_file_chooser_set_uri(
+        GTK_FILE_CHOOSER(filechooserbutton_pref_templ_gen),
+        data->templ_gen);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton_pref_thumb_w),
                               (gdouble)data->thumb_w);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton_pref_image_h),
                               (gdouble)data->image_h);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton_pref_image_h2),
+                              (gdouble)data->image_h2);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton_pref_image_h3),
+                              (gdouble)data->image_h3);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton_pref_image_h4),
+                              (gdouble)data->image_h4);
+     radiobutton_pref_gen_templ = 
+        glade_xml_get_widget(data->glade, "radiobutton_pref_gen_templ");
+    radiobutton_pref_gen_prog = 
+        glade_xml_get_widget(data->glade, "radiobutton_pref_gen_prog");
+
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(togglebutton_pref_hideexif),
                                  data->remove_exif);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(togglebutton_pref_rename),
                                  data->rename);
 
-    /* show dialog */
-    result = gtk_dialog_run(GTK_DIALOG(dialog));
-    
-    /* cancel button pressed, do nothing */
-    if (result == GTK_RESPONSE_CANCEL)
-        return;
+    /* show dialog (in a loop because of help dialog) */
+    do
+    {
+        result = gtk_dialog_run(GTK_DIALOG(dialog));    
+        switch(result)
+        {
+        case GTK_RESPONSE_DELETE_EVENT:
+        case GTK_RESPONSE_CANCEL: /* hide dialog, save nothing, return */
+            gtk_widget_hide(dialog);
+            return;
+        case GTK_RESPONSE_HELP:   /* show help */
+            widgets_help_show(data, "Help for preferences window.");
+            break;
+        default:                  /* ok pressed, hide dialog */
+            gtk_widget_hide(dialog);
+        }
+    } while(result != GTK_RESPONSE_OK);
     
     /* save button pressed */
 
@@ -229,16 +281,45 @@ widgets_prefs_show(struct data *data)
         GTK_FILE_CHOOSER(filechooserbutton_pref_templ_indeximg));
     g_assert(data->templ_indeximg != NULL);
 
+    g_free(data->templ_indexgen);
+    data->templ_indexgen = gtk_file_chooser_get_uri(
+        GTK_FILE_CHOOSER(filechooserbutton_pref_templ_indexgen));
+    g_assert(data->templ_indexgen != NULL);
+
     g_free(data->templ_image);
     data->templ_image = gtk_file_chooser_get_uri(
         GTK_FILE_CHOOSER(filechooserbutton_pref_templ_image));
     g_assert(data->templ_image != NULL);
+
+    g_free(data->templ_gen);
+    data->templ_gen = gtk_file_chooser_get_uri(
+        GTK_FILE_CHOOSER(filechooserbutton_pref_templ_gen));
+    g_assert(data->templ_gen != NULL);
 
     data->thumb_w = (gint)gtk_spin_button_get_value(
         GTK_SPIN_BUTTON(spinbutton_pref_thumb_w));
 
     data->image_h = gtk_spin_button_get_value(
         GTK_SPIN_BUTTON(spinbutton_pref_image_h));
+    data->image_h2 = gtk_spin_button_get_value(
+        GTK_SPIN_BUTTON(spinbutton_pref_image_h2));
+    data->image_h3 = gtk_spin_button_get_value(
+        GTK_SPIN_BUTTON(spinbutton_pref_image_h3));
+    data->image_h4 = gtk_spin_button_get_value(
+        GTK_SPIN_BUTTON(spinbutton_pref_image_h4));
+
+    if (gtk_toggle_button_get_active(
+            GTK_TOGGLE_BUTTON(radiobutton_pref_gen_templ)) == TRUE)
+        data->page_gen = PWGALLERY_PAGE_GEN_TEMPL;
+    else
+        data->page_gen = PWGALLERY_PAGE_GEN_PROG;
+
+
+    g_free(data->page_gen_prog);
+    data->page_gen_prog = gtk_file_chooser_get_uri(
+        GTK_FILE_CHOOSER(filechooserbutton_pref_page_gen_prog));
+    g_assert(data->page_gen_prog != NULL);
+
 
     data->remove_exif = gtk_toggle_button_get_active(
         GTK_TOGGLE_BUTTON(togglebutton_pref_hideexif));
@@ -246,12 +327,262 @@ widgets_prefs_show(struct data *data)
     data->rename = gtk_toggle_button_get_active(
         GTK_TOGGLE_BUTTON(togglebutton_pref_rename));
 
-    gtk_widget_hide(dialog);
-
     /* save to disk */
     configrc_save(data);
 
 }
+
+
+
+void
+widgets_gal_settings_show(struct data *data)
+{
+	GtkWidget *dialog;
+    GtkWidget *entry_gal_name;
+    GtkWidget *textview_gal_desc;
+    GtkWidget *filechooserbutton_gal_dest_dir;
+    GtkWidget *spinbutton_gal_thumb_w;
+    GtkWidget *spinbutton_gal_image_h;
+    GtkWidget *spinbutton_gal_image_h2;
+    GtkWidget *spinbutton_gal_image_h3;
+    GtkWidget *spinbutton_gal_image_h4;
+    GtkWidget *radiobutton_gal_gen_templ;
+    GtkWidget *radiobutton_gal_gen_prog;
+    GtkWidget *filechooserbutton_gal_page_gen_prog;
+    GtkWidget *filechooserbutton_gal_templ_index;
+    GtkWidget *filechooserbutton_gal_templ_indeximg;
+    GtkWidget *filechooserbutton_gal_templ_indexgen;
+    GtkWidget *filechooserbutton_gal_templ_image;
+    GtkWidget *filechooserbutton_gal_templ_gen;
+    GtkWidget *togglebutton_gal_hideexif;
+    GtkWidget *togglebutton_gal_rename;
+
+    GtkTextIter end_iter;
+    GtkTextIter start_iter;
+    GtkTextBuffer *textview_buffer;
+    gint result;
+
+	g_assert(data != NULL);
+
+    /* Get widgets */
+    dialog = glade_xml_get_widget(data->glade, "dialog_gal");
+    entry_gal_name = 
+        glade_xml_get_widget(data->glade, "entry_gal_name");
+    textview_gal_desc = 
+        glade_xml_get_widget(data->glade, "textview_gal_desc");
+    filechooserbutton_gal_dest_dir = 
+        glade_xml_get_widget(data->glade, "filechooserbutton_gal_dest_dir");
+    spinbutton_gal_thumb_w = 
+        glade_xml_get_widget(data->glade, "spinbutton_gal_thumb_w");
+    spinbutton_gal_image_h = 
+        glade_xml_get_widget(data->glade, "spinbutton_gal_image_h");
+    spinbutton_gal_image_h2 = 
+        glade_xml_get_widget(data->glade, "spinbutton_gal_image_h2");
+    spinbutton_gal_image_h3 = 
+        glade_xml_get_widget(data->glade, "spinbutton_gal_image_h3");
+    spinbutton_gal_image_h4 = 
+        glade_xml_get_widget(data->glade, "spinbutton_gal_image_h4");
+    radiobutton_gal_gen_templ = 
+        glade_xml_get_widget(data->glade, "radiobutton_gal_gen_templ");
+    radiobutton_gal_gen_prog = 
+        glade_xml_get_widget(data->glade, "radiobutton_gal_gen_prog");
+    filechooserbutton_gal_page_gen_prog = 
+        glade_xml_get_widget( 
+            data->glade, "filechooserbutton_gal_page_gen_prog");
+    filechooserbutton_gal_templ_index = 
+        glade_xml_get_widget(data->glade, "filechooserbutton_gal_templ_index");
+    filechooserbutton_gal_templ_indeximg = 
+        glade_xml_get_widget( 
+            data->glade, "filechooserbutton_gal_templ_indeximg");
+    filechooserbutton_gal_templ_indexgen = 
+        glade_xml_get_widget( 
+            data->glade, "filechooserbutton_gal_templ_indexgen");
+    filechooserbutton_gal_templ_image = 
+        glade_xml_get_widget(data->glade, "filechooserbutton_gal_templ_image");
+    filechooserbutton_gal_templ_gen = 
+        glade_xml_get_widget(data->glade, "filechooserbutton_gal_templ_gen");
+    togglebutton_gal_hideexif = 
+        glade_xml_get_widget(data->glade, "togglebutton_gal_hideexif");
+    togglebutton_gal_rename = 
+        glade_xml_get_widget(data->glade, "togglebutton_gal_rename");
+
+
+    /* Set values */
+    gtk_entry_set_text(GTK_ENTRY(entry_gal_name), data->gal->name);
+    textview_buffer = 
+        gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview_gal_desc));
+    gtk_text_buffer_set_text(textview_buffer, data->gal->desc, -1);
+    gtk_file_chooser_set_uri(
+        GTK_FILE_CHOOSER(filechooserbutton_gal_dest_dir),
+        data->gal->output_dir);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton_gal_thumb_w),
+                              (gdouble)data->gal->thumb_w);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton_gal_image_h),
+                              (gdouble)data->gal->image_h);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton_gal_image_h2),
+                              (gdouble)data->gal->image_h2);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton_gal_image_h3),
+                              (gdouble)data->gal->image_h3);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton_gal_image_h4),
+                              (gdouble)data->gal->image_h4);
+    if (data->gal->page_gen == PWGALLERY_PAGE_GEN_TEMPL)
+        gtk_toggle_button_set_active(
+            GTK_TOGGLE_BUTTON(radiobutton_gal_gen_templ), TRUE);
+    else
+        gtk_toggle_button_set_active(
+            GTK_TOGGLE_BUTTON(radiobutton_gal_gen_prog), TRUE);
+    gtk_file_chooser_set_uri(
+        GTK_FILE_CHOOSER(filechooserbutton_gal_page_gen_prog),
+        data->gal->page_gen_prog);
+    gtk_file_chooser_set_uri(
+        GTK_FILE_CHOOSER(filechooserbutton_gal_templ_index), 
+        data->gal->templ_index);
+    gtk_file_chooser_set_uri(
+        GTK_FILE_CHOOSER(filechooserbutton_gal_templ_indeximg),
+        data->gal->templ_indeximg);
+    gtk_file_chooser_set_uri(
+        GTK_FILE_CHOOSER(filechooserbutton_gal_templ_indexgen),
+        data->gal->templ_indexgen);
+    gtk_file_chooser_set_uri(
+        GTK_FILE_CHOOSER(filechooserbutton_gal_templ_image),
+        data->gal->templ_image);
+    gtk_file_chooser_set_uri(
+        GTK_FILE_CHOOSER(filechooserbutton_gal_templ_gen),
+        data->gal->templ_gen);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(togglebutton_gal_hideexif),
+                                 data->gal->remove_exif);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(togglebutton_gal_rename),
+                                 data->gal->rename);
+
+    /* show dialog (in a loop because of help dialog) */
+    do
+    {
+        result = gtk_dialog_run(GTK_DIALOG(dialog));    
+        switch(result)
+        {
+        case GTK_RESPONSE_DELETE_EVENT:
+        case GTK_RESPONSE_CANCEL: /* hide dialog, save nothing, return */
+            gtk_widget_hide(dialog);
+            return;
+        case GTK_RESPONSE_HELP:   /* show help */
+            widgets_help_show(data, "Help for settings window.");
+            break;
+        default:                  /* ok pressed, hide dialog */
+            gtk_widget_hide(dialog);
+        }
+    } while(result != GTK_RESPONSE_OK);
+    
+    /* save button pressed */
+
+    /* get values */
+    g_free(data->gal->name);
+    data->gal->name = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry_gal_name)));
+
+    g_free(data->gal->desc);
+    gtk_text_buffer_get_end_iter(textview_buffer, &end_iter);
+    gtk_text_buffer_get_start_iter(textview_buffer, &start_iter);
+    data->gal->desc = gtk_text_buffer_get_text(textview_buffer,
+                                               &end_iter, &start_iter, TRUE);
+    g_warning(data->gal->desc);
+    g_free(data->gal->output_dir);
+    data->gal->output_dir = gtk_file_chooser_get_uri(
+        GTK_FILE_CHOOSER(filechooserbutton_gal_dest_dir));
+    g_assert(data->gal->output_dir != NULL);
+
+    g_free(data->gal->output_dir);
+    data->gal->output_dir = gtk_file_chooser_get_uri(
+        GTK_FILE_CHOOSER(filechooserbutton_gal_dest_dir));
+    g_assert(data->gal->output_dir != NULL);
+
+    data->gal->thumb_w = (gint)gtk_spin_button_get_value(
+        GTK_SPIN_BUTTON(spinbutton_gal_thumb_w));
+
+    data->gal->image_h = gtk_spin_button_get_value(
+        GTK_SPIN_BUTTON(spinbutton_gal_image_h));
+    data->gal->image_h2 = gtk_spin_button_get_value(
+        GTK_SPIN_BUTTON(spinbutton_gal_image_h2));
+    data->gal->image_h3 = gtk_spin_button_get_value(
+        GTK_SPIN_BUTTON(spinbutton_gal_image_h3));
+    data->gal->image_h4 = gtk_spin_button_get_value(
+        GTK_SPIN_BUTTON(spinbutton_gal_image_h4));
+
+    if (gtk_toggle_button_get_active(
+            GTK_TOGGLE_BUTTON(radiobutton_gal_gen_templ)) == TRUE)
+        data->gal->page_gen = PWGALLERY_PAGE_GEN_TEMPL;
+    else
+        data->gal->page_gen = PWGALLERY_PAGE_GEN_PROG;
+
+
+    g_free(data->gal->page_gen_prog);
+    data->gal->page_gen_prog = gtk_file_chooser_get_uri(
+        GTK_FILE_CHOOSER(filechooserbutton_gal_page_gen_prog));
+    /* FIXME: this is not implemented yet, so it can be NULL.. */
+    if (data->gal->page_gen_prog == NULL)
+        data->gal->page_gen_prog = g_strdup("file:///tmp/unimplemented.sh");
+
+
+    g_free(data->gal->templ_index);
+    data->gal->templ_index = gtk_file_chooser_get_uri(
+        GTK_FILE_CHOOSER(filechooserbutton_gal_templ_index));
+    g_assert(data->gal->templ_index != NULL);
+
+    g_free(data->gal->templ_indeximg);
+    data->gal->templ_indeximg = gtk_file_chooser_get_uri(
+        GTK_FILE_CHOOSER(filechooserbutton_gal_templ_indeximg));
+    g_assert(data->gal->templ_indeximg != NULL);
+
+    g_free(data->gal->templ_indexgen);
+    data->gal->templ_indexgen = gtk_file_chooser_get_uri(
+        GTK_FILE_CHOOSER(filechooserbutton_gal_templ_indexgen));
+    g_assert(data->gal->templ_indexgen != NULL);
+
+    g_free(data->gal->templ_image);
+    data->gal->templ_image = gtk_file_chooser_get_uri(
+        GTK_FILE_CHOOSER(filechooserbutton_gal_templ_image));
+    g_assert(data->templ_image != NULL);
+
+    g_free(data->gal->templ_gen);
+    data->gal->templ_gen = gtk_file_chooser_get_uri(
+        GTK_FILE_CHOOSER(filechooserbutton_gal_templ_gen));
+    g_assert(data->templ_gen != NULL);
+
+    data->gal->remove_exif = gtk_toggle_button_get_active(
+        GTK_TOGGLE_BUTTON(togglebutton_gal_hideexif));
+
+    data->gal->rename = gtk_toggle_button_get_active(
+        GTK_TOGGLE_BUTTON(togglebutton_gal_rename));
+
+    /* gallery (settings) has been now edited */
+    data->gal->edited = TRUE;
+}
+
+
+
+void
+widgets_help_show(struct data *data, const gchar *helptext)
+{
+	GtkWidget     *dialog;
+    GtkWidget     *textview;
+    GtkTextBuffer *buffer;
+    gint          result;
+
+	g_assert(data != NULL);
+	g_assert(helptext != NULL);
+
+    /* Get widgets */
+    dialog = glade_xml_get_widget( data->glade, "dialog_help");
+    textview = glade_xml_get_widget( data->glade, "textview_help");
+
+    /* Set values */
+    buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview));
+    gtk_text_buffer_set_text(buffer, helptext, -1);
+
+    /* show help dialog */
+    result = gtk_dialog_run(GTK_DIALOG(dialog));    
+    gtk_widget_hide(dialog);
+}
+
+
 
 /* Emacs indentatation information
    Local Variables:

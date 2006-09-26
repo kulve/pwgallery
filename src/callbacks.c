@@ -30,22 +30,34 @@
 #include <gtk/gtk.h>
 #include <glade/glade-xml.h>
 
-void 
-on_button_pwg_quit_clicked( GtkToolButton *toolbutton,
-                            gpointer user_data)
-{
-    g_debug("in on_button_pwg_quit_clicked");
+static void action_quit(gpointer user_data);
+static void action_show_preferences(gpointer user_data);
+static void action_show_gal_settings(gpointer user_data);
 
-    gtk_main_quit();
+/**********************************************************************
+ * Widget action functions. These just calls the actual function to do
+ * the things. This is trying to be an abstraction layer so that
+ * e.g. quit or open functions can be called easier when button is
+ * clicked or keyboard short cut is used.
+ **********************************************************************/
+
+
+void 
+on_menu_quit_activate( GtkMenuItem *menuitem,
+                       gpointer user_data)
+{
+    g_debug("in on_menu_quit_activate");
+
+    action_quit(user_data);
 }
 
 void 
-on_button_gallery_open_clicked(GtkToolButton *toolbutton,
-                               gpointer user_data)
+on_menu_preferences_activate(GtkMenuItem *menuitem,
+                             gpointer user_data)
 {
+    g_debug("in on_button_gallery_open_clicked");   
 
-    g_debug("in on_button_gallery_open_clicked");
-    
+    action_show_preferences(user_data);
 }
 
 
@@ -84,24 +96,13 @@ on_button_image_add_clicked(GtkToolButton *toolbutton,
 
 
 void
-on_button_gallery_configure_clicked(GtkToolButton *toolbutton,
-                                    gpointer user_data)
+on_menu_gal_settings_activate(GtkMenuItem *menuitem,
+                              gpointer user_data)
 {
-    g_debug("in on_button_gallery_configure_clicked");
+    g_debug("in on_menu_gal_settings_activate");
 
+    action_show_gal_settings(user_data);
 }
-
-
-
-void
-on_button_pwg_pref_clicked(GtkToolButton *toolbutton,
-                           gpointer user_data)
-{
-    g_debug("in on_button_pwg_pref_clicked");
-
-    widgets_prefs_show(user_data);
-}
-
 
 
 gboolean
@@ -111,12 +112,57 @@ on_mainwindow_delete_event(GtkWidget *widget,
 {
     g_debug("in on_mainwindow_delete_event");
 
-    gtk_main_quit();
+    action_quit(user_data);
 
     return FALSE;
 }
 
+/**********************************************************************
+ * The actions functions. These are called from above wrappers.
+ **********************************************************************/
 
+/*
+ * Quit
+ */
+static void 
+action_quit(gpointer user_data)
+{
+    g_assert(user_data != NULL );
+
+    g_debug("in action_quit");
+
+    gtk_main_quit();
+}
+
+
+
+/*
+ * Show preferences window
+ */
+static void 
+action_show_preferences(gpointer user_data)
+{
+    g_assert(user_data != NULL );
+
+    g_debug("in action_show_preferences");
+
+    widgets_prefs_show(user_data);
+}
+
+
+
+/*
+ * Show gallery settings window
+ */
+static void 
+action_show_gal_settings(gpointer user_data)
+{
+    g_assert(user_data != NULL );
+
+    g_debug("in action_show_gal_settings");
+
+    widgets_gal_settings_show(user_data);
+}
 
 /* Emacs indentatation information
    Local Variables:

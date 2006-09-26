@@ -49,6 +49,16 @@ void widgets_set_status(struct data *data, const gchar *text);
  */
 void widgets_prefs_show(struct data *data);
 
+/*
+ * Show gallery settings window
+ */
+void widgets_gal_settings_show(struct data *data);
+
+/*
+ * Show a help dialog
+ */
+void widgets_help_show(struct data *data, const gchar *helptext);
+
 #endif
 
 /* Emacs indentatation information

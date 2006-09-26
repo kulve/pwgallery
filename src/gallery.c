@@ -43,16 +43,26 @@ gallery_init(struct data *data)
 	data->gal = g_new0(struct gallery, 1);
 
 	data->gal->edited = TRUE;
+    data->gal->images = NULL;
 
 	/* Set default values */
-	data->gal->output_dir = data->output_dir;
-	data->gal->thumb_w = data->thumb_w;
-	data->gal->image_h = data->image_h;
-	data->gal->templ_index = g_strdup(data->templ_index);
+    data->gal->name           = g_strdup("");
+    data->gal->desc           = g_strdup("");
+	data->gal->output_dir     = data->output_dir;
+    data->gal->page_gen       = data->page_gen;
+    data->gal->page_gen_prog  = g_strdup(data->page_gen_prog);
+	data->gal->templ_index    = g_strdup(data->templ_index);
 	data->gal->templ_indeximg = g_strdup(data->templ_indeximg);
-	data->gal->templ_image = g_strdup(data->templ_image);
-	data->gal->remove_exif = data->remove_exif;
-	data->gal->rename = data->rename;
+	data->gal->templ_indexgen = g_strdup(data->templ_indexgen);
+	data->gal->templ_image    = g_strdup(data->templ_image);
+	data->gal->templ_gen      = g_strdup(data->templ_gen);
+	data->gal->thumb_w        = data->thumb_w;
+	data->gal->image_h        = data->image_h;
+	data->gal->image_h2       = data->image_h2;
+	data->gal->image_h3       = data->image_h3;
+	data->gal->image_h4       = data->image_h4;
+	data->gal->remove_exif    = data->remove_exif;
+	data->gal->rename         = data->rename;
 
 }
 
@@ -81,10 +91,15 @@ gallery_free(struct data *data)
 	g_slist_free(list);
 
 	/* free other fields */
-	g_free(data->gal->gal_name);
+	g_free(data->gal->name);
+	g_free(data->gal->desc);
 	g_free(data->gal->output_dir);
+	g_free(data->gal->page_gen_prog);
 	g_free(data->gal->templ_index);
 	g_free(data->gal->templ_image);
+	g_free(data->gal->templ_indeximg);
+	g_free(data->gal->templ_indexgen);
+	g_free(data->gal->templ_gen);
 
 	g_free(data->gal);
 	data->gal = NULL;
