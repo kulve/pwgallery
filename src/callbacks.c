@@ -32,7 +32,9 @@
 
 static void action_quit(gpointer user_data);
 static void action_show_preferences(gpointer user_data);
-static void action_show_gal_settings(gpointer user_data);
+static void action_gal_show_settings(gpointer user_data);
+static void action_gal_open(gpointer user_data);
+static void action_gal_save(gpointer user_data);
 
 /**********************************************************************
  * Widget action functions. These just calls the actual function to do
@@ -41,6 +43,9 @@ static void action_show_gal_settings(gpointer user_data);
  * clicked or keyboard short cut is used.
  **********************************************************************/
 
+/*
+ * File menu actions 
+ */
 
 void 
 on_menu_quit_activate( GtkMenuItem *menuitem,
@@ -51,6 +56,8 @@ on_menu_quit_activate( GtkMenuItem *menuitem,
     action_quit(user_data);
 }
 
+
+
 void 
 on_menu_preferences_activate(GtkMenuItem *menuitem,
                              gpointer user_data)
@@ -60,6 +67,44 @@ on_menu_preferences_activate(GtkMenuItem *menuitem,
     action_show_preferences(user_data);
 }
 
+
+/*
+ * Gallery menu actions 
+ */
+
+void
+on_menu_gal_settings_activate(GtkMenuItem *menuitem,
+                              gpointer user_data)
+{
+    g_debug("in on_menu_gal_settings_activate");
+
+    action_gal_show_settings(user_data);
+}
+
+void
+on_menu_open_activate(GtkMenuItem *menuitem,
+                      gpointer user_data)
+{
+    g_debug("in on_menu_open_activate");
+
+    action_gal_open(user_data);
+}
+
+
+
+void
+on_menu_save_activate(GtkMenuItem *menuitem,
+                      gpointer user_data)
+{
+    g_debug("in on_menu_open_activate");
+
+    action_gal_save(user_data);
+}
+
+
+/*
+ * Image menu actions 
+ */
 
 void 
 on_button_image_add_clicked(GtkToolButton *toolbutton,
@@ -94,16 +139,9 @@ on_button_image_add_clicked(GtkToolButton *toolbutton,
 }
 
 
-
-void
-on_menu_gal_settings_activate(GtkMenuItem *menuitem,
-                              gpointer user_data)
-{
-    g_debug("in on_menu_gal_settings_activate");
-
-    action_show_gal_settings(user_data);
-}
-
+/*
+ * Other callbacks
+ */
 
 gboolean
 on_mainwindow_delete_event(GtkWidget *widget,
@@ -119,6 +157,7 @@ on_mainwindow_delete_event(GtkWidget *widget,
 
 /**********************************************************************
  * The actions functions. These are called from above wrappers.
+ * CHECKME: the one-liners could be called directly..
  **********************************************************************/
 
 /*
@@ -155,13 +194,73 @@ action_show_preferences(gpointer user_data)
  * Show gallery settings window
  */
 static void 
-action_show_gal_settings(gpointer user_data)
+action_gal_show_settings(gpointer user_data)
 {
     g_assert(user_data != NULL );
 
-    g_debug("in action_show_gal_settings");
+    g_debug("in action_gal_show_settings");
 
     widgets_gal_settings_show(user_data);
+}
+
+/*
+ * Open gallery
+ */
+static void 
+action_gal_open(gpointer user_data)
+{
+    struct data *data;
+    GtkWidget *dialog;
+    gchar *uri;
+
+    g_assert(user_data != NULL );
+
+    g_debug("in action_gal_open");
+
+    data = user_data;
+
+    dialog = gtk_file_chooser_dialog_new(_("Open Gallery"),
+                                         GTK_WINDOW(data->top_window),
+                                         GTK_FILE_CHOOSER_ACTION_OPEN,
+                                         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                         GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+                                         NULL);
+
+    gtk_file_chooser_set_current_folder_uri(GTK_FILE_CHOOSER(dialog), 
+                                            data->gal_dir);
+    gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), FALSE);
+
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
+    {
+        uri = gtk_file_chooser_get_uri(GTK_FILE_CHOOSER(dialog));
+    } 
+    else
+    {
+        gtk_widget_destroy (dialog);
+        return;
+    }
+    gtk_widget_destroy (dialog);
+
+    g_assert(uri != NULL); /* CHECKME: better error handling? */
+    gallery_open(data, uri);
+    g_free(uri);
+}
+
+/*
+ * Save gallery
+ */
+static void 
+action_gal_save(gpointer user_data)
+{
+    struct data *data;
+
+    g_assert(user_data != NULL );
+
+    g_debug("in action_gal_save");
+
+    data = user_data;
+
+    gallery_save(data);
 }
 
 /* Emacs indentatation information

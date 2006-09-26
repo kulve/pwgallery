@@ -38,8 +38,14 @@ void on_menu_gal_settings_activate(GtkMenuItem *menuitem,
 /*
  * Open existing gallery
  */
-void on_button_gallery_open_clicked(GtkToolButton *toolbutton,
-                                    gpointer user_data);
+void on_menu_open_activate(GtkMenuItem *menuitem,
+                           gpointer user_data);
+
+/*
+ * Save gallery
+ */
+void on_menu_save_activate(GtkMenuItem *menuitem,
+                           gpointer user_data);
 
 /*
  * Add images to gallery

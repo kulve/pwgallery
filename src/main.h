@@ -167,7 +167,8 @@ struct data
 
 struct gallery
 {
-    GSList         *images;
+    GSList         *images;            /* list of images in the gallery */
+    gchar          *uri;               /* uri to the gallery file */
     gchar          *name;              /* name of the current gal. */
     gchar          *desc;              /* description of the current gal. */
     gchar          *output_dir;        /* gallery's output dir */

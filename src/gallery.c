@@ -46,6 +46,7 @@ gallery_init(struct data *data)
     data->gal->images = NULL;
 
 	/* Set default values */
+	data->gal->uri            = g_strdup("");
     data->gal->name           = g_strdup("");
     data->gal->desc           = g_strdup("");
 	data->gal->output_dir     = data->output_dir;
@@ -91,6 +92,7 @@ gallery_free(struct data *data)
 	g_slist_free(list);
 
 	/* free other fields */
+	g_free(data->gal->uri);
 	g_free(data->gal->name);
 	g_free(data->gal->desc);
 	g_free(data->gal->output_dir);
@@ -103,6 +105,37 @@ gallery_free(struct data *data)
 
 	g_free(data->gal);
 	data->gal = NULL;
+}
+
+
+
+void
+gallery_open(struct data *data, const gchar *uri)
+{
+    g_assert(data != NULL );
+    g_assert(uri != NULL );
+
+    g_debug("in gallery_open: %s", uri);
+
+    g_free(data->gal->uri);
+    data->gal->uri = g_strdup(uri);
+
+    /* no need to save an gallery that is just opened */
+	data->gal->edited = FALSE;
+
+}
+
+
+
+void
+gallery_save(struct data *data)
+{
+    g_assert(data != NULL );
+
+    g_debug("in gallery_save: not implemented");
+
+    /* not edited anymore */
+    data->gal->edited = FALSE;
 }
 
 
@@ -153,9 +186,14 @@ gallery_add_images(struct data *data, GSList *uris)
 	widgets_update_table(data);
 
 	/* set progress and status */
+    /* FIXME: add info about image count */
 	widgets_set_progress(data, 0, _("Idle"));
 	g_snprintf(p_text, 128, "%d %s", tot_files, _("Images"));
 	widgets_set_status(data, p_text);
+
+    /* gallery edited */
+    data->gal->edited = TRUE;
+
 }
 
 

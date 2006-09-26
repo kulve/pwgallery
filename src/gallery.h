@@ -33,6 +33,16 @@
 void gallery_init(struct data *data);
 
 /* 
+ * Open gallery
+ */
+void gallery_open(struct data *data, const gchar *uri);
+
+/* 
+ * Save gallery
+ */
+void gallery_save(struct data *data);
+
+/* 
  * Free gallery
  */
 void gallery_free(struct data *data);
