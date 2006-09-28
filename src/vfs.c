@@ -141,6 +141,7 @@ vfs_write_file(struct data *data, const gchar *uri, const gchar *content,
     {
         vfs_mkdir(data, dir);
     }       
+    g_free(dir);
 
     /* open uri */
     result = gnome_vfs_create_uri(&handle, vfsuri,

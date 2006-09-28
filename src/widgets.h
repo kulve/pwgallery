@@ -55,6 +55,11 @@ void widgets_prefs_show(struct data *data);
 void widgets_gal_settings_show(struct data *data);
 
 /*
+ * Show About dialog
+ */
+void widgets_about_show(struct data *data);
+
+/*
  * Show a help dialog
  */
 void widgets_help_show(struct data *data, const gchar *helptext);

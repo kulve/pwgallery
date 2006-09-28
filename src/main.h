@@ -192,6 +192,7 @@ struct gallery
 
 struct image
 {
+    /* FIXME: is image need? Would child-of-button do? */
     GtkWidget       *image;            /* pointer to image widget */
     GtkWidget       *button;           /* pointer to button widget */
     gint            width;             /* modified width of the image */
@@ -199,7 +200,8 @@ struct image
     gint            rotate;            /* rotation of the image */
     gfloat          gamma;             /* gamma of the image */
     gchar           *text;             /* image description */
-    gchar           *uri;              /* URI to the original/edited image */
+    gchar           *uri;              /* URI to the original image */
+    /* FIXME: add edited uri */
     gboolean        nomodify;          /* do not modify flag */
 };
 

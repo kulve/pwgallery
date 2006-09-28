@@ -1,5 +1,5 @@
 AC_INIT(Makefile.am)
-AM_INIT_AUTOMAKE(pwgallery, 0.9.0)
+AM_INIT_AUTOMAKE(pwgallery, 0.1.0)
 AM_CONFIG_HEADER(config.h)
 
 dnl Set of available languages.
@@ -44,6 +44,10 @@ AC_SUBST(GNOMEVFS_CFLAGS)
 PKG_CHECK_MODULES(GMODULE, gmodule-2.0 >= 2.10.2)
 AC_SUBST(GMODULE_LIBS)
 AC_SUBST(GMODULE_CFLAGS)
+
+PKG_CHECK_MODULES(XML, libxml-2.0 >= 2.6.16)
+AC_SUBST(XML_LIBS)
+AC_SUBST(XML_CFLAGS)
 
 dnl Checks for header files.
 AC_HEADER_STDC

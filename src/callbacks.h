@@ -23,6 +23,13 @@
 
 #include <gtk/gtk.h>
 
+
+/*
+ * PWGallery preferences 
+ */
+void on_menu_preferences_activate(GtkMenuItem *menuitem,
+                                  gpointer user_data);
+
 /*
  * Quit
  */
@@ -30,34 +37,46 @@ void on_menu_quit_activate(GtkMenuItem *menuitem,
                            gpointer user_data);
 
 /*
- * Configure gallery
+ * Gallery -> Settings
  */
 void on_menu_gal_settings_activate(GtkMenuItem *menuitem,
                                    gpointer user_data);
+/*
+ * Gallery -> New
+ */
+void on_menu_new_activate(GtkMenuItem *menuitem,
+                          gpointer user_data);
+
 
 /*
- * Open existing gallery
+ * Gallery -> Open
  */
 void on_menu_open_activate(GtkMenuItem *menuitem,
                            gpointer user_data);
 
 /*
- * Save gallery
+ * Gallery -> Save
  */
 void on_menu_save_activate(GtkMenuItem *menuitem,
                            gpointer user_data);
 
 /*
- * Add images to gallery
+ * Gallery -> Save as
  */
-void on_button_image_add_clicked(GtkToolButton *toolbutton,
-                                 gpointer user_data);
+void on_menu_save_as_activate(GtkMenuItem *menuitem,
+                              gpointer user_data);
 
 /*
- * PWGallery preferences 
+ * Image -> Add images to gallery
  */
-void on_menu_preferences_activate(GtkMenuItem *menuitem,
-                                  gpointer user_data);
+void on_menu_add_image_activate(GtkMenuItem *menuitem,
+                                gpointer user_data);
+
+/*
+ * Help -> about
+ */
+void on_menu_about_activate(GtkMenuItem *menuitem,
+                            gpointer user_data);
 
 /* 
  * Window manager sent delete event to main window (i.e. close)

@@ -163,6 +163,8 @@ free_data(struct data *data)
     g_assert(data);
 
     gallery_free(data);
+
+    g_object_unref(data->glade);
     g_free(data->img_dir);
     g_free(data->output_dir);
     g_free(data->gal_dir);

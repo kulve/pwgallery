@@ -86,6 +86,8 @@ configrc_load(struct data *data)
                                        G_KEY_FILE_KEEP_TRANSLATIONS ,
                                        NULL);
         g_assert(ok == TRUE);
+        g_free(configrc_data);
+        configrc_data = NULL;
     }
 
     /* set defaults for those keys that are missing */
@@ -99,6 +101,7 @@ configrc_load(struct data *data)
     set_rc_values(data, keyfile);
 
     g_free(configrc_data);
+    g_free(configrc_file);
     g_key_file_free(keyfile);
 
 

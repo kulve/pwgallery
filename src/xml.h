@@ -17,8 +17,8 @@
  * USA.
  */
 
-#ifndef PWGALLERY_GALLERY_H
-#define PWGALLERY_GALLERY_H
+#ifndef PWGALLERY_XML_H
+#define PWGALLERY_XML_H
 
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
@@ -27,47 +27,11 @@
 #include "main.h"
 
 #include <glib.h>
-#include <gtk/gtk.h>
+#include <libxml/parser.h>
 
-/* 
- * Initialize gallery
- */
-void gallery_init(struct data *data);
-
-/* 
- * New gallery
- */
-void gallery_new(struct data *data);
-
-/* 
- * Open gallery
- */
-void gallery_open(struct data *data);
-
-/* 
- * Save gallery
- */
-void gallery_save(struct data *data);
-
-/* 
- * Save gallery as
- */
-void gallery_save_as(struct data *data);
-
-/* 
- * Free gallery
- */
-void gallery_free(struct data *data);
-
-/*
- * Add new images to gallery
- */
-void gallery_add_new_images(struct data *data, GSList *uris);
-
-/*
- * Open existing images to gallery
- */
-void gallery_open_images(struct data *data, GSList *imgs);
+gchar *xml_gal_write(struct data *data, gsize *len);
+void xml_gal_parse(struct data *data, gchar *content, gsize len);
+void xml_gal_parse_settings(struct data *data, xmlNodePtr node);
 
 #endif
 

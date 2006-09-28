@@ -42,6 +42,17 @@ image_init(struct data *data)
 
 	img = g_new0(struct image, 1);
 
+    /* initialize values */
+    img->image    = NULL;
+    img->button   = NULL;
+    img->width    = 0;
+    img->height   = 0;
+    img->rotate   = 0;
+    img->gamma    = 1.0;
+    img->text     = g_strdup("");
+    img->uri      = g_strdup("");
+    img->nomodify = FALSE;
+        
 	return img;
 }
 
@@ -53,13 +64,10 @@ image_free(struct image *img)
 	g_assert(img != NULL);
 	
 	/* destroy widgets */
-	if (img->image)
-		gtk_widget_destroy(img->image);
-
 	if (img->button)
 	{
-		g_object_unref(img->button);
 		gtk_widget_destroy(img->button);
+        /* No need to destroy img->image, since its contained in the button */
 	}
 
 	/* free other fields */
@@ -140,7 +148,7 @@ image_open(struct data *data, gchar *uri)
 		
 	}
 
-    gdk_pixbuf_loader_close (loader, NULL); /* no more writes */
+    gdk_pixbuf_loader_close(loader, NULL); /* no more writes */
 	gnome_vfs_close(handle); /* ignore result */
 	
 	/* create button and set colors */
@@ -172,9 +180,14 @@ image_open(struct data *data, gchar *uri)
     gtk_container_set_border_width( GTK_CONTAINER( img->button ), 
 				    PWGALLERY_THUMBNAIL_BORDER_WIDTH );
 
+    /* Set default values for a new image */
 	img->nomodify = FALSE;
     img->gamma    = 1.0;
+
+    g_free(img->text);
     img->text     = g_strdup( _("Add text") );
+
+    g_free(img->uri);
     img->uri      = uri;
 
     return img;	

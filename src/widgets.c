@@ -483,7 +483,6 @@ widgets_gal_settings_show(struct data *data)
     gtk_text_buffer_get_start_iter(textview_buffer, &start_iter);
     data->gal->desc = gtk_text_buffer_get_text(textview_buffer,
                                                &end_iter, &start_iter, TRUE);
-    g_warning(data->gal->desc);
     g_free(data->gal->output_dir);
     data->gal->output_dir = gtk_file_chooser_get_uri(
         GTK_FILE_CHOOSER(filechooserbutton_gal_dest_dir));
@@ -554,6 +553,21 @@ widgets_gal_settings_show(struct data *data)
 
     /* gallery (settings) has been now edited */
     data->gal->edited = TRUE;
+}
+
+
+
+void widgets_about_show(struct data *data)
+{
+    GtkWidget *dialog;
+
+    g_assert(data != NULL);
+
+    dialog = glade_xml_get_widget( data->glade, "aboutdialog");
+	g_assert(dialog != NULL);
+
+    gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_hide(dialog);
 }
 
 

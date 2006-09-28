@@ -33,8 +33,12 @@
 static void action_quit(gpointer user_data);
 static void action_show_preferences(gpointer user_data);
 static void action_gal_show_settings(gpointer user_data);
+static void action_gal_new(gpointer user_data);
 static void action_gal_open(gpointer user_data);
 static void action_gal_save(gpointer user_data);
+static void action_gal_save_as(gpointer user_data);
+static void action_image_add(gpointer user_data);
+static void action_about_show(gpointer user_data);
 
 /**********************************************************************
  * Widget action functions. These just calls the actual function to do
@@ -81,6 +85,19 @@ on_menu_gal_settings_activate(GtkMenuItem *menuitem,
     action_gal_show_settings(user_data);
 }
 
+
+
+void
+on_menu_new_activate(GtkMenuItem *menuitem,
+                     gpointer user_data)
+{
+    g_debug("in on_menu_new_activate");
+
+    action_gal_new(user_data);
+}
+
+
+
 void
 on_menu_open_activate(GtkMenuItem *menuitem,
                       gpointer user_data)
@@ -96,9 +113,19 @@ void
 on_menu_save_activate(GtkMenuItem *menuitem,
                       gpointer user_data)
 {
-    g_debug("in on_menu_open_activate");
+    g_debug("in on_menu_save_activate");
 
     action_gal_save(user_data);
+}
+
+
+void
+on_menu_save_as_activate(GtkMenuItem *menuitem,
+                      gpointer user_data)
+{
+    g_debug("in on_menu_save_as_activate");
+
+    action_gal_save_as(user_data);
 }
 
 
@@ -107,37 +134,31 @@ on_menu_save_activate(GtkMenuItem *menuitem,
  */
 
 void 
-on_button_image_add_clicked(GtkToolButton *toolbutton,
+on_menu_add_image_activate(GtkMenuItem *menuitem,
+                           gpointer user_data)
+{
+    g_debug("on_menu_add_image_activate");
+    
+    action_image_add(user_data);
+}
+
+/*
+ * Help menu actions 
+ */
+
+void on_menu_about_activate(GtkMenuItem *menuitem,
                             gpointer user_data)
 {
     struct data *data;
-    GtkWidget *dialog;
 
-    g_debug("in on_button_gallery_open_clicked");
+    g_debug("in on_menu_about_activat");
     
     g_assert(user_data != NULL);
 
     data = user_data;
 
-    dialog = gtk_file_chooser_dialog_new("Select Images",
-                                         GTK_WINDOW(data->top_window),
-                                         GTK_FILE_CHOOSER_ACTION_OPEN,
-                                         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                                         GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
-                                         NULL);
-    
-    /* FIXME: gtk_file_chooser_set_current_folder () */
-    gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), TRUE);
-
-    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
-    {
-        gallery_add_images(data, 
-                           gtk_file_chooser_get_uris(GTK_FILE_CHOOSER(dialog)));
-    }
-
-    gtk_widget_destroy (dialog);
+    action_about_show(data);
 }
-
 
 /*
  * Other callbacks
@@ -169,6 +190,8 @@ action_quit(gpointer user_data)
     g_assert(user_data != NULL );
 
     g_debug("in action_quit");
+
+    /* FIXME: check for data->gal->edited */
 
     gtk_main_quit();
 }
@@ -203,6 +226,27 @@ action_gal_show_settings(gpointer user_data)
     widgets_gal_settings_show(user_data);
 }
 
+
+
+/*
+ * New gallery
+ */
+static void 
+action_gal_new(gpointer user_data)
+{
+    struct data *data;
+    
+    g_assert(user_data != NULL );
+    
+    g_debug("in action_gal_new");
+    
+    data = user_data;
+    
+    gallery_new(data);
+}
+
+
+
 /*
  * Open gallery
  */
@@ -210,41 +254,17 @@ static void
 action_gal_open(gpointer user_data)
 {
     struct data *data;
-    GtkWidget *dialog;
-    gchar *uri;
-
+    
     g_assert(user_data != NULL );
-
+    
     g_debug("in action_gal_open");
-
+    
     data = user_data;
-
-    dialog = gtk_file_chooser_dialog_new(_("Open Gallery"),
-                                         GTK_WINDOW(data->top_window),
-                                         GTK_FILE_CHOOSER_ACTION_OPEN,
-                                         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                                         GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
-                                         NULL);
-
-    gtk_file_chooser_set_current_folder_uri(GTK_FILE_CHOOSER(dialog), 
-                                            data->gal_dir);
-    gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), FALSE);
-
-    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
-    {
-        uri = gtk_file_chooser_get_uri(GTK_FILE_CHOOSER(dialog));
-    } 
-    else
-    {
-        gtk_widget_destroy (dialog);
-        return;
-    }
-    gtk_widget_destroy (dialog);
-
-    g_assert(uri != NULL); /* CHECKME: better error handling? */
-    gallery_open(data, uri);
-    g_free(uri);
+    
+    gallery_open(data);
 }
+
+
 
 /*
  * Save gallery
@@ -262,6 +282,86 @@ action_gal_save(gpointer user_data)
 
     gallery_save(data);
 }
+
+
+
+/*
+ * Save gallery as
+ */
+static void 
+action_gal_save_as(gpointer user_data)
+{
+    struct data *data;
+
+    g_assert(user_data != NULL );
+
+    g_debug("in action_gal_save_as");
+
+    data = user_data;
+
+    gallery_save_as(data);
+}
+
+
+
+/*
+ * Add images to gallery
+ */
+static void action_image_add(gpointer user_data)
+{
+    struct data *data;
+    GtkWidget *dialog;
+    int result;
+    GSList *uris;
+
+    g_assert(user_data != NULL);
+
+    data = user_data;
+
+    dialog = gtk_file_chooser_dialog_new("Select Images",
+                                         GTK_WINDOW(data->top_window),
+                                         GTK_FILE_CHOOSER_ACTION_OPEN,
+                                         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                         GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+                                         NULL);
+    
+    gtk_file_chooser_set_current_folder_uri(GTK_FILE_CHOOSER(dialog), 
+                                            data->img_dir);
+    gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), TRUE);
+
+    result = gtk_dialog_run(GTK_DIALOG(dialog));
+    if (result != GTK_RESPONSE_ACCEPT)
+    {
+        gtk_widget_destroy (dialog);
+        return;
+    }
+
+    uris = gtk_file_chooser_get_uris(GTK_FILE_CHOOSER(dialog));
+
+    gtk_widget_destroy (dialog);
+
+    gallery_add_new_images(data, uris);    
+}
+
+
+
+/*
+ * Show About dialog
+ */
+static void action_about_show(gpointer user_data)
+{
+    struct data *data;
+
+    g_assert(user_data != NULL );
+
+    g_debug("in action_gal_save_as");
+
+    data = user_data;
+
+    widgets_about_show(data);
+}
+
+
 
 /* Emacs indentatation information
    Local Variables:
