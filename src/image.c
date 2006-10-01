@@ -23,6 +23,7 @@
 
 #include "main.h"
 #include "image.h"
+#include "gallery.h"
 
 #include <glib.h>
 #include <gtk/gtk.h>
@@ -168,11 +169,9 @@ image_open(struct data *data, gchar *uri)
     gtk_widget_modify_bg( img->button, GTK_STATE_SELECTED, &color);
     gtk_widget_modify_bg( img->button, GTK_STATE_PRELIGHT, &prelight );
 
-	/* FIXME: implement */
-	/*
     g_signal_connect( img->button, "button_press_event", 
-		      G_CALLBACK( select_img ), glcgal );
-	*/
+		      G_CALLBACK( gallery_image_selected ), data );
+
     img->image = 
 		gtk_image_new_from_pixbuf( gdk_pixbuf_loader_get_pixbuf( loader ) );
 

@@ -65,9 +65,26 @@ void gallery_free(struct data *data);
 void gallery_add_new_images(struct data *data, GSList *uris);
 
 /*
+ * Remove image from gallery
+ */
+void gallery_remove_image(struct data *data, struct image *img);
+
+/*
  * Open existing images to gallery
  */
 void gallery_open_images(struct data *data, GSList *imgs);
+
+/*
+ * User selected an image (clicked gtk button containing the image)
+ */
+gboolean gallery_image_selected(GtkWidget *widget,
+                                GdkEventButton *event,
+                                gpointer user_data);
+
+/*
+ * Saves image description text from the text view to the image struct.
+ */
+void gallery_image_save_text(struct data *data);
 
 #endif
 

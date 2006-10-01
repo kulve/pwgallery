@@ -142,6 +142,8 @@ struct data
     GladeXML       *glade;             /* Glade XML */
     GtkWidget      *top_window;        /* pointer to top level window */
     struct gallery *gal;               /* pointer to current gallery */
+    struct image   *current_img;       /* Currently selected image */
+    gboolean       *text_edited;       /* Content of textview is changed*/
 
     gchar          *img_dir;           /* image directory */
     gchar          *output_dir;        /* Default gallery's output dir */
@@ -185,6 +187,7 @@ struct gallery
     gint           image_h3;           /* height of web images3 */
     gint           image_h4;           /* height of web images4 */
     gboolean       edited;             /* is the gallery edited */
+    /* FIXME: should "remove_exif" be actually convert's strip? */
     gboolean       remove_exif;        /* remove exif info */
     gboolean       rename;             /* rename images */
 
@@ -202,6 +205,8 @@ struct image
     gchar           *text;             /* image description */
     gchar           *uri;              /* URI to the original image */
     /* FIXME: add edited uri */
+    /* FIXME: add renamed uri */
+    /* FIXME: add page gen int */
     gboolean        nomodify;          /* do not modify flag */
 };
 

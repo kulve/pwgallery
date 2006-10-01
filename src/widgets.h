@@ -39,10 +39,22 @@ void widgets_update_table(struct data *data);
 void widgets_set_progress(struct data *data, gfloat fraction, 
 						  const gchar *text);
 
+/*
+ * Update the information on the main window. If img is null, clear
+ * the information.
+ */
+void widgets_set_image_information(struct data *data, struct image *img);
+
 /* 
  * Set status text
  */
 void widgets_set_status(struct data *data, const gchar *text);
+
+/* 
+ * Get image description text. Returns newly allocated text. This
+ * function must not be called if current image is not selected.
+ */
+gchar *widgets_image_get_text(struct data *data);
 
 /*
  * Show pwg preferences window

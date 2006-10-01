@@ -30,7 +30,7 @@
 
 #include <glib.h>
 #include <gtk/gtk.h>
-#include <string.h>        /* memset */
+#include <string.h>        /* memset, strcmp */
 
 void
 gallery_init(struct data *data)
@@ -44,6 +44,8 @@ gallery_init(struct data *data)
 		gallery_free(data);
 
 	data->gal = g_new0(struct gallery, 1);
+
+    data->current_img = NULL; /* no currently selected image */
 
 	data->gal->edited = FALSE;
     data->gal->images = NULL;
@@ -282,6 +284,9 @@ gallery_open(struct data *data)
     xml_gal_parse(data, xml_content, xml_content_len);
     g_free(xml_content);
 
+    /* update the image text etc shown in the main window */
+    widgets_set_image_information(data, data->current_img);
+
     /* no need to save an gallery that is just opened */
 	data->gal->edited = FALSE;
 
@@ -379,6 +384,8 @@ gallery_add_new_images(struct data *data, GSList *uris)
 	g_assert(data != NULL);
 	g_assert(uris != NULL);
 
+    g_debug("in gallery_add_new_images");
+
 	first = uris;
 	tot_files = g_slist_length(uris); /* number of images to add */
 	file_counter = 0;
@@ -403,14 +410,18 @@ gallery_add_new_images(struct data *data, GSList *uris)
 			gtk_widget_show( img->image );
 			gtk_widget_show( img->button );
 
-
+            while (g_main_context_iteration(NULL, FALSE));
 		}
 		uris = uris->next;
 	}
 
 	g_slist_free(first);
 
-	widgets_update_table(data);
+    /* select first image, if there was no images before this addition */
+    if (data->current_img == NULL)
+        data->current_img = (struct image *)(data->gal->images->data);
+
+    widgets_update_table(data);
     
     /* total files now in the gallery */
 	tot_files = g_slist_length(data->gal->images);
@@ -438,7 +449,9 @@ gallery_open_images(struct data *data, GSList *imgs)
 	gchar        p_text[128];
 
 	g_assert(data != NULL);
-	g_assert(imgs != NULL);
+    /* imgs can be null */
+
+    g_debug("in gallery_open_images");
 
 	first = imgs;
 	tot_files = g_slist_length(imgs); /* number of images to open */
@@ -453,7 +466,7 @@ gallery_open_images(struct data *data, GSList *imgs)
 	while (imgs)
 	{
         tmpimg = imgs->data;
-		img = image_open(data, tmpimg->uri);
+		img = image_open(data, g_strdup(tmpimg->uri));
 		if (img != NULL)
 		{
 			/* update progress */
@@ -472,12 +485,16 @@ gallery_open_images(struct data *data, GSList *imgs)
             img->rotate   = tmpimg->rotate;
             img->nomodify = tmpimg->nomodify;
             
-            image_free(tmpimg);
+            while (g_main_context_iteration(NULL, FALSE));
 		}
+        image_free(tmpimg);
 		imgs = imgs->next;
 	}
 
 	g_slist_free(first);
+
+    /* select first image of the gallery */
+    data->current_img = (struct image *)(data->gal->images->data);
 
 	widgets_update_table(data);
     
@@ -494,6 +511,136 @@ gallery_open_images(struct data *data, GSList *imgs)
 }
 
 
+
+void
+gallery_remove_image(struct data *data, struct image *img)
+{
+    gint current_no;
+    gint tot_files;
+ 	gchar p_text[128];
+    GSList *tmplist;
+
+	g_assert(data != NULL);
+	g_assert(img != NULL);
+
+    g_debug("in gallery_remove_image");
+
+    /* get the index number of the currently selected image */
+    current_no = g_slist_index(data->gal->images, img);
+    g_assert(current_no > -1);
+
+    /* free image and remove it from the list */
+    data->gal->images = g_slist_remove(data->gal->images, img);
+    image_free(img);
+
+    /* set currently selected image to the next one of the deleted image */
+    tmplist = g_slist_nth(data->gal->images, current_no);
+
+    /* select the last image if deleted one was the last one */
+    if (tmplist != NULL)
+    {
+        data->current_img = tmplist->data;
+    }
+    else
+    {
+        tmplist = g_slist_last(data->gal->images);
+        if (tmplist != NULL)
+            data->current_img = tmplist->data;
+        else
+            data->current_img = NULL;
+    }
+
+    /* update the thumbnail list */
+	widgets_update_table(data);
+
+   /* total files now in the gallery */
+	tot_files = g_slist_length(data->gal->images);
+
+    /* update the image text etc shown in the main window */
+    widgets_set_image_information(data, data->current_img);
+
+	/* set progress and status */
+	g_snprintf(p_text, 128, "%d %s", tot_files, 
+               tot_files == 1 ? _("Image") : _("Images"));
+	widgets_set_status(data, p_text);
+
+    data->gal->edited = TRUE;
+}
+
+
+
+gboolean
+gallery_image_selected(GtkWidget *widget,
+                       GdkEventButton *event,
+                       gpointer user_data)
+{
+    GSList *imgs;
+    struct data *data;
+    struct image *img = NULL;
+
+	g_assert(widget != NULL);
+	g_assert(event != NULL);
+	g_assert(user_data != NULL);
+
+    g_debug("in gallery_image_selected");
+
+    data = user_data;
+
+    /* Find out which button was pressed by going through all image
+     * buttons and matching pointer address.
+     * CHECKME: This should be probably implemented in some more sane way 
+     */
+    imgs = data->gal->images;
+    while (imgs)
+    {
+        img = imgs->data;
+        if ((GtkWidget*)(img->button) == widget)
+            break;
+        imgs = imgs->next;
+    }
+
+    /* the image must be found since it was clicked.. */
+    g_assert(img != NULL);
+
+    /* save previously selected image's (if any) text */
+    gallery_image_save_text(data);
+
+    data->current_img = img;
+    
+    /* update the image text etc shown in the main window */
+    widgets_set_image_information(data, data->current_img);
+
+    return FALSE; /* let others handle the click too */
+}
+
+
+
+void
+gallery_image_save_text(struct data *data)
+{
+    gchar *new_text;
+    g_assert(data != NULL);
+
+    g_debug("in gallery_image_save_text");
+
+    /* nothing to save if no images */
+    if (data->current_img == NULL)
+        return;
+
+    new_text = widgets_image_get_text(data);
+
+    /* if the text is not changed */
+    if (strcmp(new_text, data->current_img->text) == 0)
+    {
+        g_free(new_text);
+        return;
+    }
+
+    /* replace old text with the new one and mark gallery as edited */
+    g_free(data->current_img->text);
+    data->current_img->text = new_text;
+    data->gal->edited = TRUE;
+}
 
 /* Emacs indentatation information
    Local Variables:

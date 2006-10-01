@@ -52,7 +52,7 @@
 		      <accelerator key="p" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image62">
+			<widget class="GtkImage" id="image80">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-preferences</property>
 			  <property name="icon_size">1</property>
@@ -101,10 +101,10 @@
 		      <property name="label" translatable="yes">_Settings</property>
 		      <property name="use_underline">True</property>
 		      <signal name="activate" handler="on_menu_gal_settings_activate" last_modification_time="Fri, 14 Jul 2006 16:49:24 GMT"/>
-		      <accelerator key="s" modifiers="GDK_CONTROL_MASK" signal="activate"/>
+		      <accelerator key="e" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image63">
+			<widget class="GtkImage" id="image81">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-properties</property>
 			  <property name="icon_size">1</property>
@@ -152,6 +152,29 @@
 		      <signal name="activate" handler="on_menu_save_as_activate" last_modification_time="Fri, 14 Jul 2006 16:49:24 GMT"/>
 		    </widget>
 		  </child>
+
+		  <child>
+		    <widget class="GtkImageMenuItem" id="manu_make_gal">
+		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes">Create a web gallery</property>
+		      <property name="label" translatable="yes">_Make</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_manu_make_gal_activate" last_modification_time="Sat, 30 Sep 2006 16:48:52 GMT"/>
+		      <accelerator key="m" modifiers="GDK_CONTROL_MASK" signal="activate"/>
+
+		      <child internal-child="image">
+			<widget class="GtkImage" id="image82">
+			  <property name="visible">True</property>
+			  <property name="stock">gtk-execute</property>
+			  <property name="icon_size">1</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			</widget>
+		      </child>
+		    </widget>
+		  </child>
 		</widget>
 	      </child>
 	    </widget>
@@ -173,10 +196,10 @@
 		      <property name="label" translatable="yes">_Add image</property>
 		      <property name="use_underline">True</property>
 		      <signal name="activate" handler="on_menu_add_image_activate" last_modification_time="Fri, 14 Jul 2006 16:49:24 GMT"/>
-		      <accelerator key="Insert" modifiers="0" signal="activate"/>
+		      <accelerator key="Insert" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image64">
+			<widget class="GtkImage" id="image83">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-add</property>
 			  <property name="icon_size">1</property>
@@ -199,7 +222,7 @@
 		      <accelerator key="g" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image65">
+			<widget class="GtkImage" id="image84">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-add</property>
 			  <property name="icon_size">1</property>
@@ -213,16 +236,16 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkImageMenuItem" id="remove">
+		    <widget class="GtkImageMenuItem" id="menu_remove_image">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">Remove current image/generic</property>
 		      <property name="label" translatable="yes">_Remove</property>
 		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_remove_activate" last_modification_time="Fri, 14 Jul 2006 16:49:24 GMT"/>
-		      <accelerator key="Delete" modifiers="0" signal="activate"/>
+		      <signal name="activate" handler="on_menu_remove_image_activate" last_modification_time="Sat, 30 Sep 2006 08:56:58 GMT"/>
+		      <accelerator key="Delete" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image66">
+			<widget class="GtkImage" id="image85">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-remove</property>
 			  <property name="icon_size">1</property>
@@ -245,7 +268,7 @@
 		      <accelerator key="e" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image67">
+			<widget class="GtkImage" id="image86">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-edit</property>
 			  <property name="icon_size">1</property>
@@ -267,7 +290,7 @@
 		      <signal name="activate" handler="on_menu_discard_activate" last_modification_time="Fri, 14 Jul 2006 16:49:24 GMT"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image68">
+			<widget class="GtkImage" id="image87">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-undo</property>
 			  <property name="icon_size">1</property>
@@ -317,7 +340,7 @@
 	<widget class="GtkHPaned" id="hpaned1">
 	  <property name="visible">True</property>
 	  <property name="can_focus">True</property>
-	  <property name="position">200</property>
+	  <property name="position">300</property>
 
 	  <child>
 	    <widget class="GtkVBox" id="vbox2">
@@ -488,7 +511,7 @@
 	      </child>
 
 	      <child>
-		<widget class="GtkScrolledWindow" id="scrolledwindow3">
+		<widget class="GtkScrolledWindow" id="scrolledwindow_thumbnails">
 		  <property name="visible">True</property>
 		  <property name="can_focus">True</property>
 		  <property name="hscrollbar_policy">GTK_POLICY_NEVER</property>
@@ -750,6 +773,90 @@
 		      </child>
 
 		      <child>
+			<widget class="GtkLabel" id="label_filename">
+			  <property name="visible">True</property>
+			  <property name="can_focus">True</property>
+			  <property name="label" translatable="yes">filename</property>
+			  <property name="use_underline">False</property>
+			  <property name="use_markup">False</property>
+			  <property name="justify">GTK_JUSTIFY_LEFT</property>
+			  <property name="wrap">False</property>
+			  <property name="selectable">True</property>
+			  <property name="xalign">0</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			  <property name="ellipsize">PANGO_ELLIPSIZE_START</property>
+			  <property name="width_chars">-1</property>
+			  <property name="single_line_mode">False</property>
+			  <property name="angle">0</property>
+			</widget>
+			<packing>
+			  <property name="padding">0</property>
+			  <property name="expand">False</property>
+			  <property name="fill">False</property>
+			</packing>
+		      </child>
+
+		      <child>
+			<widget class="GtkHBox" id="hbox27">
+			  <property name="visible">True</property>
+			  <property name="homogeneous">False</property>
+			  <property name="spacing">0</property>
+
+			  <child>
+			    <widget class="GtkLabel" id="label54">
+			      <property name="visible">True</property>
+			      <property name="label" translatable="yes">Rename to: </property>
+			      <property name="use_underline">False</property>
+			      <property name="use_markup">False</property>
+			      <property name="justify">GTK_JUSTIFY_LEFT</property>
+			      <property name="wrap">False</property>
+			      <property name="selectable">False</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+			      <property name="width_chars">-1</property>
+			      <property name="single_line_mode">False</property>
+			      <property name="angle">0</property>
+			    </widget>
+			    <packing>
+			      <property name="padding">0</property>
+			      <property name="expand">False</property>
+			      <property name="fill">False</property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkEntry" id="entry_gal_img_rename">
+			      <property name="visible">True</property>
+			      <property name="tooltip" translatable="yes">Insert base filename here for renaming (no directory and no extension)</property>
+			      <property name="can_focus">True</property>
+			      <property name="editable">True</property>
+			      <property name="visibility">True</property>
+			      <property name="max_length">0</property>
+			      <property name="text" translatable="yes"></property>
+			      <property name="has_frame">True</property>
+			      <property name="invisible_char">*</property>
+			      <property name="activates_default">False</property>
+			    </widget>
+			    <packing>
+			      <property name="padding">0</property>
+			      <property name="expand">True</property>
+			      <property name="fill">True</property>
+			    </packing>
+			  </child>
+			</widget>
+			<packing>
+			  <property name="padding">0</property>
+			  <property name="expand">True</property>
+			  <property name="fill">True</property>
+			</packing>
+		      </child>
+
+		      <child>
 			<widget class="GtkHBox" id="hbox28">
 			  <property name="visible">True</property>
 			  <property name="homogeneous">False</property>
@@ -783,6 +890,7 @@
 			  <child>
 			    <widget class="GtkRadioButton" id="radiobutton_gal_img_image">
 			      <property name="visible">True</property>
+			      <property name="tooltip" translatable="yes">Click here to generate normal image based page</property>
 			      <property name="can_focus">True</property>
 			      <property name="label" translatable="yes">Image</property>
 			      <property name="use_underline">True</property>
@@ -802,6 +910,7 @@
 			  <child>
 			    <widget class="GtkRadioButton" id="radiobutton_gal_img_generic">
 			      <property name="visible">True</property>
+			      <property name="tooltip" translatable="yes">Click here to generate a &quot;generic&quot; web page without explicit image</property>
 			      <property name="can_focus">True</property>
 			      <property name="label" translatable="yes">HTML only</property>
 			      <property name="use_underline">True</property>
@@ -823,99 +932,6 @@
 			  <property name="padding">0</property>
 			  <property name="expand">True</property>
 			  <property name="fill">True</property>
-			</packing>
-		      </child>
-
-		      <child>
-			<widget class="GtkHBox" id="hbox27">
-			  <property name="visible">True</property>
-			  <property name="homogeneous">False</property>
-			  <property name="spacing">0</property>
-
-			  <child>
-			    <widget class="GtkLabel" id="label_filename">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">/path/to/filename</property>
-			      <property name="use_underline">False</property>
-			      <property name="use_markup">False</property>
-			      <property name="justify">GTK_JUSTIFY_LEFT</property>
-			      <property name="wrap">False</property>
-			      <property name="selectable">False</property>
-			      <property name="xalign">0</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			      <property name="ellipsize">PANGO_ELLIPSIZE_START</property>
-			      <property name="width_chars">-1</property>
-			      <property name="single_line_mode">False</property>
-			      <property name="angle">0</property>
-			    </widget>
-			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">True</property>
-			      <property name="fill">True</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkVSeparator" id="vseparator1">
-			      <property name="visible">True</property>
-			    </widget>
-			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">False</property>
-			      <property name="fill">False</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkLabel" id="label54">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">Rename to: </property>
-			      <property name="use_underline">False</property>
-			      <property name="use_markup">False</property>
-			      <property name="justify">GTK_JUSTIFY_LEFT</property>
-			      <property name="wrap">False</property>
-			      <property name="selectable">False</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-			      <property name="width_chars">-1</property>
-			      <property name="single_line_mode">False</property>
-			      <property name="angle">0</property>
-			    </widget>
-			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">False</property>
-			      <property name="fill">False</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkEntry" id="entry_gal_img_rename">
-			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="editable">True</property>
-			      <property name="visibility">True</property>
-			      <property name="max_length">0</property>
-			      <property name="text" translatable="yes"></property>
-			      <property name="has_frame">True</property>
-			      <property name="invisible_char">*</property>
-			      <property name="activates_default">False</property>
-			    </widget>
-			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">True</property>
-			      <property name="fill">True</property>
-			    </packing>
-			  </child>
-			</widget>
-			<packing>
-			  <property name="padding">0</property>
-			  <property name="expand">False</property>
-			  <property name="fill">False</property>
 			</packing>
 		      </child>
 		    </widget>
@@ -986,14 +1002,14 @@
 			      <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
 			      <child>
-				<widget class="GtkTextView" id="textview_description">
+				<widget class="GtkTextView" id="textview_image_desc">
 				  <property name="visible">True</property>
 				  <property name="can_focus">True</property>
 				  <property name="editable">True</property>
 				  <property name="overwrite">False</property>
 				  <property name="accepts_tab">True</property>
 				  <property name="justification">GTK_JUSTIFY_LEFT</property>
-				  <property name="wrap_mode">GTK_WRAP_NONE</property>
+				  <property name="wrap_mode">GTK_WRAP_WORD</property>
 				  <property name="cursor_visible">True</property>
 				  <property name="pixels_above_lines">0</property>
 				  <property name="pixels_below_lines">0</property>
@@ -1001,9 +1017,15 @@
 				  <property name="left_margin">0</property>
 				  <property name="right_margin">0</property>
 				  <property name="indent">0</property>
-				  <property name="text" translatable="yes">Insert text here. 
+				  <property name="text" translatable="yes">You can set your preferences (default templates and directories) from
+File-&gt;Preferences (ctrl+p)
 
-Using html tags is allowed.</property>
+Start a new gallery by adding images from
+Images -&gt; Add Image (ctrl + insert)
+
+Setting the gallery name and other options are available from
+Gallery -&gt; Settings (ctrl+e)
+</property>
 				</widget>
 			      </child>
 			    </widget>
@@ -1084,7 +1106,7 @@ Using html tags is allowed.</property>
 				<widget class="GtkCheckButton" id="check_settings_nomodify">
 				  <property name="visible">True</property>
 				  <property name="can_focus">True</property>
-				  <property name="label" translatable="yes">Do not modify original image</property>
+				  <property name="label" translatable="yes">Copy the image without modifying</property>
 				  <property name="use_underline">True</property>
 				  <property name="relief">GTK_RELIEF_NORMAL</property>
 				  <property name="focus_on_click">True</property>
@@ -1163,6 +1185,7 @@ Using html tags is allowed.</property>
 				  <child>
 				    <widget class="GtkRadioButton" id="radiobutton_rotate_0">
 				      <property name="visible">True</property>
+				      <property name="tooltip" translatable="yes">Image is not rotated</property>
 				      <property name="can_focus">True</property>
 				      <property name="label" translatable="yes">0</property>
 				      <property name="use_underline">True</property>
@@ -1171,6 +1194,7 @@ Using html tags is allowed.</property>
 				      <property name="active">True</property>
 				      <property name="inconsistent">False</property>
 				      <property name="draw_indicator">True</property>
+				      <signal name="toggled" handler="on_radiobutton_rotate_0_toggled" last_modification_time="Sat, 30 Sep 2006 11:17:31 GMT"/>
 				    </widget>
 				    <packing>
 				      <property name="padding">0</property>
@@ -1182,6 +1206,7 @@ Using html tags is allowed.</property>
 				  <child>
 				    <widget class="GtkRadioButton" id="radiobutton_rotate_90">
 				      <property name="visible">True</property>
+				      <property name="tooltip" translatable="yes">Rotate image 90 degrees clockwise</property>
 				      <property name="can_focus">True</property>
 				      <property name="label" translatable="yes">90</property>
 				      <property name="use_underline">True</property>
@@ -1191,6 +1216,7 @@ Using html tags is allowed.</property>
 				      <property name="inconsistent">False</property>
 				      <property name="draw_indicator">True</property>
 				      <property name="group">radiobutton_rotate_0</property>
+				      <signal name="toggled" handler="on_radiobutton_rotate_90_toggled" last_modification_time="Sat, 30 Sep 2006 11:17:13 GMT"/>
 				    </widget>
 				    <packing>
 				      <property name="padding">0</property>
@@ -1202,6 +1228,7 @@ Using html tags is allowed.</property>
 				  <child>
 				    <widget class="GtkRadioButton" id="radiobutton_rotate_180">
 				      <property name="visible">True</property>
+				      <property name="tooltip" translatable="yes">Rotate image 180 degrees clockwise</property>
 				      <property name="can_focus">True</property>
 				      <property name="label" translatable="yes">180</property>
 				      <property name="use_underline">True</property>
@@ -1211,6 +1238,7 @@ Using html tags is allowed.</property>
 				      <property name="inconsistent">False</property>
 				      <property name="draw_indicator">True</property>
 				      <property name="group">radiobutton_rotate_0</property>
+				      <signal name="toggled" handler="on_radiobutton_rotate_180_toggled" last_modification_time="Sat, 30 Sep 2006 11:17:39 GMT"/>
 				    </widget>
 				    <packing>
 				      <property name="padding">0</property>
@@ -1222,6 +1250,7 @@ Using html tags is allowed.</property>
 				  <child>
 				    <widget class="GtkRadioButton" id="radiobutton_rotate_270">
 				      <property name="visible">True</property>
+				      <property name="tooltip" translatable="yes">Rotate image 270 degrees clockwise</property>
 				      <property name="can_focus">True</property>
 				      <property name="label" translatable="yes">270</property>
 				      <property name="use_underline">True</property>
@@ -1231,6 +1260,7 @@ Using html tags is allowed.</property>
 				      <property name="inconsistent">False</property>
 				      <property name="draw_indicator">True</property>
 				      <property name="group">radiobutton_rotate_0</property>
+				      <signal name="toggled" handler="on_radiobutton_rotate_270_toggled" last_modification_time="Sat, 30 Sep 2006 11:17:50 GMT"/>
 				    </widget>
 				    <packing>
 				      <property name="padding">0</property>
@@ -1240,8 +1270,10 @@ Using html tags is allowed.</property>
 				  </child>
 
 				  <child>
-				    <widget class="GtkRadioButton" id="radiobutton7">
+				    <widget class="GtkRadioButton" id="radiobutton_rotate_other">
 				      <property name="visible">True</property>
+				      <property name="sensitive">False</property>
+				      <property name="tooltip" translatable="yes">This indicates that image is not rotated exactly 90,180 or 270 degrees.</property>
 				      <property name="can_focus">True</property>
 				      <property name="label" translatable="yes">Other</property>
 				      <property name="use_underline">True</property>

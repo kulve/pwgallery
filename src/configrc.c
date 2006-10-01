@@ -581,7 +581,9 @@ get_rc_values(struct data *data, GKeyFile *keyfile)
                            PWGALLERY_RCKEY_PAGE_GEN, data->page_gen);
 
     /* Page generator program */
-    g_assert(data->page_gen_prog != NULL);
+    /* FIXME: this is not implemented yet, so it can be NULL.. */
+    if (data->page_gen_prog == NULL)
+        data->page_gen_prog = g_strdup("file:///tmp/unimplemented.sh");
     g_key_file_set_value(keyfile, "Default",
                          PWGALLERY_RCKEY_PAGE_GEN_PROG, data->page_gen_prog);
 
