@@ -38,7 +38,7 @@ static struct image *parse_gen_settings(struct data *data, xmlNodePtr node);
 /*
  * Create xml content for the gallery ready to be written to disk.
  */
-gchar *
+guchar *
 xml_gal_write(struct data *data, gsize *len)
 {
     xmlDocPtr doc;
@@ -165,7 +165,7 @@ xml_gal_write(struct data *data, gsize *len)
     xmlFreeDoc(doc);
     xmlCleanupParser();
 
-    return (gchar *)xmlbuff;
+    return (guchar *)xmlbuff;
 }
 
 
@@ -175,7 +175,7 @@ xml_gal_write(struct data *data, gsize *len)
  * calling this function.
  */
 void
-xml_gal_parse(struct data *data, gchar *content, gsize len)
+xml_gal_parse(struct data *data, guchar *content, gsize len)
 {
     GSList *list = NULL;
     xmlDocPtr doc;
@@ -190,7 +190,7 @@ xml_gal_parse(struct data *data, gchar *content, gsize len)
     { LIBXML_TEST_VERSION }
     
     /* FIXME: XML_PARSE_NONET? XML_PARSE_NOENT? */
-    doc = xmlReadMemory(content, len, "gallery.xml", NULL, 0);
+    doc = xmlReadMemory((gchar*)content, len, "gallery.xml", NULL, 0);
     if (doc == NULL)
     {
         /* FIXME: popup */

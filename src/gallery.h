@@ -55,6 +55,11 @@ void gallery_save(struct data *data);
 void gallery_save_as(struct data *data);
 
 /* 
+ * Make gallery
+ */
+void gallery_make(struct data *data);
+
+/* 
  * Free gallery
  */
 void gallery_free(struct data *data);

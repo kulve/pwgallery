@@ -24,6 +24,7 @@
 #include "main.h"
 #include "gallery.h"
 #include "image.h"
+#include "magick.h"
 #include "widgets.h"
 #include "vfs.h"
 #include "xml.h"
@@ -31,6 +32,13 @@
 #include <glib.h>
 #include <gtk/gtk.h>
 #include <string.h>        /* memset, strcmp */
+#include <strings.h>       /* rindex */
+
+
+
+static gboolean _make_thumbnails(struct data *data);
+
+
 
 void
 gallery_init(struct data *data)
@@ -200,7 +208,7 @@ gallery_open(struct data *data)
     GtkWidget *dialog;
     int result;
     gchar *uri;
-    gchar *xml_content;
+    guchar *xml_content;
     gsize xml_content_len;
 
     g_assert(data != NULL );
@@ -297,7 +305,7 @@ gallery_open(struct data *data)
 void
 gallery_save(struct data *data)
 {
-    gchar *xml_content;
+    guchar *xml_content;
     gsize xml_content_size;
 
     g_assert(data != NULL );
@@ -320,6 +328,8 @@ gallery_save(struct data *data)
     data->gal->edited = FALSE;
 }
 
+
+
 void
 gallery_save_as(struct data *data)
 {
@@ -337,6 +347,7 @@ gallery_save_as(struct data *data)
                                          GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
                                          NULL);
 
+    /* FIXME: gtk_file_chooser_set_do_overwrite_confirmation ()? */
     gtk_file_chooser_set_current_folder_uri(GTK_FILE_CHOOSER(dialog), 
                                             data->gal_dir);
     gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), FALSE);
@@ -368,6 +379,74 @@ gallery_save_as(struct data *data)
 
     /* now we have the new uri, save the gallery */
     gallery_save(data);
+}
+
+
+
+void
+gallery_make(struct data *data)
+{
+    GtkWidget *dialog;
+    gint result;
+
+    g_assert(data != NULL );
+
+    g_debug("in gallery_make");
+
+    /* if gallery is modified, ask if it should be saved before making
+     * it or cancel the making. */
+    if (data->gal->edited == TRUE)
+    {
+        GtkWidget *label;
+        dialog = gtk_dialog_new_with_buttons(_("Save changes?"),
+                                             GTK_WINDOW(data->top_window),
+                                             GTK_DIALOG_MODAL | 
+                                             GTK_DIALOG_DESTROY_WITH_PARENT,
+                                             GTK_STOCK_CANCEL,
+                                             GTK_RESPONSE_CANCEL,
+                                             GTK_STOCK_SAVE,
+                                             GTK_RESPONSE_YES,
+                                             NULL);
+
+
+        label = gtk_label_new(_("Gallery has been modified.\n"
+                                "Changes must be saved before continuing.\n"));
+   
+        gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox),
+                           label);
+        gtk_widget_show(label);
+
+        result = gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy (dialog);
+
+        switch(result)
+        {
+        case GTK_RESPONSE_CANCEL:
+            return;
+        case GTK_RESPONSE_YES:
+            gallery_save(data);
+            break;
+        default: /* There are only cancel and yes responses.. */
+            g_assert(421 == 0);
+        }
+    }
+
+    /* make top level directory for gallery */
+    if (vfs_is_dir(data, data->gal->output_dir) == TRUE) {
+        /* FIXME: move */
+        g_error("move not implemented");
+        g_assert(435 == 0);
+    }
+    vfs_mkdir(data, data->gal->output_dir);
+
+    /* make thumbnails */
+    _make_thumbnails(data);
+
+    /* make webimages */
+
+    /* make index page */
+    
+    /* make image pages */
 }
 
 
@@ -641,6 +720,68 @@ gallery_image_save_text(struct data *data)
     data->current_img->text = new_text;
     data->gal->edited = TRUE;
 }
+
+
+/*
+ *
+ * Static functions
+ *
+ */
+
+/*
+ * Make thumbnail files for the gallery.
+ */
+static gboolean
+_make_thumbnails(struct data *data)
+{
+    gchar       *dir_uri;
+    GSList      *images;  
+
+    g_assert(data != NULL);
+
+    g_debug("in _make_thumbnails");
+
+    /* make the thumbnail directory */
+    dir_uri = g_strdup_printf("%s/thumbnails", data->gal->output_dir);
+    vfs_mkdir(data, dir_uri);
+    g_free(dir_uri);
+
+    /* make the thumbnails for all images in gallery */
+    images = data->gal->images;
+    while(images != NULL) {
+        gchar *thumb_uri, *filename, *tmpp, *basefilename;
+        struct image *image = images->data;
+
+        /* get filename without externsion */
+        filename = g_strdup(image->uri);
+        tmpp = rindex(filename, '.'); /* last dot to \0 */
+        if (tmpp != NULL) {
+            *tmpp = '\0';
+        }
+        tmpp = rindex(filename, '/'); /* last / to starting point */
+        if (tmpp != NULL) {
+            basefilename = tmpp;
+        }
+        
+        thumb_uri = g_strdup_printf("%s/thumbnails/%s.jpg", 
+                                    data->gal->output_dir, basefilename);
+        
+        /* make the thumbnail and save it to a file */
+        if (magick_make_thumbnail(data, image, thumb_uri) == FALSE) {
+            g_free(thumb_uri);
+            g_free(filename);
+            return FALSE;
+        }
+        g_free(thumb_uri);
+        g_free(filename);
+
+        images = images->next;
+    }
+
+    return TRUE;
+}
+
+
 
 /* Emacs indentatation information
    Local Variables:

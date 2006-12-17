@@ -29,8 +29,8 @@
 #include <glib.h>
 #include <libxml/parser.h>
 
-gchar *xml_gal_write(struct data *data, gsize *len);
-void xml_gal_parse(struct data *data, gchar *content, gsize len);
+guchar *xml_gal_write(struct data *data, gsize *len);
+void xml_gal_parse(struct data *data, guchar *content, gsize len);
 void xml_gal_parse_settings(struct data *data, xmlNodePtr node);
 
 #endif

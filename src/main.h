@@ -101,7 +101,7 @@
 #define PWGALLERY_DEFAULT_PAGE_GEN_PROG    "file:///tmp/unimplemented.sh"
 
 /* Default output dir */
-#define PWGALLERY_DEFAULT_OUTPUT_DIR       "file:///tmp/pwgallery_test"
+#define PWGALLERY_DEFAULT_OUTPUT_DIR       "file:///tmp/pwg"
 /* Default thumb width */
 #define PWGALLERY_DEFAULT_THUMB_W          "150"
 /* Default image height */
@@ -198,8 +198,10 @@ struct image
     /* FIXME: is image need? Would child-of-button do? */
     GtkWidget       *image;            /* pointer to image widget */
     GtkWidget       *button;           /* pointer to button widget */
-    gint            width;             /* modified width of the image */
-    gint            height;            /* modified height of the image */
+    gint            width;             /* original width of the image */
+    gint            height;            /* original height of the image */
+    gint            thumb_w;           /* thumbnail width */
+    gint            thumb_h;           /* thumbnail height */
     gint            rotate;            /* rotation of the image */
     gfloat          gamma;             /* gamma of the image */
     gchar           *text;             /* image description */

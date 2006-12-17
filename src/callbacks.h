@@ -67,6 +67,11 @@ void on_menu_save_as_activate(GtkMenuItem *menuitem,
                               gpointer user_data);
 
 /*
+ * Gallery -> Make
+ */
+void on_menu_make_gal_activate(GtkMenuItem *menuitem,
+                               gpointer user_data);
+/*
  * Image -> Add images to gallery
  */
 void on_menu_add_image_activate(GtkMenuItem *menuitem,

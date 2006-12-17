@@ -42,6 +42,7 @@ static void action_gal_new(gpointer user_data);
 static void action_gal_open(gpointer user_data);
 static void action_gal_save(gpointer user_data);
 static void action_gal_save_as(gpointer user_data);
+static void action_gal_make(gpointer user_data);
 static void action_image_add(gpointer user_data);
 static void action_image_remove(gpointer user_data);
 static void action_about_show(gpointer user_data);
@@ -134,6 +135,16 @@ on_menu_save_as_activate(GtkMenuItem *menuitem,
     g_debug("in on_menu_save_as_activate");
 
     action_gal_save_as(user_data);
+}
+
+
+void
+on_menu_make_gal_activate(GtkMenuItem *menuitem,
+                          gpointer user_data)
+{
+    g_debug("in on_menu_make_activate");
+
+    action_gal_make(user_data);
 }
 
 
@@ -495,6 +506,29 @@ action_gal_save_as(gpointer user_data)
     gallery_image_save_text(data);
 
     gallery_save_as(data);
+}
+
+
+
+/*
+ * Make gallery
+ */
+static void 
+action_gal_make(gpointer user_data)
+{
+    struct data *data;
+
+    g_assert(user_data != NULL );
+
+    g_debug("in action_gal_make");
+
+    data = user_data;
+
+    /* save selected image's (if any) text */
+    gallery_image_save_text(data);
+
+    /* changes are checked in gallery_make */
+    gallery_make(data);
 }
 
 

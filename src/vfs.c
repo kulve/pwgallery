@@ -91,7 +91,7 @@ vfs_mkdir(struct data *data, const gchar *uri)
 
 
 void
-vfs_read_file(struct data *data, const gchar *uri, gchar **content,
+vfs_read_file(struct data *data, const gchar *uri, guchar **content,
               gsize *content_len)
 {
     GnomeVFSResult result;
@@ -102,7 +102,7 @@ vfs_read_file(struct data *data, const gchar *uri, gchar **content,
     g_assert(content != NULL);
     g_assert(content_len != NULL);
 
-    result = gnome_vfs_read_entire_file(uri, &file_size, content);
+    result = gnome_vfs_read_entire_file(uri, &file_size, (gchar **)content);
     if (result != GNOME_VFS_OK)
     {
         /* FIXME: show popup */
@@ -118,7 +118,7 @@ vfs_read_file(struct data *data, const gchar *uri, gchar **content,
 
 
 void
-vfs_write_file(struct data *data, const gchar *uri, const gchar *content,
+vfs_write_file(struct data *data, const gchar *uri, const guchar *content,
                gsize content_len)
 {
     gchar *dir;

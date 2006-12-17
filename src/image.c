@@ -48,6 +48,8 @@ image_init(struct data *data)
     img->button   = NULL;
     img->width    = 0;
     img->height   = 0;
+    img->thumb_w  = 0;
+    img->thumb_h  = 0;
     img->rotate   = 0;
     img->gamma    = 1.0;
     img->text     = g_strdup("");

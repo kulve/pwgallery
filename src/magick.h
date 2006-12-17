@@ -17,43 +17,20 @@
  * USA.
  */
 
-#ifndef PWGALLERY_VFS_H
-#define PWGALLERY_VFS_H
+#ifndef PWGALLERY_MAGICK_H
+#define PWGALLERY_MAGICK_H
 
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
 
-#include "main.h"
-
-#include <glib.h>
 
 /*
- * Check if uri is found and file
+ * Make a thumbnail for the given image and save it to a file.
  */
-gboolean vfs_is_file(struct data *data, const gchar *uri);
-
-/*
- * Check if uri is found and directory
- */
-gboolean vfs_is_dir(struct data *data, const gchar *uri);
-
-/*
- * Make directory
- */
-void vfs_mkdir(struct data *data, const gchar *uri);
-
-/*
- * Read a whole uri to buffer
- */
-void vfs_read_file(struct data *data, const gchar *uri, guchar **content,
-                   gsize *content_len);
-
-/*
- * Write data to given uri
- */
-void vfs_write_file(struct data *data, const gchar *uri, const guchar *content,
-                    gsize content_len);
+gboolean magick_make_thumbnail(struct data *data, 
+                               struct image *image,
+                               const gchar *uri);
 
 #endif
 

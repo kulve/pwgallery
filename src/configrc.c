@@ -37,7 +37,7 @@ configrc_load(struct data *data)
 {
     gchar       *dir_uri;
     gchar       *configrc_file;
-    gchar       *configrc_data;
+    guchar      *configrc_data;
     gsize       configrc_data_len;
     GKeyFile    *keyfile;
 
@@ -81,7 +81,7 @@ configrc_load(struct data *data)
         vfs_read_file(data, configrc_file, &configrc_data, &configrc_data_len);
 
         ok = g_key_file_load_from_data(keyfile,
-                                       configrc_data, configrc_data_len,
+                                       (gchar*)configrc_data, configrc_data_len,
                                        G_KEY_FILE_KEEP_COMMENTS | 
                                        G_KEY_FILE_KEEP_TRANSLATIONS ,
                                        NULL);
@@ -95,7 +95,8 @@ configrc_load(struct data *data)
     
     /* save configrc file to disk (maybe if didn't exists or maybe new
      * keys are introduced in a new version. ie. just be sure) */
-    configrc_data = g_key_file_to_data(keyfile, &configrc_data_len, NULL);
+    configrc_data =
+        (guchar*)g_key_file_to_data(keyfile, &configrc_data_len, NULL);
     vfs_write_file(data, configrc_file, configrc_data, configrc_data_len);
 
     set_rc_values(data, keyfile);
@@ -113,7 +114,7 @@ void
 configrc_save(struct data *data)
 {
     gchar       *configrc_file;
-    gchar       *configrc_data;
+    guchar      *configrc_data;
     gsize       configrc_data_len;
     GKeyFile    *keyfile;
     gboolean    ok;
@@ -133,7 +134,7 @@ configrc_save(struct data *data)
     vfs_read_file(data, configrc_file, &configrc_data, &configrc_data_len);
     
     ok = g_key_file_load_from_data(keyfile,
-                                   configrc_data, configrc_data_len,
+                                   (gchar*)configrc_data, configrc_data_len,
                                    G_KEY_FILE_KEEP_COMMENTS | 
                                    G_KEY_FILE_KEEP_TRANSLATIONS ,
                                    NULL);
@@ -143,7 +144,8 @@ configrc_save(struct data *data)
     get_rc_values(data, keyfile);
 
     /* save configrc file to disk*/
-    configrc_data = g_key_file_to_data(keyfile, &configrc_data_len, NULL);
+    configrc_data = 
+        (guchar*)g_key_file_to_data(keyfile, &configrc_data_len, NULL);
     
     vfs_write_file(data, configrc_file, configrc_data, configrc_data_len);
 }
@@ -421,6 +423,7 @@ set_defaults(GKeyFile *keyfile)
 
 
     /* Global comment */
+    /* FIXME: this is prepended in the configrc file on each load? */
     g_key_file_set_comment(keyfile, "Default", NULL, 
                            _("This is automatically created configrc file "
                              "for Penguin's Web Gallery."),
