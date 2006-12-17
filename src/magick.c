@@ -74,15 +74,15 @@ gboolean magick_make_thumbnail(struct data *data,
     {
     case 0:
     case 180:
-        scale = (double)image->height / (double)image->width;
+        scale = (gdouble)image->height / (gdouble)image->width;
         break;
     case 90:
     case 270:
-        scale = (double)image->width / (double)image->height;
+        scale = (gdouble)image->width / (gdouble)image->height;
         break;
         /* FIXME: just to get some values.. */
     default:
-        scale = (double)image->width / (double)image->height;
+        scale = (gdouble)image->width / (gdouble)image->height;
         break;
     }
     image->thumb_h = (gint)(image->thumb_w * scale);
@@ -93,6 +93,69 @@ gboolean magick_make_thumbnail(struct data *data,
         return FALSE;
     }
 
+    
+    /* save the thumbnail to a file */
+    if (!_save(data, wand, uri)) {
+        DestroyMagickWand(wand);
+        return FALSE;
+    }
+    
+    DestroyMagickWand(wand);
+
+    return TRUE;
+}
+
+
+
+gboolean magick_make_webimage(struct data *data, 
+                              struct image *image,
+                              const gchar *uri,
+                              gint image_h)
+{
+    MagickWand *wand;
+    gdouble scale;
+    gint w, h;
+
+    g_assert(data != NULL);
+    g_assert(image != NULL);
+    
+    g_debug("in magick_make_webimage");
+
+    wand = NewMagickWand();
+    g_return_val_if_fail( wand, FALSE );
+
+    /* apply modifications, if nomodify is not checked */
+    if (!image->nomodify) {
+        if (!_apply_modifications(data, wand, image)) {
+            DestroyMagickWand(wand);
+            return FALSE;
+        }
+        
+        /* calculate width and height for the webimage */
+        h = image_h;
+        switch( image->rotate ) 
+            {
+            case 90:
+            case 270:
+                scale = (gdouble)image->height / (gdouble)image->width;
+                break;
+            case 0:
+            case 180:
+                scale = (gdouble)image->width / (gdouble)image->height;
+                break;
+                /* FIXME: just to get some values.. */
+            default:
+                scale = (gdouble)image->width / (gdouble)image->height;
+                break;
+            }
+        w = (gint)(h * scale);
+        
+        /* resize the webimage */
+        if (!_resize(data, wand, image, w, h)) {
+            DestroyMagickWand(wand);
+            return FALSE;
+        }
+    }
     
     /* save the thumbnail to a file */
     if (!_save(data, wand, uri)) {

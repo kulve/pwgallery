@@ -32,6 +32,14 @@ gboolean magick_make_thumbnail(struct data *data,
                                struct image *image,
                                const gchar *uri);
 
+/*
+ * Make a webimage for the given image and save it to a file.
+ */
+gboolean magick_make_webimage(struct data *data, 
+                              struct image *image,
+                              const gchar *uri,
+                              gint image_h);
+
 #endif
 
 /* Emacs indentatation information

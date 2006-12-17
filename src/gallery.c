@@ -37,8 +37,7 @@
 
 
 static gboolean _make_thumbnails(struct data *data);
-
-
+static gboolean _make_webimages(struct data *data);
 
 void
 gallery_init(struct data *data)
@@ -440,9 +439,14 @@ gallery_make(struct data *data)
     vfs_mkdir(data, data->gal->output_dir);
 
     /* make thumbnails */
-    _make_thumbnails(data);
+    if (!_make_thumbnails(data)) {
+        return;
+    }
 
     /* make webimages */
+    if (!_make_webimages(data)) {
+        return;
+    }
 
     /* make index page */
     
@@ -729,7 +733,7 @@ gallery_image_save_text(struct data *data)
  */
 
 /*
- * Make thumbnail files for the gallery.
+ * Make thumbnails for the gallery.
  */
 static gboolean
 _make_thumbnails(struct data *data)
@@ -744,7 +748,6 @@ _make_thumbnails(struct data *data)
     /* make the thumbnail directory */
     dir_uri = g_strdup_printf("%s/thumbnails", data->gal->output_dir);
     vfs_mkdir(data, dir_uri);
-    g_free(dir_uri);
 
     /* make the thumbnails for all images in gallery */
     images = data->gal->images;
@@ -763,13 +766,13 @@ _make_thumbnails(struct data *data)
             basefilename = tmpp;
         }
         
-        thumb_uri = g_strdup_printf("%s/thumbnails/%s.jpg", 
-                                    data->gal->output_dir, basefilename);
+        thumb_uri = g_strdup_printf("%s/%s.jpg", dir_uri, basefilename);
         
         /* make the thumbnail and save it to a file */
         if (magick_make_thumbnail(data, image, thumb_uri) == FALSE) {
             g_free(thumb_uri);
             g_free(filename);
+            g_free(dir_uri);
             return FALSE;
         }
         g_free(thumb_uri);
@@ -777,10 +780,100 @@ _make_thumbnails(struct data *data)
 
         images = images->next;
     }
+    g_free(dir_uri);
 
     return TRUE;
 }
 
+
+
+/*
+ * Make webimages for the gallery.
+ */
+static gboolean
+_make_webimages(struct data *data)
+{
+    gint image_index = 0;
+
+    g_assert(data != NULL);
+
+    g_debug("in _make_webimages");
+
+    /* go through all sizes */
+    while(++image_index < 5) {
+        gchar       *dir_uri;
+        GSList      *images;  
+        gint        image_h = -1;
+
+        /* FIXME: ugly. Sizes should be in a list */
+        switch(image_index) {
+        case 1:
+            image_h = data->gal->image_h;
+            break;
+        case 2:
+            image_h = data->gal->image_h2;
+            break;
+        case 3:
+            image_h = data->gal->image_h3;
+            break;
+        case 4:
+            image_h = data->gal->image_h4;
+            break;
+        default: 
+            /* we shouldn't be here */
+            g_assert(826 == 0);
+        }
+        
+        /* make only images with specified size */
+        if (image_h == 0) {
+            continue;
+        }
+        
+        /* make the webimage directory */
+        if (image_index == 1) {
+            /* default size images to "images" dir for backward compability */
+            dir_uri = g_strdup_printf("%s/images", data->gal->output_dir);
+        } else {
+            dir_uri = g_strdup_printf("%s/images_%d", 
+                                      data->gal->output_dir, image_h);
+        }
+        vfs_mkdir(data, dir_uri);
+
+        /* make the webimages for all images in gallery */
+        images = data->gal->images;
+        while(images != NULL) {
+            gchar *img_uri, *filename, *tmpp, *basefilename;
+            struct image *image = images->data;
+            
+            /* get filename without externsion */
+            filename = g_strdup(image->uri);
+            tmpp = rindex(filename, '.'); /* last dot to \0 */
+            if (tmpp != NULL) {
+                *tmpp = '\0';
+            }
+            tmpp = rindex(filename, '/'); /* last / to starting point */
+            if (tmpp != NULL) {
+                basefilename = tmpp;
+            }
+            
+            img_uri = g_strdup_printf("%s/%s.jpg", dir_uri, basefilename);
+            
+            /* make the webimage and save it to a file */
+            if (magick_make_webimage(data, image, img_uri, image_h) == FALSE) {
+                g_free(img_uri);
+                g_free(filename);
+                g_free(dir_uri);
+                return FALSE;
+            }
+            g_free(img_uri);
+            g_free(filename);
+            
+            images = images->next;
+        }
+        g_free(dir_uri);
+    }
+    return TRUE;
+}
 
 
 /* Emacs indentatation information
