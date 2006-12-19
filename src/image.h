@@ -24,6 +24,8 @@
 #  include <config.h>
 #endif
 
+#include "main.h"
+
 #include <gtk/gtk.h>
 
 /* 
