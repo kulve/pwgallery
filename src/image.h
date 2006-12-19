@@ -26,7 +26,7 @@
 
 #include "main.h"
 
-#include <gtk/gtk.h>
+#include <glib.h>
 
 /* 
  * Initialize image
