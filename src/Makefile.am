@@ -15,6 +15,7 @@ pwgallery_SOURCES = main.c main.h \
 	magick.c magick.h \
 	vfs.c vfs.h \
 	xml.c xml.h \
+	html.c html.h \
 	configrc.c configrc.h
 
 

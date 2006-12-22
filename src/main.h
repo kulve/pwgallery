@@ -206,6 +206,8 @@ struct image
     gfloat          gamma;             /* gamma of the image */
     gchar           *text;             /* image description */
     gchar           *uri;              /* URI to the original image */
+    gchar           *basefilename;     /* filename without extension */
+    gint            size;              /* image size in kilobytes */
     /* FIXME: add edited uri */
     /* FIXME: add renamed uri */
     /* FIXME: add page gen int */

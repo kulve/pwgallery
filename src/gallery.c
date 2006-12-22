@@ -28,6 +28,7 @@
 #include "widgets.h"
 #include "vfs.h"
 #include "xml.h"
+#include "html.h"
 
 #include <glib.h>
 #include <gtk/gtk.h>
@@ -433,7 +434,7 @@ gallery_make(struct data *data)
     /* make top level directory for gallery */
     if (vfs_is_dir(data, data->gal->output_dir) == TRUE) {
         /* FIXME: move */
-        g_error("move not implemented");
+        g_error("move not implemented (%s)", data->gal->output_dir);
         g_assert(435 == 0);
     }
     vfs_mkdir(data, data->gal->output_dir);
@@ -449,8 +450,14 @@ gallery_make(struct data *data)
     }
 
     /* make index page */
-    
+    if (!html_make_index_page(data)) {
+        return;
+    }
+
     /* make image pages */
+    if (!html_make_image_pages(data)) {
+        return;
+    }
 }
 
 
@@ -752,31 +759,18 @@ _make_thumbnails(struct data *data)
     /* make the thumbnails for all images in gallery */
     images = data->gal->images;
     while(images != NULL) {
-        gchar *thumb_uri, *filename, *tmpp, *basefilename;
+        gchar *thumb_uri;
         struct image *image = images->data;
 
-        /* get filename without externsion */
-        filename = g_strdup(image->uri);
-        tmpp = rindex(filename, '.'); /* last dot to \0 */
-        if (tmpp != NULL) {
-            *tmpp = '\0';
-        }
-        tmpp = rindex(filename, '/'); /* last / to starting point */
-        if (tmpp != NULL) {
-            basefilename = tmpp;
-        }
-        
-        thumb_uri = g_strdup_printf("%s/%s.jpg", dir_uri, basefilename);
+        thumb_uri = g_strdup_printf("%s/%s.jpg", dir_uri, image->basefilename);
         
         /* make the thumbnail and save it to a file */
         if (magick_make_thumbnail(data, image, thumb_uri) == FALSE) {
             g_free(thumb_uri);
-            g_free(filename);
             g_free(dir_uri);
             return FALSE;
         }
         g_free(thumb_uri);
-        g_free(filename);
 
         images = images->next;
     }
@@ -845,7 +839,7 @@ _make_webimages(struct data *data)
             gchar *img_uri, *filename, *tmpp, *basefilename;
             struct image *image = images->data;
             
-            /* get filename without externsion */
+            /* get filename without extension */
             filename = g_strdup(image->uri);
             tmpp = rindex(filename, '.'); /* last dot to \0 */
             if (tmpp != NULL) {
@@ -874,6 +868,7 @@ _make_webimages(struct data *data)
     }
     return TRUE;
 }
+
 
 
 /* Emacs indentatation information

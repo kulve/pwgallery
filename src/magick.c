@@ -30,6 +30,7 @@
 #include <glib.h>                 /* glib */
 #include <wand/magick-wand.h>     /* ImageMagick */
 #include <wand/pixel-wand.h>      /* ImageMagick */
+#include <libgnomevfs/gnome-vfs.h>/* gnome_vfs_get_file_info */
 
 static gboolean _apply_modifications(struct data *data, 
                                      MagickWand *wand, 
@@ -115,6 +116,8 @@ gboolean magick_make_webimage(struct data *data,
     MagickWand *wand;
     gdouble scale;
     gint w, h;
+    GnomeVFSResult result;
+    GnomeVFSFileInfo info;
 
     g_assert(data != NULL);
     g_assert(image != NULL);
@@ -157,7 +160,7 @@ gboolean magick_make_webimage(struct data *data,
         }
     }
     
-    /* save the thumbnail to a file */
+    /* save the image to a file */
     if (!_save(data, wand, uri)) {
         DestroyMagickWand(wand);
         return FALSE;
@@ -165,6 +168,13 @@ gboolean magick_make_webimage(struct data *data,
     
     DestroyMagickWand(wand);
 
+    /* get file size */
+    result = gnome_vfs_get_file_info(uri, &info, GNOME_VFS_FILE_INFO_DEFAULT);
+    if (result == GNOME_VFS_OK) {
+        image->size = info.size / 1024;
+    } else {
+        image->size = 0;
+    }
     return TRUE;
 }
 

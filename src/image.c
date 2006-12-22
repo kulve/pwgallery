@@ -44,17 +44,19 @@ image_init(struct data *data)
 	img = g_new0(struct image, 1);
 
     /* initialize values */
-    img->image    = NULL;
-    img->button   = NULL;
-    img->width    = 0;
-    img->height   = 0;
-    img->thumb_w  = 0;
-    img->thumb_h  = 0;
-    img->rotate   = 0;
-    img->gamma    = 1.0;
-    img->text     = g_strdup("");
-    img->uri      = g_strdup("");
-    img->nomodify = FALSE;
+    img->image        = NULL;
+    img->button       = NULL;
+    img->width        = 0;
+    img->height       = 0;
+    img->thumb_w      = 0;
+    img->thumb_h      = 0;
+    img->rotate       = 0;
+    img->gamma        = 1.0;
+    img->text         = g_strdup("");
+    img->uri          = g_strdup("");
+    img->basefilename = g_strdup("");
+    img->size         = 0;
+    img->nomodify     = FALSE;
         
 	return img;
 }
@@ -76,6 +78,7 @@ image_free(struct image *img)
 	/* free other fields */
 	g_free(img->text);
 	g_free(img->uri);
+    g_free(img->basefilename);
 	g_free(img);
 }
 
@@ -93,6 +96,7 @@ image_open(struct data *data, gchar *uri)
 	GnomeVFSHandle   *handle;
 	GnomeVFSFileSize bytes;
 	GError           *error = NULL;
+    gchar            *tmpp;
 
 	g_assert(data != NULL);
 	g_assert(uri != NULL);
@@ -183,13 +187,21 @@ image_open(struct data *data, gchar *uri)
 
     /* Set default values for a new image */
 	img->nomodify = FALSE;
-    img->gamma    = 1.0;
+    img->gamma = 1.0;
 
     g_free(img->text);
-    img->text     = g_strdup( _("Add text") );
+    img->text = g_strdup( _("Add text") );
 
     g_free(img->uri);
-    img->uri      = uri;
+    img->uri = uri;
+
+    /* get basename of the file without extension */
+    g_free(img->basefilename);
+    img->basefilename = g_path_get_basename(img->uri);
+    tmpp = rindex(img->basefilename, '.');
+    if (tmpp != NULL) {
+        *tmpp = '\0';
+    }
 
     return img;	
 }
