@@ -478,6 +478,7 @@ gallery_make(struct data *data)
                 break;
             }
             g_free(dir);
+            ++i;
         } while(1);
 
         vfs_rename(data, data->gal->output_dir, dir);
