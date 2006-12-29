@@ -78,6 +78,23 @@ void on_menu_add_image_activate(GtkMenuItem *menuitem,
                                 gpointer user_data);
 
 /*
+ * Image -> Add generic page to gallery
+ */
+void on_menu_add_generic_activate(GtkMenuItem *menuitem,
+                                  gpointer user_data);
+/*
+ * Image -> Discard editions
+ */
+void on_menu_discard_activate(GtkMenuItem *menuitem,
+                              gpointer user_data);
+
+/*
+ * Image -> Edit editions
+ */
+void on_menu_edit_activate(GtkMenuItem *menuitem,
+                           gpointer user_data);
+
+/*
  * Image -> Remove image from gallery
  */
 void on_menu_remove_image_activate(GtkMenuItem *menuitem,
@@ -125,7 +142,13 @@ void on_radiobutton_rotate_180_toggled(GtkToggleButton *togglebutton,
  */
 void on_radiobutton_rotate_270_toggled(GtkToggleButton *togglebutton,
                                        gpointer user_data);
-
+/*
+ * Gamma slider moved
+ */
+gboolean on_scale_settings_gamma_value_changed(GtkRange      *range,
+                                               GtkScrollType *scroll,
+                                               gdouble        value,
+                                               gpointer       user_data);
 /*
  * "Move image top" button clicked
  */

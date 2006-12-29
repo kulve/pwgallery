@@ -165,6 +165,31 @@ on_menu_add_image_activate(GtkMenuItem *menuitem,
 
 
 void 
+on_menu_add_generic_activate(GtkMenuItem *menuitem,
+                             gpointer user_data)
+{
+    g_error("NOT IMPLEMENTED: on_menu_add_generic_activate");
+}
+
+
+
+void on_menu_discard_activate(GtkMenuItem *menuitem,
+                              gpointer user_data)
+{
+    g_error("NOT IMPLEMENTED: on_menu_dicard_activate");
+}
+
+
+
+void on_menu_edit_activate(GtkMenuItem *menuitem,
+                           gpointer user_data)
+{
+    g_error("NOT IMPLEMENTED: on_menu_edit_activate");
+}
+
+
+
+void 
 on_menu_remove_image_activate(GtkMenuItem *menuitem,
                               gpointer user_data)
 {
@@ -313,6 +338,18 @@ on_radiobutton_rotate_270_toggled(GtkToggleButton *togglebutton,
         return;
 
     data->current_img->rotate = 270;
+}
+
+
+
+gboolean on_scale_settings_gamma_value_changed(GtkRange      *range,
+                                               GtkScrollType *scroll,
+                                               gdouble        value,
+                                               gpointer       user_data)
+{
+    g_error("NOT IMPLEMENTED: on_menu_dicard_activate");
+    
+    return FALSE;
 }
 
 

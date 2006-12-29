@@ -98,7 +98,7 @@ glade_xml_connect_func(const gchar *handler_name,
     static GModule *allsymbols = NULL;
     GtkSignalFunc func;
     GtkSignalFunc *p_func = &func;
-    
+
     if (allsymbols == NULL) {
         /* get a handle on the main executable -- use this to find symbols */
         allsymbols = g_module_open(NULL, 0);

@@ -264,7 +264,7 @@
 		      <property name="tooltip" translatable="yes">Edit image</property>
 		      <property name="label" translatable="yes">_Edit</property>
 		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_edit_activate" last_modification_time="Fri, 14 Jul 2006 16:49:24 GMT"/>
+		      <signal name="activate" handler="on_menu_edit_activate" last_modification_time="Fri, 29 Dec 2006 17:16:50 GMT"/>
 		      <accelerator key="e" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
