@@ -62,7 +62,10 @@ gallery_init(struct data *data)
 	data->gal->uri            = g_strdup("");
     data->gal->name           = g_strdup("");
     data->gal->desc           = g_strdup("");
-	data->gal->output_dir     = g_strdup(data->output_dir);
+	data->gal->base_dir       = g_strdup(data->output_dir);
+	data->gal->dir_name       = g_strdup("pwgallery");
+	data->gal->output_dir     = g_strdup_printf("%s/%s", data->gal->base_dir,
+                                                data->gal->dir_name);
     data->gal->page_gen       = data->page_gen;
     data->gal->page_gen_prog  = g_strdup(data->page_gen_prog);
 	data->gal->templ_index    = g_strdup(data->templ_index);
@@ -121,6 +124,12 @@ gallery_free(struct data *data)
 
 	g_free(data->gal->output_dir);
     data->gal->output_dir = NULL;
+
+	g_free(data->gal->base_dir);
+    data->gal->base_dir = NULL;
+
+	g_free(data->gal->dir_name);
+    data->gal->dir_name = NULL;
 
 	g_free(data->gal->page_gen_prog);
     data->gal->page_gen_prog = NULL;
@@ -393,6 +402,34 @@ gallery_make(struct data *data)
 
     g_debug("in gallery_make");
 
+    /* Make sure that dir_name is non-empty (to avoid e.g. trying to
+       rename file://tmp */
+    if (data->gal->dir_name[0] == '\0')
+    {
+        GtkWidget *label;
+        dialog = gtk_dialog_new_with_buttons(_("Specify directory name!"),
+                                             GTK_WINDOW(data->top_window),
+                                             GTK_DIALOG_MODAL | 
+                                             GTK_DIALOG_DESTROY_WITH_PARENT,
+                                             GTK_STOCK_OK,
+                                             GTK_RESPONSE_OK,
+                                             NULL);
+
+
+        label = gtk_label_new(_("You must specify directory name for the "
+                                "gallery.\n"
+                                "Check from menu: Gallery -> Settings.\n"));
+   
+        gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox),
+                           label);
+        gtk_widget_show(label);
+
+        result = gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy (dialog);
+        
+        return;
+    }
+
     /* if gallery is modified, ask if it should be saved before making
      * it or cancel the making. */
     if (data->gal->edited == TRUE)
@@ -433,10 +470,20 @@ gallery_make(struct data *data)
 
     /* make top level directory for gallery */
     if (vfs_is_dir(data, data->gal->output_dir) == TRUE) {
-        /* FIXME: move */
-        g_error("move not implemented (%s)", data->gal->output_dir);
-        g_assert(435 == 0);
+        gchar *dir;
+        int i = 1;
+        do {
+            dir = g_strdup_printf("%s.%d", data->gal->output_dir, i);
+            if(vfs_is_dir(data, dir) == FALSE) {
+                break;
+            }
+            g_free(dir);
+        } while(1);
+
+        vfs_rename(data, data->gal->output_dir, dir);
+        g_free(dir);
     }
+
     vfs_mkdir(data, data->gal->output_dir);
 
     /* make thumbnails */

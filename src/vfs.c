@@ -78,13 +78,35 @@ vfs_mkdir(struct data *data, const gchar *uri)
     result = gnome_vfs_make_directory(uri,
                                       GNOME_VFS_PERM_USER_ALL |
                                       GNOME_VFS_PERM_GROUP_ALL);
-    if (result != GNOME_VFS_OK)
-    {
+    if (result != GNOME_VFS_OK) {
         /* FIXME: show popup */
         g_warning("Exiting because failed to make directory '%s': %s", 
                   uri, gnome_vfs_result_to_string(result));
         exit(EXIT_FAILURE);
     }
+
+}
+
+
+
+void
+vfs_rename(struct data *data, const gchar *from, const gchar *to)
+{
+    GnomeVFSResult result;
+    
+    g_assert(data != NULL);
+    g_assert(from != NULL);
+    g_assert(to != NULL);
+
+    result = gnome_vfs_move(from, to, FALSE);
+
+    if (result != GNOME_VFS_OK) {
+        /* FIXME: show popup */
+        g_warning("Exiting because failed to rename uri '%s' ->'%s': %s", 
+                  from, to, gnome_vfs_result_to_string(result));
+        exit(EXIT_FAILURE);
+    }
+
 
 }
 
@@ -103,8 +125,7 @@ vfs_read_file(struct data *data, const gchar *uri, guchar **content,
     g_assert(content_len != NULL);
 
     result = gnome_vfs_read_entire_file(uri, &file_size, (gchar **)content);
-    if (result != GNOME_VFS_OK)
-    {
+    if (result != GNOME_VFS_OK) {
         /* FIXME: show popup */
         g_warning("Exiting because failed to read entire file '%s': %s", 
                   uri, gnome_vfs_result_to_string(result));
@@ -137,8 +158,7 @@ vfs_write_file(struct data *data, const gchar *uri, const guchar *content,
 
     /* make dir if needed */
     dir = gnome_vfs_uri_extract_dirname(vfsuri);
-    if (vfs_is_dir(data, dir) == FALSE)
-    {
+    if (vfs_is_dir(data, dir) == FALSE) {
         vfs_mkdir(data, dir);
     }       
     g_free(dir);
@@ -152,8 +172,7 @@ vfs_write_file(struct data *data, const gchar *uri, const guchar *content,
                                   GNOME_VFS_PERM_USER_WRITE |
                                   GNOME_VFS_PERM_GROUP_READ |
                                   GNOME_VFS_PERM_GROUP_WRITE);
-    if (result != GNOME_VFS_OK)
-    {
+    if (result != GNOME_VFS_OK) {
         /* FIXME: show popup */
         g_warning("Exiting because failed to create uri '%s': %s", 
                   uri, gnome_vfs_result_to_string(result));
@@ -161,14 +180,12 @@ vfs_write_file(struct data *data, const gchar *uri, const guchar *content,
     }
 
     /* write file */
-    while (bytes_written_total < content_len)
-    {
+    while (bytes_written_total < content_len) {
         result = gnome_vfs_write(handle, content, 
                                  content_len - bytes_written_total,
                                  &bytes_written);
         if (result != GNOME_VFS_OK &&
-            result != GNOME_VFS_ERROR_INTERRUPTED)
-        {
+            result != GNOME_VFS_ERROR_INTERRUPTED) {
             /* FIXME: show popup */
             g_warning("Exiting because failed to write file '%s': %s", 
                       uri, gnome_vfs_result_to_string(result));

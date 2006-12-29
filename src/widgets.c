@@ -423,6 +423,7 @@ widgets_gal_settings_show(struct data *data)
 {
 	GtkWidget *dialog;
     GtkWidget *entry_gal_name;
+    GtkWidget *entry_gal_dir_name;
     GtkWidget *textview_gal_desc;
     GtkWidget *filechooserbutton_gal_dest_dir;
     GtkWidget *spinbutton_gal_thumb_w;
@@ -452,6 +453,8 @@ widgets_gal_settings_show(struct data *data)
     dialog = glade_xml_get_widget(data->glade, "dialog_gal");
     entry_gal_name = 
         glade_xml_get_widget(data->glade, "entry_gal_name");
+    entry_gal_dir_name = 
+        glade_xml_get_widget(data->glade, "entry_gal_dir_name");
     textview_gal_desc = 
         glade_xml_get_widget(data->glade, "textview_gal_desc");
     filechooserbutton_gal_dest_dir = 
@@ -493,12 +496,13 @@ widgets_gal_settings_show(struct data *data)
 
     /* Set values */
     gtk_entry_set_text(GTK_ENTRY(entry_gal_name), data->gal->name);
+    gtk_entry_set_text(GTK_ENTRY(entry_gal_dir_name), data->gal->dir_name);
     textview_buffer = 
         gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview_gal_desc));
     gtk_text_buffer_set_text(textview_buffer, data->gal->desc, -1);
     gtk_file_chooser_set_uri(
         GTK_FILE_CHOOSER(filechooserbutton_gal_dest_dir),
-        data->gal->output_dir);
+        data->gal->base_dir);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton_gal_thumb_w),
                               (gdouble)data->gal->thumb_w);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton_gal_image_h),
@@ -562,20 +566,23 @@ widgets_gal_settings_show(struct data *data)
     g_free(data->gal->name);
     data->gal->name = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry_gal_name)));
 
+    g_free(data->gal->dir_name);
+    data->gal->dir_name = 
+        g_strdup(gtk_entry_get_text(GTK_ENTRY(entry_gal_dir_name)));
+
     g_free(data->gal->desc);
     gtk_text_buffer_get_end_iter(textview_buffer, &end_iter);
     gtk_text_buffer_get_start_iter(textview_buffer, &start_iter);
     data->gal->desc = gtk_text_buffer_get_text(textview_buffer,
                                                &end_iter, &start_iter, TRUE);
-    g_free(data->gal->output_dir);
-    data->gal->output_dir = gtk_file_chooser_get_uri(
+    g_free(data->gal->base_dir);
+    data->gal->base_dir = gtk_file_chooser_get_uri(
         GTK_FILE_CHOOSER(filechooserbutton_gal_dest_dir));
-    g_assert(data->gal->output_dir != NULL);
+    g_assert(data->gal->base_dir != NULL);
 
     g_free(data->gal->output_dir);
-    data->gal->output_dir = gtk_file_chooser_get_uri(
-        GTK_FILE_CHOOSER(filechooserbutton_gal_dest_dir));
-    g_assert(data->gal->output_dir != NULL);
+    data->gal->output_dir = g_strdup_printf("%s/%s", data->gal->base_dir, 
+                                            data->gal->dir_name);
 
     data->gal->thumb_w = (gint)gtk_spin_button_get_value(
         GTK_SPIN_BUTTON(spinbutton_gal_thumb_w));

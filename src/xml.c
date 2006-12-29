@@ -70,10 +70,12 @@ xml_gal_write(struct data *data, gsize *len)
                 BAD_CAST VERSION);
     xmlNewTextChild(settings, NULL, BAD_CAST "name",
                 BAD_CAST data->gal->name);
+    xmlNewTextChild(settings, NULL, BAD_CAST "dir_name",
+                BAD_CAST data->gal->dir_name);
     xmlNewTextChild(settings, NULL, BAD_CAST "desc",
                 BAD_CAST data->gal->desc);
     xmlNewChild(settings, NULL, BAD_CAST "output_dir",
-                BAD_CAST data->gal->output_dir);
+                BAD_CAST data->gal->base_dir);
     xmlNewChild(settings, NULL, BAD_CAST "page_gen_prog",
                 BAD_CAST data->gal->page_gen_prog);
     xmlNewChild(settings, NULL, BAD_CAST "templ_index",
@@ -292,6 +294,11 @@ parse_gal_settings(struct data *data, xmlNodePtr node)
             g_free(data->gal->name);
             data->gal->name = (gchar *)xmlNodeGetContent(node);
         }
+        if ((!xmlStrcmp(node->name, (const xmlChar *) "dir_name")))
+        {
+            g_free(data->gal->dir_name);
+            data->gal->dir_name = (gchar *)xmlNodeGetContent(node);
+        }
         else if ((!xmlStrcmp(node->name, (const xmlChar *) "desc")))
         {
             g_free(data->gal->desc);
@@ -299,8 +306,8 @@ parse_gal_settings(struct data *data, xmlNodePtr node)
         }
         else if ((!xmlStrcmp(node->name, (const xmlChar *) "output_dir")))
         {
-            g_free(data->gal->output_dir);
-            data->gal->output_dir = (gchar *)xmlNodeGetContent(node);
+            g_free(data->gal->base_dir);
+            data->gal->base_dir = (gchar *)xmlNodeGetContent(node);
         }
         else if ((!xmlStrcmp(node->name, (const xmlChar *) "page_gen_prog")))
         {
@@ -397,6 +404,12 @@ parse_gal_settings(struct data *data, xmlNodePtr node)
         }
         node = node->next;
     }
+
+    /* concatenate the actual output dir */
+    g_free(data->gal->output_dir);
+    data->gal->output_dir = g_strdup_printf("%s/%s", data->gal->base_dir, 
+                                            data->gal->dir_name);
+            
 }
 
 

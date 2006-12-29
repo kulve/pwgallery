@@ -44,6 +44,11 @@ gboolean vfs_is_dir(struct data *data, const gchar *uri);
 void vfs_mkdir(struct data *data, const gchar *uri);
 
 /*
+ * Rename URI
+ */
+void vfs_rename(struct data *data, const gchar *from, const gchar *to);
+
+/*
  * Read a whole uri to buffer
  */
 void vfs_read_file(struct data *data, const gchar *uri, guchar **content,

@@ -173,7 +173,9 @@ struct gallery
     gchar          *uri;               /* uri to the gallery file */
     gchar          *name;              /* name of the current gal. */
     gchar          *desc;              /* description of the current gal. */
+    gchar          *base_dir;          /* gallery's output base dir */
     gchar          *output_dir;        /* gallery's output dir */
+    gchar          *dir_name;          /* gallery's dir name */
     gint           page_gen;           /* page generator */
     gchar          *page_gen_prog;     /* page generator program */
     gchar          *templ_index;       /* template for the index page */
