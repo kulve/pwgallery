@@ -484,25 +484,37 @@ gallery_make(struct data *data)
 
     vfs_mkdir(data, data->gal->output_dir);
 
+    widgets_set_progress(data, 0, _("Creating gallery"));
+
     /* make thumbnails */
     if (!_make_thumbnails(data)) {
+        widgets_set_progress(data, 0, _("Failed!"));
         return;
     }
 
     /* make webimages */
     if (!_make_webimages(data)) {
+        widgets_set_progress(data, 0, _("Failed!"));
         return;
     }
+
+    widgets_set_progress(data, 0, _("Creating index page"));
 
     /* make index page */
     if (!html_make_index_page(data)) {
+        widgets_set_progress(data, 0, _("Failed!"));
         return;
     }
 
+    widgets_set_progress(data, 0, _("Creating image pages"));
+
     /* make image pages */
     if (!html_make_image_pages(data)) {
+        widgets_set_progress(data, 0, _("Failed!"));
         return;
     }
+
+    widgets_set_progress(data, 0, _("Idle"));
 }
 
 
@@ -790,10 +802,14 @@ _make_thumbnails(struct data *data)
 {
     gchar       *dir_uri;
     GSList      *images;  
+    gint        tot, i;
 
     g_assert(data != NULL);
 
     g_debug("in _make_thumbnails");
+
+    tot = g_slist_length(data->gal->images);
+    i = 0;
 
     /* make the thumbnail directory */
     dir_uri = g_strdup_printf("%s/thumbnails", data->gal->output_dir);
@@ -804,6 +820,8 @@ _make_thumbnails(struct data *data)
     while(images != NULL) {
         gchar *thumb_uri;
         struct image *image = images->data;
+        gfloat frac;
+        gchar progress[256];
 
         thumb_uri = g_strdup_printf("%s/%s.%s", dir_uri, 
                                     image->basefilename, image->ext);
@@ -817,6 +835,13 @@ _make_thumbnails(struct data *data)
         g_free(thumb_uri);
 
         images = images->next;
+        /* update status */
+        ++i;
+        snprintf(progress, 256, "%s: %d/%d", _("Creating thumbnails"), i, tot);
+        frac = (gfloat)i/(gfloat)tot;
+        g_debug("frac: %f", frac);
+        widgets_set_progress(data, frac, progress);
+        
         while (g_main_context_iteration(NULL, FALSE));
     }
     g_free(dir_uri);
@@ -833,16 +858,21 @@ static gboolean
 _make_webimages(struct data *data)
 {
     gint image_index = 0;
+    gint tot, i;
 
     g_assert(data != NULL);
 
     g_debug("in _make_webimages");
+
+    tot = g_slist_length(data->gal->images);
 
     /* go through all sizes */
     while(++image_index < 5) {
         gchar       *dir_uri;
         GSList      *images;
         gint        image_h = -1;
+
+        i = 0; /* zero image counter */
 
         /* FIXME: ugly. Sizes should be in a list */
         switch(image_index) {
@@ -881,8 +911,11 @@ _make_webimages(struct data *data)
         /* make the webimages for all images in gallery */
         images = data->gal->images;
         while(images != NULL) {
+
             gchar *img_uri;
             struct image *image = images->data;
+            gfloat frac;
+            gchar progress[256];
             
             img_uri = g_strdup_printf("%s/%s.%s", dir_uri, image->basefilename, 
                                       image->ext);
@@ -896,6 +929,15 @@ _make_webimages(struct data *data)
             g_free(img_uri);
             
             images = images->next;
+
+            /* update status */
+            ++i;
+            snprintf(progress, 256, "%s %d: %d/%d", 
+                     _("Creating images"), image_h, i, tot);
+            frac = (gfloat)i/(gfloat)tot;
+            g_debug("frac: %f", frac);
+            widgets_set_progress(data, frac, progress);
+
             while (g_main_context_iteration(NULL, FALSE));
         }
         g_free(dir_uri);
