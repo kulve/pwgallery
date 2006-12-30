@@ -486,6 +486,8 @@ gallery_make(struct data *data)
 
     widgets_set_progress(data, 0, _("Creating gallery"));
 
+    while (g_main_context_iteration(NULL, FALSE));
+
     /* make thumbnails */
     if (!_make_thumbnails(data)) {
         widgets_set_progress(data, 0, _("Failed!"));
@@ -498,15 +500,11 @@ gallery_make(struct data *data)
         return;
     }
 
-    widgets_set_progress(data, 0, _("Creating index page"));
-
     /* make index page */
     if (!html_make_index_page(data)) {
         widgets_set_progress(data, 0, _("Failed!"));
         return;
     }
-
-    widgets_set_progress(data, 0, _("Creating image pages"));
 
     /* make image pages */
     if (!html_make_image_pages(data)) {
