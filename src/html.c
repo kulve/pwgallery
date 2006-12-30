@@ -28,6 +28,7 @@
 #include "vfs.h"
 
 #include <glib.h>
+#include <gdk/gdkkeysyms.h>       /* key codes for _escape */
 #include <strings.h>              /* rindex */
 #include <string.h>               /* strstr */
 
@@ -64,6 +65,7 @@ struct pwg_tag {
 
 
 void _tag_replace(GString **templ, const gchar *tag, const gchar *value);
+GString *_escape(gchar *text);
 
 /*
  * Make index page html
@@ -135,6 +137,7 @@ html_make_index_page(struct data *data)
         struct image       *image = images->data;
         struct image_size  *size;
         gchar              tmpbuf[1024];
+        GString            *esc;
 
         if (image->sizes == NULL) {
             /* FIXME: popup */
@@ -152,7 +155,9 @@ html_make_index_page(struct data *data)
         _tag_replace(&tmp, TAG_INDEX_IMAGE_PAGE, tmpbuf);
 
         /* description */
-        _tag_replace(&tmp, TAG_INDEX_DESC, image->text);
+        esc = _escape(image->text);
+        _tag_replace(&tmp, TAG_INDEX_DESC, esc->str);
+        g_string_free(esc, TRUE);
 
         /* thumb_img */
         g_snprintf(tmpbuf, 1024, "thumbnails/%s.%s", 
@@ -271,6 +276,7 @@ html_make_image_pages(struct data *data)
         sizes = image->sizes;
         while(sizes) {
             struct image_size *size = sizes->data;
+            GString           *esc;
 
             /* copy empty image template */
             page = g_string_assign(page, page_templ->str);
@@ -352,8 +358,10 @@ html_make_image_pages(struct data *data)
             _tag_replace(&page, TAG_IMAGE_ALT, "");
             
             /* image desc */
-            _tag_replace(&page, TAG_IMAGE_DESC, image->text);
-            
+            esc = _escape(image->text);
+            _tag_replace(&page, TAG_IMAGE_DESC, esc->str);
+            g_string_free(esc, TRUE);
+
             /* save page to file */
             if (first_size) {
                 g_snprintf(tmpbuf, 1024, "%s/%s.%s", 
@@ -414,6 +422,54 @@ void _tag_replace(GString **templ, const gchar *tag, const gchar *value)
 }
 
 
+
+/*
+ * Escape text.
+ * & -> &amp;
+ * unicode -> &#unicode;
+ */
+GString *_escape(gchar *text)
+{
+    gchar *p;
+    gunichar uch;
+    GString  *escaped;
+
+    /* Assuming 100K is usually enough */
+    escaped = g_string_sized_new(100*1024);
+
+    g_return_val_if_fail(text != NULL, NULL);
+
+    g_debug("in _escape");
+
+    p = text;
+    while(*p) {
+        uch = g_utf8_get_char_validated(p, -1);
+
+        /* ASCII */
+        if (uch < 128) {
+            
+            /* special cases */
+            switch(uch) {
+            case GDK_ampersand:
+                escaped = g_string_append(escaped, "&amp;");
+                break;
+            default:
+                escaped = g_string_append_unichar(escaped, uch);
+                break;
+            }
+        }
+        /* UTF8 */
+        else
+        {
+            gchar ch[16];
+            snprintf(ch, 16, "&#x%x;", uch);
+            escaped = g_string_append(escaped, ch);
+        }
+        p = g_utf8_next_char( p );
+    }
+
+    return escaped;
+}
 
 
 
