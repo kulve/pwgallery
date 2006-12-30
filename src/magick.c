@@ -113,9 +113,9 @@ gboolean magick_make_webimage(struct data *data,
                               const gchar *uri,
                               gint image_h)
 {
+    struct image_size *img_size;
     MagickWand *wand;
     gdouble scale;
-    gint w, h;
     GnomeVFSResult result;
     GnomeVFSFileInfo info;
 
@@ -124,6 +124,8 @@ gboolean magick_make_webimage(struct data *data,
     
     g_debug("in magick_make_webimage");
 
+    img_size = g_new0(struct image_size, 1);
+
     wand = NewMagickWand();
     g_return_val_if_fail( wand, FALSE );
 
@@ -131,11 +133,12 @@ gboolean magick_make_webimage(struct data *data,
     if (!image->nomodify) {
         if (!_apply_modifications(data, wand, image)) {
             DestroyMagickWand(wand);
+            g_free(img_size);
             return FALSE;
         }
         
         /* calculate width and height for the webimage */
-        h = image_h;
+        img_size->height = image_h;
         switch( image->rotate ) 
             {
             case 90:
@@ -151,11 +154,12 @@ gboolean magick_make_webimage(struct data *data,
                 scale = (gdouble)image->width / (gdouble)image->height;
                 break;
             }
-        w = (gint)(h * scale);
+        img_size->width = (gint)(img_size->height * scale);
         
         /* resize the webimage */
-        if (!_resize(data, wand, image, w, h)) {
+        if (!_resize(data, wand, image, img_size->width, img_size->height)) {
             DestroyMagickWand(wand);
+            g_free(img_size);
             return FALSE;
         }
     }
@@ -163,6 +167,7 @@ gboolean magick_make_webimage(struct data *data,
     /* save the image to a file */
     if (!_save(data, wand, uri)) {
         DestroyMagickWand(wand);
+        g_free(img_size);
         return FALSE;
     }
     
@@ -171,10 +176,13 @@ gboolean magick_make_webimage(struct data *data,
     /* get file size */
     result = gnome_vfs_get_file_info(uri, &info, GNOME_VFS_FILE_INFO_DEFAULT);
     if (result == GNOME_VFS_OK) {
-        image->size = info.size / 1024;
+        img_size->size = info.size / 1024;
     } else {
-        image->size = 0;
+        img_size->size = 0;
     }
+    
+    image->sizes = g_slist_append(image->sizes, img_size);
+
     return TRUE;
 }
 

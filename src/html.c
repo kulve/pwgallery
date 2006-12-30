@@ -52,6 +52,10 @@ struct pwg_tag {
 #define TAG_IMAGE_PREV        "<<PREV>>"
 #define TAG_IMAGE_NEXT        "<<NEXT>>"
 #define TAG_IMAGE_INDEX       "<<INDEX>>"
+#define TAG_IMAGE_SIZE_1      "<<SIZE_1>>"
+#define TAG_IMAGE_SIZE_2      "<<SIZE_2>>"
+#define TAG_IMAGE_SIZE_3      "<<SIZE_3>>"
+#define TAG_IMAGE_SIZE_4      "<<SIZE_4>>"
 #define TAG_IMAGE_W           "<<IMAGE_W>>"
 #define TAG_IMAGE_H           "<<IMAGE_H>>"
 #define TAG_IMAGE_ALT         "<<IMAGE_ALT>>"
@@ -128,8 +132,16 @@ html_make_index_page(struct data *data)
     /* make the index_img for all images in gallery */
     images = data->gal->images;
     while(images != NULL) {
-        struct image   *image = images->data;
-        gchar          tmpbuf[1024];
+        struct image       *image = images->data;
+        struct image_size  *size;
+        gchar              tmpbuf[1024];
+
+        if (image->sizes == NULL) {
+            /* FIXME: popup */
+            g_error("html_make_index_page: no sizes!");
+        }
+
+        size = image->sizes->data;
 
         /* copy empty index_img template */
         tmp = g_string_assign(tmp, index_img_templ->str);
@@ -143,7 +155,8 @@ html_make_index_page(struct data *data)
         _tag_replace(&tmp, TAG_INDEX_DESC, image->text);
 
         /* thumb_img */
-        g_snprintf(tmpbuf, 1024, "thumbnails/%s.jpg", image->basefilename);
+        g_snprintf(tmpbuf, 1024, "thumbnails/%s.%s", 
+                   image->basefilename, image->ext);
         _tag_replace(&tmp, TAG_INDEX_THUMB_IMG, tmpbuf);
         
         /* thumb_w */
@@ -155,7 +168,7 @@ html_make_index_page(struct data *data)
         _tag_replace(&tmp, TAG_INDEX_THUMB_H, tmpbuf);
         
         /* thumb_alt */
-        g_snprintf(tmpbuf, 1024, "%dKb", image->size);
+        g_snprintf(tmpbuf, 1024, "%dKb", size->size);
         _tag_replace(&tmp, TAG_INDEX_THUMB_ALT, tmpbuf);
         
         /* append data to index_img for later addition to index page */
@@ -206,7 +219,8 @@ html_make_image_pages(struct data *data)
     gsize        templ_page_len;
     gchar        *index_ext;
     gchar        *page_ext;
-    GSList       *images;  
+    GSList       *images;
+    GSList       *sizes;
     GString      *page_templ;
     GString      *page;
     struct image *prev_img = NULL;
@@ -251,66 +265,115 @@ html_make_image_pages(struct data *data)
     while(images != NULL) {
         struct image   *image = images->data;
         gchar          tmpbuf[1024];
+        gboolean       first_size = TRUE;
 
-        /* copy empty image template */
-        page = g_string_assign(page, page_templ->str);
+        /* go through all image sizes */
+        sizes = image->sizes;
+        while(sizes) {
+            struct image_size *size = sizes->data;
 
-        /* replace tags in index page template */
+            /* copy empty image template */
+            page = g_string_assign(page, page_templ->str);
 
-        /* title */
-        _tag_replace(&page, TAG_IMAGE_TITLE, data->gal->name);
+            /* replace tags in index page template */
+            
+            /* title */
+            _tag_replace(&page, TAG_IMAGE_TITLE, data->gal->name);
+            
+            /* prev link to previous image or, if null, to index */
+            if (prev_img == NULL) {
+                g_snprintf(tmpbuf, 1024, "%sindex.%s", 
+                           (first_size ? "" : "../"), index_ext);
+            } else {
+                g_snprintf(tmpbuf, 1024, "%s.%s", 
+                           prev_img->basefilename, page_ext);
+            }
+            _tag_replace(&page, TAG_IMAGE_PREV, tmpbuf);
+            
+            /* next link to next image or, if null, to index */
+            if (images->next == NULL) {
+                g_snprintf(tmpbuf, 1024, "%sindex.%s",
+                           (first_size ? "" : "../"), index_ext);
+            } else {
+                g_snprintf(tmpbuf, 1024, "%s.%s", 
+                           ((struct image *)(images->next->data))->basefilename,
+                           page_ext);
+            }
+            _tag_replace(&page, TAG_IMAGE_NEXT, tmpbuf);
+            
+            /* link to index */
+            g_snprintf(tmpbuf, 1024, "%sindex.%s", 
+                       (first_size ? "" : "../"),
+                       index_ext);
+            _tag_replace(&page, TAG_IMAGE_INDEX, tmpbuf);
+            
+            /* image link */
+            g_snprintf(tmpbuf, 1024, "%s%s.%s", 
+                       (first_size ? "images/" : ""),
+                       image->basefilename, image->ext);
+            _tag_replace(&page, TAG_IMAGE_LINK, tmpbuf);
+            
+            /* link to size 1 (default size) image */
+            g_snprintf(tmpbuf, 1024, "%s%s.%s", 
+                       (first_size ? "" : "../"),
+                       image->basefilename, page_ext);
+            _tag_replace(&page, TAG_IMAGE_SIZE_1, tmpbuf);
 
-        /* prev link to previous image or, if null, to index */
-        if (prev_img == NULL) {
-            g_snprintf(tmpbuf, 1024, "index.%s", index_ext);
-        } else {
-            g_snprintf(tmpbuf, 1024, "%s.%s", 
-                       prev_img->basefilename, page_ext);
+            /* link to size 2 image */
+            g_snprintf(tmpbuf, 1024, "%simages_%d/%s.%s", 
+                       (first_size ? "" : "../"),
+                       data->gal->image_h2,
+                       image->basefilename, page_ext);
+            _tag_replace(&page, TAG_IMAGE_SIZE_2, tmpbuf);
+
+            /* link to size 3 image */
+            g_snprintf(tmpbuf, 1024, "%simages_%d/%s.%s", 
+                       (first_size ? "" : "../"),
+                       data->gal->image_h3,
+                       image->basefilename, page_ext);
+            _tag_replace(&page, TAG_IMAGE_SIZE_3, tmpbuf);
+
+            /* link to size 4 image */
+            g_snprintf(tmpbuf, 1024, "%simages_%d/%s.%s", 
+                       (first_size ? "" : "../"),
+                       data->gal->image_h4,
+                       image->basefilename, page_ext);
+            _tag_replace(&page, TAG_IMAGE_SIZE_4, tmpbuf);
+
+            /* image width */
+            g_snprintf(tmpbuf, 1024, "%d", size->width);
+            _tag_replace(&page, TAG_IMAGE_W, tmpbuf);
+            
+            /* image height */
+            g_snprintf(tmpbuf, 1024, "%d", size->height);
+            _tag_replace(&page, TAG_IMAGE_H, tmpbuf);
+            
+            /* image alt desc */
+            _tag_replace(&page, TAG_IMAGE_ALT, "");
+            
+            /* image desc */
+            _tag_replace(&page, TAG_IMAGE_DESC, image->text);
+            
+            /* save page to file */
+            if (first_size) {
+                g_snprintf(tmpbuf, 1024, "%s/%s.%s", 
+                           data->gal->output_dir, 
+                           image->basefilename, page_ext);
+            } else {
+                g_snprintf(tmpbuf, 1024, "%s/images_%d/%s.%s", 
+                           data->gal->output_dir,
+                           size->height, 
+                           image->basefilename, page_ext);
+            }
+            vfs_write_file(data, tmpbuf, (guchar*)page->str, page->len);
+            
+            first_size = FALSE;
+            sizes = sizes->next;
         }
-        _tag_replace(&page, TAG_IMAGE_PREV, tmpbuf);
-
-        /* next link to next image or, if null, to index */
-        if (images->next == NULL) {
-            g_snprintf(tmpbuf, 1024, "index.%s", index_ext);
-        } else {
-            g_snprintf(tmpbuf, 1024, "%s.%s", 
-                       ((struct image *)(images->next->data))->basefilename, 
-                       page_ext);
-        }
-        _tag_replace(&page, TAG_IMAGE_NEXT, tmpbuf);
-
-        /* link to index */
-        g_snprintf(tmpbuf, 1024, "index.%s", index_ext);
-        _tag_replace(&page, TAG_IMAGE_INDEX, tmpbuf);
-
-        /* image link */
-        g_snprintf(tmpbuf, 1024, "images/%s.jpg", image->basefilename);
-        _tag_replace(&page, TAG_IMAGE_LINK, tmpbuf);
-
-        /* image width */
-        g_snprintf(tmpbuf, 1024, "%d", 666);
-        _tag_replace(&page, TAG_IMAGE_W, tmpbuf);
-
-        /* image height */
-        g_snprintf(tmpbuf, 1024, "%d", data->gal->image_h);
-        _tag_replace(&page, TAG_IMAGE_H, tmpbuf);
-
-        /* image alt desc */
-        _tag_replace(&page, TAG_IMAGE_ALT, "");
-
-        /* image desc */
-        _tag_replace(&page, TAG_IMAGE_DESC, image->text);
-        
-        /* save page to file */
-        g_snprintf(tmpbuf, 1024, "%s/%s.%s", 
-                   data->gal->output_dir, 
-                   image->basefilename, page_ext);
-
-        vfs_write_file(data, tmpbuf, (guchar*)page->str, page->len);
-
         prev_img = image;
         images = images->next;
     }
+
     g_free(index_ext);
     g_string_free(page, TRUE);
     g_string_free(page_templ, TRUE);

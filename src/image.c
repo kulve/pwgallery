@@ -46,6 +46,7 @@ image_init(struct data *data)
     /* initialize values */
     img->image        = NULL;
     img->button       = NULL;
+    img->sizes        = NULL;
     img->width        = 0;
     img->height       = 0;
     img->thumb_w      = 0;
@@ -55,7 +56,7 @@ image_init(struct data *data)
     img->text         = g_strdup("");
     img->uri          = g_strdup("");
     img->basefilename = g_strdup("");
-    img->size         = 0;
+    img->ext          = g_strdup("");
     img->nomodify     = FALSE;
         
 	return img;
@@ -66,6 +67,8 @@ image_init(struct data *data)
 void
 image_free(struct image *img)
 {
+    GSList *list;
+
 	g_assert(img != NULL);
 	
 	/* destroy widgets */
@@ -75,10 +78,18 @@ image_free(struct image *img)
         /* No need to destroy img->image, since its contained in the button */
 	}
 
+    /* free list of image sizes */
+    list = img->sizes;
+    while(list) {
+        g_free(list->data);
+        list = g_slist_delete_link(list, list);
+    }
+
 	/* free other fields */
 	g_free(img->text);
 	g_free(img->uri);
     g_free(img->basefilename);
+    g_free(img->ext);
 	g_free(img);
 }
 
@@ -195,12 +206,17 @@ image_open(struct data *data, gchar *uri)
     g_free(img->uri);
     img->uri = uri;
 
-    /* get basename of the file without extension */
+    /* get basename of the file without extension and just the extension  */
     g_free(img->basefilename);
+    g_free(img->ext);
     img->basefilename = g_path_get_basename(img->uri);
     tmpp = rindex(img->basefilename, '.');
     if (tmpp != NULL) {
+        img->ext = g_strdup(tmpp + 1);
         *tmpp = '\0';
+    } else {
+        /* let's do JPGs if failed to check to real extension */
+        img->ext = g_strdup("jpg");
     }
 
     return img;	

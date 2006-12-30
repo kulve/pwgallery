@@ -200,6 +200,7 @@ struct image
     /* FIXME: is image need? Would child-of-button do? */
     GtkWidget       *image;            /* pointer to image widget */
     GtkWidget       *button;           /* pointer to button widget */
+    GSList          *sizes;            /* List of image sizes */
     gint            width;             /* original width of the image */
     gint            height;            /* original height of the image */
     gint            thumb_w;           /* thumbnail width */
@@ -209,11 +210,18 @@ struct image
     gchar           *text;             /* image description */
     gchar           *uri;              /* URI to the original image */
     gchar           *basefilename;     /* filename without extension */
-    gint            size;              /* image size in kilobytes */
+    gchar           *ext;              /* extension of the image */
     /* FIXME: add edited uri */
     /* FIXME: add renamed uri */
     /* FIXME: add page gen int */
     gboolean        nomodify;          /* do not modify flag */
+};
+
+struct image_size
+{
+    gint            width;             /* width of the created image */
+    gint            height;            /* height of the created image */
+    gint            size;              /* size of the image in kilobytes */
 };
 
 #endif

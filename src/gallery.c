@@ -404,8 +404,7 @@ gallery_make(struct data *data)
 
     /* Make sure that dir_name is non-empty (to avoid e.g. trying to
        rename file://tmp */
-    if (data->gal->dir_name[0] == '\0')
-    {
+    if (data->gal->dir_name[0] == '\0') {
         GtkWidget *label;
         dialog = gtk_dialog_new_with_buttons(_("Specify directory name!"),
                                              GTK_WINDOW(data->top_window),
@@ -432,8 +431,7 @@ gallery_make(struct data *data)
 
     /* if gallery is modified, ask if it should be saved before making
      * it or cancel the making. */
-    if (data->gal->edited == TRUE)
-    {
+    if (data->gal->edited == TRUE) {
         GtkWidget *label;
         dialog = gtk_dialog_new_with_buttons(_("Save changes?"),
                                              GTK_WINDOW(data->top_window),
@@ -456,8 +454,7 @@ gallery_make(struct data *data)
         result = gtk_dialog_run(GTK_DIALOG(dialog));
         gtk_widget_destroy (dialog);
 
-        switch(result)
-        {
+        switch(result) {
         case GTK_RESPONSE_CANCEL:
             return;
         case GTK_RESPONSE_YES:
@@ -534,25 +531,23 @@ gallery_add_new_images(struct data *data, GSList *uris)
 	widgets_set_status(data, _("Adding images"));
 
 	/* Add images */
-	while (uris)
-	{
+	while (uris) {
 		img = image_open(data, uris->data);
-		if (img != NULL)
-		{
+		if (img != NULL) {
 			/* update progress */
 			g_snprintf(p_text, 128, "%d/%d", file_counter++, tot_files);
 			widgets_set_progress(data, (gfloat)file_counter/(gfloat)tot_files,
 								 p_text);
 			data->gal->images = g_slist_append(data->gal->images, img);
-
+            
 			gtk_widget_show( img->image );
 			gtk_widget_show( img->button );
-
+            
             while (g_main_context_iteration(NULL, FALSE));
 		}
 		uris = uris->next;
 	}
-
+    
 	g_slist_free(first);
 
     /* select first image, if there was no images before this addition */
@@ -810,7 +805,8 @@ _make_thumbnails(struct data *data)
         gchar *thumb_uri;
         struct image *image = images->data;
 
-        thumb_uri = g_strdup_printf("%s/%s.jpg", dir_uri, image->basefilename);
+        thumb_uri = g_strdup_printf("%s/%s.%s", dir_uri, 
+                                    image->basefilename, image->ext);
         
         /* make the thumbnail and save it to a file */
         if (magick_make_thumbnail(data, image, thumb_uri) == FALSE) {
@@ -821,6 +817,7 @@ _make_thumbnails(struct data *data)
         g_free(thumb_uri);
 
         images = images->next;
+        while (g_main_context_iteration(NULL, FALSE));
     }
     g_free(dir_uri);
 
@@ -844,7 +841,7 @@ _make_webimages(struct data *data)
     /* go through all sizes */
     while(++image_index < 5) {
         gchar       *dir_uri;
-        GSList      *images;  
+        GSList      *images;
         gint        image_h = -1;
 
         /* FIXME: ugly. Sizes should be in a list */
@@ -863,14 +860,14 @@ _make_webimages(struct data *data)
             break;
         default: 
             /* we shouldn't be here */
-            g_assert(826 == 0);
+            g_error("_make_webimages: Too many image sizes");
         }
         
         /* make only images with specified size */
         if (image_h == 0) {
             continue;
         }
-        
+
         /* make the webimage directory */
         if (image_index == 1) {
             /* default size images to "images" dir for backward compability */
@@ -884,33 +881,22 @@ _make_webimages(struct data *data)
         /* make the webimages for all images in gallery */
         images = data->gal->images;
         while(images != NULL) {
-            gchar *img_uri, *filename, *tmpp, *basefilename;
+            gchar *img_uri;
             struct image *image = images->data;
             
-            /* get filename without extension */
-            filename = g_strdup(image->uri);
-            tmpp = rindex(filename, '.'); /* last dot to \0 */
-            if (tmpp != NULL) {
-                *tmpp = '\0';
-            }
-            tmpp = rindex(filename, '/'); /* last / to starting point */
-            if (tmpp != NULL) {
-                basefilename = tmpp;
-            }
-            
-            img_uri = g_strdup_printf("%s/%s.jpg", dir_uri, basefilename);
+            img_uri = g_strdup_printf("%s/%s.%s", dir_uri, image->basefilename, 
+                                      image->ext);
             
             /* make the webimage and save it to a file */
             if (magick_make_webimage(data, image, img_uri, image_h) == FALSE) {
                 g_free(img_uri);
-                g_free(filename);
                 g_free(dir_uri);
                 return FALSE;
             }
             g_free(img_uri);
-            g_free(filename);
             
             images = images->next;
+            while (g_main_context_iteration(NULL, FALSE));
         }
         g_free(dir_uri);
     }
