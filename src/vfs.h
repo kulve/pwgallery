@@ -29,9 +29,14 @@
 #include <glib.h>
 
 /*
- * Check if uri is found and file
+ * Check if uri is found and is a file
  */
 gboolean vfs_is_file(struct data *data, const gchar *uri);
+
+/*
+ * Check if uri is found and is an image according to the mimetype
+ */
+gboolean vfs_is_image(struct data *data, const gchar *uri);
 
 /*
  * Check if uri is found and directory

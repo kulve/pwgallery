@@ -27,6 +27,7 @@
 #include <glib.h>
 #include <libgnomevfs/gnome-vfs.h>
 #include <stdlib.h>                 /* EXIT_FAILURE */
+#include <string.h>                 /* strncmp */
 
 gboolean
 vfs_is_file(struct data *data, const gchar *uri)
@@ -43,6 +44,33 @@ vfs_is_file(struct data *data, const gchar *uri)
     gnome_vfs_uri_unref(guri);
 
     return found;
+}
+
+
+
+gboolean
+vfs_is_image(struct data *data, const gchar *uri)
+{
+    GnomeVFSFileInfo info;
+    GnomeVFSResult result;
+
+    g_assert(data != NULL);
+    g_assert(uri != NULL);
+
+    /* get mime type */
+    result = gnome_vfs_get_file_info(uri, &info, 
+                                     GNOME_VFS_FILE_INFO_DEFAULT | 
+                                     GNOME_VFS_FILE_INFO_GET_MIME_TYPE |
+                                     GNOME_VFS_FILE_INFO_FORCE_SLOW_MIME_TYPE |
+                                     GNOME_VFS_FILE_INFO_FOLLOW_LINKS);
+    if (result == GNOME_VFS_OK) {
+        const char *mime = gnome_vfs_file_info_get_mime_type(&info);
+        if (strncmp(mime, "image/", 6) == 0) {
+            return TRUE;
+        }
+    } 
+
+    return FALSE;
 }
 
 

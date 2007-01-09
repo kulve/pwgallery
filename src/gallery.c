@@ -561,8 +561,14 @@ gallery_add_new_images(struct data *data, GSList *uris)
 	g_slist_free(first);
 
     /* select first image, if there was no images before this addition */
-    if (data->current_img == NULL)
-        data->current_img = (struct image *)(data->gal->images->data);
+    if (data->current_img == NULL) {
+        if (data->gal->images != NULL) {
+            data->current_img = (struct image *)(data->gal->images->data);
+        } else {
+            /* nothing to do, still no images */
+            return ;
+        }
+    }
 
     widgets_update_table(data);
     

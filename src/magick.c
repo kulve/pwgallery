@@ -174,7 +174,9 @@ gboolean magick_make_webimage(struct data *data,
     DestroyMagickWand(wand);
 
     /* get file size */
-    result = gnome_vfs_get_file_info(uri, &info, GNOME_VFS_FILE_INFO_DEFAULT);
+    result = gnome_vfs_get_file_info(uri, &info,
+                                     GNOME_VFS_FILE_INFO_DEFAULT | 
+                                     GNOME_VFS_FILE_INFO_FOLLOW_LINKS);
     if (result == GNOME_VFS_OK) {
         img_size->size = info.size / 1024;
     } else {

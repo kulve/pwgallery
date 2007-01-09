@@ -24,6 +24,7 @@
 #include "main.h"
 #include "image.h"
 #include "gallery.h"
+#include "vfs.h"
 
 #include <glib.h>
 #include <gtk/gtk.h>
@@ -113,6 +114,11 @@ image_open(struct data *data, gchar *uri)
 	g_assert(uri != NULL);
 
 	g_debug("in image_open");
+
+    /* check if the file is image */
+    if (vfs_is_image(data, uri) == FALSE) {
+        return NULL;
+    }
 
 	/* open image */
 	result = gnome_vfs_open_uri(&handle, gnome_vfs_uri_new(uri),
