@@ -587,20 +587,29 @@ static void action_image_add(gpointer user_data)
     dialog = gtk_file_chooser_dialog_new("Select Images",
                                          GTK_WINDOW(data->top_window),
                                          GTK_FILE_CHOOSER_ACTION_OPEN,
-                                         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                                         GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+                                         GTK_STOCK_ADD, GTK_RESPONSE_OK,
+                                         GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE,
+                                         GTK_STOCK_OPEN, GTK_RESPONSE_YES,
                                          NULL);
     
     gtk_file_chooser_set_current_folder_uri(GTK_FILE_CHOOSER(dialog), 
                                             data->img_dir);
     gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), TRUE);
 
-    result = gtk_dialog_run(GTK_DIALOG(dialog));
-    if (result != GTK_RESPONSE_ACCEPT)
-    {
-        gtk_widget_destroy (dialog);
-        return;
-    }
+    do {
+        result = gtk_dialog_run(GTK_DIALOG(dialog));
+        switch(result) {
+        case GTK_RESPONSE_OK: /* add an image */
+            uris = gtk_file_chooser_get_uris(GTK_FILE_CHOOSER(dialog));
+            gallery_add_new_images(data, uris);    
+            break;
+        case GTK_RESPONSE_YES: /* add all selected images */
+            break;
+        default:
+            gtk_widget_destroy (dialog);
+            return;
+        }
+    } while (TRUE);
 
     uris = gtk_file_chooser_get_uris(GTK_FILE_CHOOSER(dialog));
 
