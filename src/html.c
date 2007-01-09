@@ -40,6 +40,7 @@ struct pwg_tag {
 
 #define TAG_INDEX_TITLE       "<<TITLE>>"
 #define TAG_INDEX_INDEX_IMG   "<<INDEX_IMG>>"
+#define TAG_INDEX_GAL_DESC    "<<DESCRIPTION>>"
 
 #define TAG_INDEX_IMAGE_PAGE  "<<IMAGE_PAGE>>"
 #define TAG_INDEX_DESC        "<<DESC>>"
@@ -84,6 +85,7 @@ html_make_index_page(struct data *data)
     GString     *index_img_templ;
     GString     *index_templ;
     GString     *tmp;
+    GString     *esc_desc;
     gchar       *index_page_uri;
 
     g_assert(data != NULL);
@@ -187,6 +189,11 @@ html_make_index_page(struct data *data)
     /* replace tags in index page template */
     _tag_replace(&index_templ, TAG_INDEX_TITLE, data->gal->name);
     _tag_replace(&index_templ, TAG_INDEX_INDEX_IMG, index_img->str);
+
+    /* description tag */
+    esc_desc = _escape(data->gal->desc);
+    _tag_replace(&index_templ, TAG_INDEX_GAL_DESC, esc_desc->str);
+    g_string_free(esc_desc, TRUE);
 
 
     /* save index page to file */
@@ -452,6 +459,9 @@ GString *_escape(gchar *text)
             switch(uch) {
             case GDK_ampersand:
                 escaped = g_string_append(escaped, "&amp;");
+                break;
+            case 0xA: /* newline */
+                escaped = g_string_append(escaped, "<br>\n");
                 break;
             default:
                 escaped = g_string_append_unichar(escaped, uch);
