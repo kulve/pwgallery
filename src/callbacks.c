@@ -609,7 +609,7 @@ static void action_image_add(gpointer user_data)
             gtk_widget_destroy (dialog);
             return;
         }
-    } while (TRUE);
+    } while (result == GTK_RESPONSE_OK);
 
     uris = gtk_file_chooser_get_uris(GTK_FILE_CHOOSER(dialog));
 
