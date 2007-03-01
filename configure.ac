@@ -14,10 +14,11 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 
+dnl FIXME: This overrides the debian/rules
 CFLAGS="-Wall -Werror -pedantic -Wmissing-prototypes -Wmissing-declarations -O0 -ggdb -std=gnu99"
 
-dnl FIXME: NO HARDCODING!
 AH_TEMPLATE([PACKAGE_DATA_DIR], [Application's data directory])
+dnl FIXME: NO HARDCODING
 AC_DEFINE(PACKAGE_DATA_DIR, "/usr/share/pwgallery")
 
 dnl Checks for libraries.
@@ -58,5 +59,6 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 dnl Checks for library functions.
 AC_CHECK_FUNCS([strerror])
 AC_OUTPUT(Makefile
-        src/Makefile)
+        src/Makefile
+        templates/Makefile)
 
