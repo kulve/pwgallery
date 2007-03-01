@@ -61,7 +61,63 @@ configrc_load(struct data *data)
                               g_get_home_dir(), PWGALLERY_CONFIGRC_DIR,
                               PWGALLERY_DEFAULT_TEMPL_DIR);
     if (vfs_is_dir(data, dir_uri) == FALSE)
+    {
+        char *src;
+        char *dst;
+
+        /* make template dir */
         vfs_mkdir(data, dir_uri);
+
+        /* copy index template */
+        src = g_strdup_printf("%s/%s", 
+                              PWGALLERY_SYSTEM_TEMPLATE_DIR,
+                              PWGALLERY_DEFAULT_TEMPL_INDEX);
+        dst = g_strdup_printf("%s/%s", 
+                              dir_uri, PWGALLERY_DEFAULT_TEMPL_INDEX);
+        vfs_copy(data, src, dst);
+        g_free(dst);
+        g_free(src);
+
+        /* copy index image template */
+        src = g_strdup_printf("%s/%s", 
+                              PWGALLERY_SYSTEM_TEMPLATE_DIR,
+                              PWGALLERY_DEFAULT_TEMPL_INDEXIMG);
+        dst = g_strdup_printf("%s/%s", 
+                              dir_uri, PWGALLERY_DEFAULT_TEMPL_INDEXIMG);
+        vfs_copy(data, src, dst);
+        g_free(dst);
+        g_free(src);
+
+        /* copy index generic template */
+        src = g_strdup_printf("%s/%s", 
+                              PWGALLERY_SYSTEM_TEMPLATE_DIR,
+                              PWGALLERY_DEFAULT_TEMPL_INDEXGEN);
+        dst = g_strdup_printf("%s/%s", 
+                              dir_uri, PWGALLERY_DEFAULT_TEMPL_INDEXGEN);
+        vfs_copy(data, src, dst);
+        g_free(dst);
+        g_free(src);
+
+        /* copy image template */
+        src = g_strdup_printf("%s/%s", 
+                              PWGALLERY_SYSTEM_TEMPLATE_DIR,
+                              PWGALLERY_DEFAULT_TEMPL_IMAGE);
+        dst = g_strdup_printf("%s/%s", 
+                              dir_uri, PWGALLERY_DEFAULT_TEMPL_IMAGE);
+        vfs_copy(data, src, dst);
+        g_free(dst);
+        g_free(src);
+
+        /* copy generic template */
+        src = g_strdup_printf("%s/%s", 
+                              PWGALLERY_SYSTEM_TEMPLATE_DIR,
+                              PWGALLERY_DEFAULT_TEMPL_GEN);
+        dst = g_strdup_printf("%s/%s", 
+                              dir_uri, PWGALLERY_DEFAULT_TEMPL_GEN);
+        vfs_copy(data, src, dst);
+        g_free(dst);
+        g_free(src);
+    }
     g_free(dir_uri);
 
 
