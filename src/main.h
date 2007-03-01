@@ -25,10 +25,12 @@
 #endif
 
 
-/* FIXME: PACKAGE_DATA_DIR */
-/* Glade XML file */
-#define PWGALLERY_GLADE_FILE               "src/glade/pwgallery.glade"   
-
+/* Glade XML file (a local file, not a file:// uri because of glade) */
+#define PWGALLERY_GLADE_FILE               PACKAGE_DATA_DIR "/" \
+                                           "pwgallery.glade"   
+/* Template directory for copying templates per user*/
+#define PWGALLERY_SYSTEM_TEMPLATE_DIR      "file://" PACKAGE_DATA_DIR "/" \
+                                           "templates"
 /* Buf size while reading images */
 #define PWGALLERY_IMG_READ_BUF_SIZE        4096
 /* Thumbnail width in the list */
@@ -107,21 +109,21 @@
 /* Default image height */
 #define PWGALLERY_DEFAULT_IMAGE_H          "500"
 /* Default image height2 */
-#define PWGALLERY_DEFAULT_IMAGE_H2         "0"
+#define PWGALLERY_DEFAULT_IMAGE_H2         "800"
 /* Default image height3 */
 #define PWGALLERY_DEFAULT_IMAGE_H3         "0"
 /* Default image height4 */
 #define PWGALLERY_DEFAULT_IMAGE_H4         "0"
 /* Default index page template */
-#define PWGALLERY_DEFAULT_TEMPL_INDEX      "templ_index.shtml"
+#define PWGALLERY_DEFAULT_TEMPL_INDEX      "pwg_index.html"
 /* Default index page per image template */
-#define PWGALLERY_DEFAULT_TEMPL_INDEXIMG   "templ_indeximg.shtml"
+#define PWGALLERY_DEFAULT_TEMPL_INDEXIMG   "pwg_indeximg.html"
 /* Default index page per generic template */
-#define PWGALLERY_DEFAULT_TEMPL_INDEXGEN   "templ_indexgen.shtml"
+#define PWGALLERY_DEFAULT_TEMPL_INDEXGEN   "pwg_indexgen.html"
 /* Default image page template */
-#define PWGALLERY_DEFAULT_TEMPL_IMAGE      "templ_image.shtml"
+#define PWGALLERY_DEFAULT_TEMPL_IMAGE      "pwg_image.html"
 /* Default generic page template */
-#define PWGALLERY_DEFAULT_TEMPL_GEN        "templ_gen.shtml"
+#define PWGALLERY_DEFAULT_TEMPL_GEN        "pwg_generic.html"
 /* Default exif removal value */
 #define PWGALLERY_DEFAULT_REMOVE_EXIF      "true"
 /* Default image renameing value */
