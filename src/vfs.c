@@ -118,6 +118,45 @@ vfs_mkdir(struct data *data, const gchar *uri)
 
 
 void
+vfs_copy(struct data *data, const gchar *src, const gchar *dst)
+{
+    GnomeVFSResult result;
+    GnomeVFSURI *src_uri, *dst_uri;
+
+    g_assert(data != NULL);
+    g_assert(src != NULL);
+    g_assert(dst != NULL);
+
+    src_uri = gnome_vfs_uri_new(src);
+    dst_uri = gnome_vfs_uri_new(dst);
+
+    g_assert(src_uri != NULL);
+    g_assert(dst_uri != NULL);
+    
+
+    result = gnome_vfs_xfer_uri(src_uri,
+                                dst_uri,
+                                GNOME_VFS_XFER_DEFAULT,
+                                GNOME_VFS_XFER_ERROR_MODE_ABORT,
+                                GNOME_VFS_XFER_OVERWRITE_MODE_REPLACE,
+                                NULL,
+                                NULL);
+
+    gnome_vfs_uri_unref(src_uri);
+    gnome_vfs_uri_unref(dst_uri);
+
+    if (result != GNOME_VFS_OK) {
+        /* FIXME: show popup */
+        g_warning("Exiting because failed to xfer %s -> %s: %s", 
+                  src, dst, gnome_vfs_result_to_string(result));
+        exit(EXIT_FAILURE);
+    }
+
+}
+
+
+
+void
 vfs_rename(struct data *data, const gchar *from, const gchar *to)
 {
     GnomeVFSResult result;

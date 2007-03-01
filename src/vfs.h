@@ -49,6 +49,11 @@ gboolean vfs_is_dir(struct data *data, const gchar *uri);
 void vfs_mkdir(struct data *data, const gchar *uri);
 
 /*
+ * Copy file
+ */
+void vfs_copy(struct data *data, const gchar *src, const gchar *dst);
+
+/*
  * Rename URI
  */
 void vfs_rename(struct data *data, const gchar *from, const gchar *to);
