@@ -37,6 +37,10 @@
 #define PWGALLERY_THUMB_W                  250
 /* Border width for the thumbnail images in buttons */
 #define PWGALLERY_THUMBNAIL_BORDER_WIDTH   10
+/* Maximum width of preview thumbnails */
+#define PWGALLERY_PREVIEW_THUMBNAIL_WIDTH  256
+/* Maximum height of preview thumbnails */
+#define PWGALLERY_PREVIEW_THUMBNAIL_HEIGHT 256
 
 /* Page generators (template, script) */
 #define PWGALLERY_PAGE_GEN_TEMPL           1

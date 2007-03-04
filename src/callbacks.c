@@ -44,6 +44,7 @@ static void action_gal_save(gpointer user_data);
 static void action_gal_save_as(gpointer user_data);
 static void action_gal_make(gpointer user_data);
 static void action_image_add(gpointer user_data);
+static void update_preview_cb(GtkFileChooser *file_chooser, gpointer data);
 static void action_image_remove(gpointer user_data);
 static void action_about_show(gpointer user_data);
 static void action_image_move(gpointer user_data, gint place);
@@ -579,8 +580,11 @@ static void action_image_add(gpointer user_data)
     GtkWidget *dialog;
     int result;
     GSList *uris;
+    GtkImage *preview;
 
     g_assert(user_data != NULL);
+
+    g_debug("in action_image_add");
 
     data = user_data;
 
@@ -595,6 +599,13 @@ static void action_image_add(gpointer user_data)
     gtk_file_chooser_set_current_folder_uri(GTK_FILE_CHOOSER(dialog), 
                                             data->img_dir);
     gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), TRUE);
+
+    /* Add preview widget */
+    preview = GTK_IMAGE(gtk_image_new());
+    gtk_file_chooser_set_preview_widget(GTK_FILE_CHOOSER(dialog), 
+                                        GTK_WIDGET(preview));
+    g_signal_connect(GTK_FILE_CHOOSER(dialog), "update-preview",
+                     G_CALLBACK(update_preview_cb), preview);
 
     do {
         result = gtk_dialog_run(GTK_DIALOG(dialog));
@@ -618,6 +629,40 @@ static void action_image_add(gpointer user_data)
     gallery_add_new_images(data, uris);    
 }
 
+
+
+static void update_preview_cb(GtkFileChooser *file_chooser, gpointer data)
+{
+    GtkWidget *preview;
+    char *filename;
+    GdkPixbuf *pixbuf;
+    gboolean have_preview;
+    
+    g_assert(file_chooser != NULL);
+    g_assert(data != NULL);
+
+    g_debug("in update_preview_cb");
+
+    preview = GTK_WIDGET(data);
+    filename = gtk_file_chooser_get_preview_filename(file_chooser);
+    
+    if (filename == NULL)
+        return;
+
+    pixbuf = gdk_pixbuf_new_from_file_at_size
+        (filename, 
+         PWGALLERY_PREVIEW_THUMBNAIL_WIDTH,
+         PWGALLERY_PREVIEW_THUMBNAIL_HEIGHT,
+         NULL);
+    have_preview = (pixbuf != NULL);
+    g_free(filename);
+    
+    gtk_image_set_from_pixbuf(GTK_IMAGE(preview), pixbuf);
+    if (pixbuf)
+        gdk_pixbuf_unref(pixbuf);
+    
+    gtk_file_chooser_set_preview_widget_active (file_chooser, have_preview);
+}
 
 
 /*
