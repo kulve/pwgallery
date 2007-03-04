@@ -359,6 +359,7 @@ static gboolean _save(struct data *data,
                       MagickWand *wand, 
                       const gchar *uri)
 {
+    gchar *desc;
     guchar *img_data;
     gsize img_len;
 
@@ -368,6 +369,13 @@ static gboolean _save(struct data *data,
     g_assert(wand != NULL);
     g_assert(uri != NULL);
  
+    if (data->gal->remove_exif && !MagickStripImage(wand))
+    {
+        /* CHECKME: should desc be freed? */
+        desc = MagickGetException(wand, &severity);
+        g_warning("_save: error stripping image: %s\n", desc);
+    }
+
     img_data = MagickGetImagesBlob(wand, &img_len);
 
     vfs_write_file(data, uri, img_data, img_len);
