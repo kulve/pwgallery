@@ -564,6 +564,8 @@ gallery_add_new_images(struct data *data, GSList *uris)
     if (data->current_img == NULL) {
         if (data->gal->images != NULL) {
             data->current_img = (struct image *)(data->gal->images->data);
+            /* update the image text etc shown in the main window */
+            widgets_set_image_information(data, data->current_img);
         } else {
             /* nothing to do, still no images */
             return ;

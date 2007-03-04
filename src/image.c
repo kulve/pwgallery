@@ -234,7 +234,7 @@ image_open(struct data *data, gchar *uri)
     img->gamma = 1.0;
 
     g_free(img->text);
-    img->text = g_strdup( _("Add text") );
+    img->text = g_strdup( _("") );
 
     /* get basename of the file without extension and just the extension  */
     g_free(img->basefilename);
