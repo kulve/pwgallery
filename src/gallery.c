@@ -280,7 +280,7 @@ gallery_open(struct data *data)
     gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), FALSE);
 
     /* cancel pressed, destroy the dialog and return */
-    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_CANCEL)
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) != GTK_RESPONSE_ACCEPT)
     {
         gtk_widget_destroy (dialog);
         return;
