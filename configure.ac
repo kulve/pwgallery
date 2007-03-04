@@ -50,6 +50,10 @@ PKG_CHECK_MODULES(XML, libxml-2.0 >= 2.6.16)
 AC_SUBST(XML_LIBS)
 AC_SUBST(XML_CFLAGS)
 
+PKG_CHECK_MODULES(EXIF, libexif >= 0.6.9)
+AC_SUBST(EXIF_LIBS)
+AC_SUBST(EXIF_CFLAGS)
+
 dnl Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([fcntl.h libintl.h limits.h locale.h stdlib.h string.h unistd.h])

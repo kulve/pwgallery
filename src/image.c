@@ -25,11 +25,13 @@
 #include "image.h"
 #include "gallery.h"
 #include "vfs.h"
+#include "exif.h"
 
 #include <glib.h>
 #include <gtk/gtk.h>
 #include <libgnomevfs/gnome-vfs.h>
 #include <string.h>       /* memset */
+
 
 static void set_size( GdkPixbufLoader *gdkpixbufloader, 
 					  gint arg1, gint arg2, gpointer data);
@@ -59,6 +61,7 @@ image_init(struct data *data)
     img->basefilename = g_strdup("");
     img->ext          = g_strdup("");
     img->nomodify     = FALSE;
+    img->exif         = exif_new();
         
 	return img;
 }
@@ -91,6 +94,7 @@ image_free(struct image *img)
 	g_free(img->uri);
     g_free(img->basefilename);
     g_free(img->ext);
+    exif_free(img->exif);
 	g_free(img);
 }
 
@@ -133,6 +137,13 @@ image_open(struct data *data, gchar *uri)
 	}
 
 	img = image_init(data);
+
+    g_free(img->uri);
+    img->uri = uri;
+
+    /* load exif data and set rotation */
+    exif_data_get(data, img);
+    img->rotate = img->exif->orientation;
 
     loader = gdk_pixbuf_loader_new();
     g_signal_connect(loader, "size-prepared", G_CALLBACK(set_size), img);
@@ -195,8 +206,24 @@ image_open(struct data *data, gchar *uri)
     g_signal_connect( img->button, "button_press_event", 
 		      G_CALLBACK( gallery_image_selected ), data );
 
-    img->image = 
-		gtk_image_new_from_pixbuf( gdk_pixbuf_loader_get_pixbuf( loader ) );
+    if (img->rotate == 90 || img->rotate == 270)
+    {
+        GdkPixbuf *pix, *pix_rotated;
+        GdkPixbufRotation rot;
+
+        if (img->rotate == 90)
+            rot = GDK_PIXBUF_ROTATE_CLOCKWISE;
+        else
+            rot = GDK_PIXBUF_ROTATE_COUNTERCLOCKWISE;
+
+        pix = gdk_pixbuf_loader_get_pixbuf(loader);
+        pix_rotated = gdk_pixbuf_rotate_simple(pix, rot);
+        
+        img->image = gtk_image_new_from_pixbuf(pix_rotated);
+    } else {
+        img->image = 
+            gtk_image_new_from_pixbuf(gdk_pixbuf_loader_get_pixbuf(loader));
+    }
 
     gtk_container_add( GTK_CONTAINER( img->button ), img->image);
     gtk_container_set_border_width( GTK_CONTAINER( img->button ), 
@@ -208,9 +235,6 @@ image_open(struct data *data, gchar *uri)
 
     g_free(img->text);
     img->text = g_strdup( _("Add text") );
-
-    g_free(img->uri);
-    img->uri = uri;
 
     /* get basename of the file without extension and just the extension  */
     g_free(img->basefilename);
@@ -250,16 +274,30 @@ set_size( GdkPixbufLoader *gdkpixbufloader, gint arg1, gint arg2, gpointer data)
 
     img = data;
     
-    scale = (gdouble)arg1 / (gdouble)arg2;
+    if (img->rotate == 90 || img->rotate == 270)
+    {
+        scale = (gdouble)arg2 / (gdouble)arg1;
+        
+        /* FIXME: get this from the width of the gtk_table? */
+        h = PWGALLERY_THUMB_W;
+        w = (gint)(h / scale);
 
-	/* FIXME: get this from the width of the gtk_table? */
-    w = PWGALLERY_THUMB_W;
-    h = (gint)(w / scale);
+        g_debug("in set_size: %dx%d -> %dx%d",  arg1, arg2, w, h);
+        
+        img->width = arg1;
+        img->height = arg2;
+    } else {
+        scale = (gdouble)arg1 / (gdouble)arg2;
+        
+        /* FIXME: get this from the width of the gtk_table? */
+        w = PWGALLERY_THUMB_W;
+        h = (gint)(w / scale);
 
-    g_debug("in set_size: %dx%d -> %dx%d",  arg1, arg2, w, h);
-    
-    img->width = arg1;
-    img->height = arg2;
+        g_debug("in set_size: %dx%d -> %dx%d",  arg1, arg2, w, h);
+        
+        img->width = arg1;
+        img->height = arg2;
+    }
 
     gdk_pixbuf_loader_set_size(gdkpixbufloader, w, h);
 

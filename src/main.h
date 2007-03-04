@@ -221,6 +221,7 @@ struct image
     /* FIXME: add renamed uri */
     /* FIXME: add page gen int */
     gboolean        nomodify;          /* do not modify flag */
+    struct exif     *exif;             /* pointer to exif data */
 };
 
 struct image_size
@@ -228,6 +229,11 @@ struct image_size
     gint            width;             /* width of the created image */
     gint            height;            /* height of the created image */
     gint            size;              /* size of the image in kilobytes */
+};
+
+struct exif
+{
+    gint            orientation;       /* orientation of the image */
 };
 
 #endif
