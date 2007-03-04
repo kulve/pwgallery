@@ -362,6 +362,7 @@ static gboolean _save(struct data *data,
     gchar *desc;
     guchar *img_data;
     gsize img_len;
+    ExceptionType severity;
 
     g_debug("in _save");
 
