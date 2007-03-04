@@ -43,7 +43,10 @@ static gboolean _resize(struct data *data,
 static gboolean _save(struct data *data, 
                       MagickWand *wand, 
                       const gchar *uri);
-
+static MagickWand *_generate_webimage(struct data *data, 
+                                      struct image *image,
+                                      gint image_h,
+                                      struct image_size **img_size);
 
 
 gboolean magick_make_thumbnail(struct data *data, 
@@ -107,63 +110,22 @@ gboolean magick_make_thumbnail(struct data *data,
 }
 
 
-
 gboolean magick_make_webimage(struct data *data, 
                               struct image *image,
                               const gchar *uri,
                               gint image_h)
 {
-    struct image_size *img_size;
     MagickWand *wand;
-    gdouble scale;
+    struct image_size *img_size = NULL;
     GnomeVFSResult result;
     GnomeVFSFileInfo info;
 
-    g_assert(data != NULL);
-    g_assert(image != NULL);
-    
     g_debug("in magick_make_webimage");
 
-    img_size = g_new0(struct image_size, 1);
+    wand = _generate_webimage(data, image, image_h, &img_size);
+    if (wand == NULL) 
+        return FALSE;
 
-    wand = NewMagickWand();
-    g_return_val_if_fail( wand, FALSE );
-
-    /* apply modifications, if nomodify is not checked */
-    if (!image->nomodify) {
-        if (!_apply_modifications(data, wand, image)) {
-            DestroyMagickWand(wand);
-            g_free(img_size);
-            return FALSE;
-        }
-        
-        /* calculate width and height for the webimage */
-        img_size->height = image_h;
-        switch( image->rotate ) 
-            {
-            case 90:
-            case 270:
-                scale = (gdouble)image->height / (gdouble)image->width;
-                break;
-            case 0:
-            case 180:
-                scale = (gdouble)image->width / (gdouble)image->height;
-                break;
-                /* FIXME: just to get some values.. */
-            default:
-                scale = (gdouble)image->width / (gdouble)image->height;
-                break;
-            }
-        img_size->width = (gint)(img_size->height * scale);
-        
-        /* resize the webimage */
-        if (!_resize(data, wand, image, img_size->width, img_size->height)) {
-            DestroyMagickWand(wand);
-            g_free(img_size);
-            return FALSE;
-        }
-    }
-    
     /* save the image to a file */
     if (!_save(data, wand, uri)) {
         DestroyMagickWand(wand);
@@ -190,11 +152,102 @@ gboolean magick_make_webimage(struct data *data,
 
 
 
+gboolean magick_show_preview(struct data *data, 
+                             struct image *image,
+                             gint image_h)
+{
+    MagickWand *wand;
+    struct image_size *img_size = NULL;
+
+    g_debug("in magick_show_preview");
+
+    wand = _generate_webimage(data, image, image_h, &img_size);
+    g_free(img_size);
+
+    if (wand == NULL)
+        return FALSE;
+
+    gtk_window_iconify( GTK_WINDOW( data->top_window ) );
+    while (g_main_context_iteration(NULL, FALSE));
+    MagickDisplayImage(wand, ":0.0");
+
+    DestroyMagickWand(wand);
+
+    gtk_window_deiconify( GTK_WINDOW( data->top_window ) );
+    while (g_main_context_iteration(NULL, FALSE));
+
+    return TRUE;
+}
+
+
+
 /*
  *
  * Static functions
  *
  */
+
+
+/*
+ * Generate a webimage for preview or saving to a file.
+ */
+static MagickWand *_generate_webimage(struct data *data, 
+                                      struct image *image,
+                                      gint image_h,
+                                      struct image_size **img_size)
+{
+
+    MagickWand *wand;
+    gdouble scale;
+
+    g_assert(data != NULL);
+    g_assert(image != NULL);
+    
+    g_debug("in _generate_webimage");
+
+    *img_size = g_new0(struct image_size, 1);
+
+    wand = NewMagickWand();
+    g_return_val_if_fail( wand, FALSE );
+
+    /* apply modifications, if nomodify is not checked */
+    if (!image->nomodify) {
+        if (!_apply_modifications(data, wand, image)) {
+            DestroyMagickWand(wand);
+            g_free(*img_size);
+            return NULL;
+        }
+        
+        /* calculate width and height for the webimage */
+        (*img_size)->height = image_h;
+        switch( image->rotate ) 
+            {
+            case 90:
+            case 270:
+                scale = (gdouble)image->height / (gdouble)image->width;
+                break;
+            case 0:
+            case 180:
+                scale = (gdouble)image->width / (gdouble)image->height;
+                break;
+                /* FIXME: just to get some values.. */
+            default:
+                scale = (gdouble)image->width / (gdouble)image->height;
+                break;
+            }
+        (*img_size)->width = (gint)((*img_size)->height * scale);
+        
+        /* resize the webimage */
+        if (!_resize(data, wand, image, 
+                     (*img_size)->width, (*img_size)->height)) {
+            DestroyMagickWand(wand);
+            g_free((*img_size));
+            return NULL;
+        }
+    }
+    
+    return wand;
+}
 
 /*
  * Apply image modifications (rotate, gamma, etc) to the

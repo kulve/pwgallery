@@ -40,6 +40,14 @@ gboolean magick_make_webimage(struct data *data,
                               const gchar *uri,
                               gint image_h);
 
+/*
+ * Show webimage as a preview
+ */
+gboolean magick_show_preview(struct data *data, 
+                             struct image *image,
+                             gint image_h);
+
+
 #endif
 
 /* Emacs indentatation information

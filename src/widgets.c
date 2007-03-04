@@ -140,6 +140,7 @@ widgets_set_progress(struct data *data, gfloat fraction, const gchar *text)
 
 	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pbar), fraction);
 	gtk_progress_bar_set_text(GTK_PROGRESS_BAR(pbar), text);
+    while (g_main_context_iteration(NULL, FALSE));
 }
 
 
@@ -158,6 +159,7 @@ widgets_set_status(struct data *data, const gchar *text)
 	g_assert(label != NULL);
 
 	gtk_label_set_text(GTK_LABEL(label), text);
+    while (g_main_context_iteration(NULL, FALSE));
 }
 
 

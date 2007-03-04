@@ -486,8 +486,6 @@ gallery_make(struct data *data)
 
     widgets_set_progress(data, 0, _("Creating gallery"));
 
-    while (g_main_context_iteration(NULL, FALSE));
-
     /* make thumbnails */
     if (!_make_thumbnails(data)) {
         widgets_set_progress(data, 0, _("Failed!"));
@@ -549,11 +547,9 @@ gallery_add_new_images(struct data *data, GSList *uris)
 			widgets_set_progress(data, (gfloat)file_counter/(gfloat)tot_files,
 								 p_text);
 			data->gal->images = g_slist_append(data->gal->images, img);
-            
+                        
 			gtk_widget_show( img->image );
 			gtk_widget_show( img->button );
-            
-            while (g_main_context_iteration(NULL, FALSE));
 		}
 		uris = uris->next;
 	}
@@ -636,7 +632,6 @@ gallery_open_images(struct data *data, GSList *imgs)
             img->rotate   = tmpimg->rotate;
             img->nomodify = tmpimg->nomodify;
             
-            while (g_main_context_iteration(NULL, FALSE));
 		}
         image_free(tmpimg);
 		imgs = imgs->next;
@@ -736,6 +731,16 @@ gallery_image_selected(GtkWidget *widget,
     g_debug("in gallery_image_selected");
 
     data = user_data;
+
+    /* on doubleclick we already have set everything on first
+     * click. Now just show the web image */
+    if (event->type == GDK_2BUTTON_PRESS)
+    {
+        widgets_set_status(data, "Showing preview..");        
+        magick_show_preview(data, data->current_img,  data->gal->image_h);
+        widgets_set_status(data, "Idle");
+        return FALSE;
+    }
 
     /* Find out which button was pressed by going through all image
      * buttons and matching pointer address.
@@ -847,8 +852,6 @@ _make_thumbnails(struct data *data)
         frac = (gfloat)i/(gfloat)tot;
         g_debug("frac: %f", frac);
         widgets_set_progress(data, frac, progress);
-        
-        while (g_main_context_iteration(NULL, FALSE));
     }
     g_free(dir_uri);
 
@@ -943,8 +946,6 @@ _make_webimages(struct data *data)
             frac = (gfloat)i/(gfloat)tot;
             g_debug("frac: %f", frac);
             widgets_set_progress(data, frac, progress);
-
-            while (g_main_context_iteration(NULL, FALSE));
         }
         g_free(dir_uri);
     }
