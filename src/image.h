@@ -43,6 +43,12 @@ void image_free(struct image *img);
  */
 struct image *image_open(struct data *data, gchar *uri);
 
+
+/*
+ * Check if the image is edited (the last dir in uri is 'edited')
+ */
+gboolean image_is_edited(struct data *data, struct image *img);
+
 #endif
 
 /* Emacs indentatation information

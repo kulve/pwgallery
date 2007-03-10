@@ -253,6 +253,26 @@ image_open(struct data *data, gchar *uri)
 }
 
 
+gboolean
+image_is_edited(struct data *data, struct image *img)
+{
+    gchar *urimatch;
+    gboolean is_edited;
+
+	g_assert(data != NULL);
+	g_assert(img != NULL);
+
+	g_debug("in image_is_edited");
+
+    urimatch = g_strdup_printf("/edited/%s.%s", img->basefilename, img->ext);
+
+    is_edited = g_str_has_suffix(img->uri, urimatch);
+    g_free(urimatch);
+
+    return is_edited;
+}
+
+
 
 /**********************
  *                    *
