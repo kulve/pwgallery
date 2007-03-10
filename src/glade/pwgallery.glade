@@ -807,6 +807,7 @@
 			  <child>
 			    <widget class="GtkLabel" id="label54">
 			      <property name="visible">True</property>
+			      <property name="sensitive">False</property>
 			      <property name="label" translatable="yes">Rename to: </property>
 			      <property name="use_underline">False</property>
 			      <property name="use_markup">False</property>
@@ -832,6 +833,7 @@
 			  <child>
 			    <widget class="GtkEntry" id="entry_gal_img_rename">
 			      <property name="visible">True</property>
+			      <property name="sensitive">False</property>
 			      <property name="tooltip" translatable="yes">Insert base filename here for renaming (no directory and no extension)</property>
 			      <property name="can_focus">True</property>
 			      <property name="editable">True</property>
@@ -865,6 +867,7 @@
 			  <child>
 			    <widget class="GtkLabel" id="label55">
 			      <property name="visible">True</property>
+			      <property name="sensitive">False</property>
 			      <property name="label" translatable="yes">Page style: </property>
 			      <property name="use_underline">False</property>
 			      <property name="use_markup">False</property>
@@ -890,6 +893,7 @@
 			  <child>
 			    <widget class="GtkRadioButton" id="radiobutton_gal_img_image">
 			      <property name="visible">True</property>
+			      <property name="sensitive">False</property>
 			      <property name="tooltip" translatable="yes">Click here to generate normal image based page</property>
 			      <property name="can_focus">True</property>
 			      <property name="label" translatable="yes">Image</property>
@@ -910,6 +914,7 @@
 			  <child>
 			    <widget class="GtkRadioButton" id="radiobutton_gal_img_generic">
 			      <property name="visible">True</property>
+			      <property name="sensitive">False</property>
 			      <property name="tooltip" translatable="yes">Click here to generate a &quot;generic&quot; web page without explicit image</property>
 			      <property name="can_focus">True</property>
 			      <property name="label" translatable="yes">HTML only</property>
@@ -1125,11 +1130,13 @@ Gallery -&gt; Settings (ctrl+e)
 			      <child>
 				<widget class="GtkButton" id="button_advanced">
 				  <property name="visible">True</property>
+				  <property name="sensitive">False</property>
 				  <property name="can_focus">True</property>
 				  <property name="label" translatable="yes">Advanced...</property>
 				  <property name="use_underline">True</property>
 				  <property name="relief">GTK_RELIEF_NORMAL</property>
 				  <property name="focus_on_click">True</property>
+				  <signal name="clicked" handler="on_button_advanced_clicked" last_modification_time="Sat, 10 Mar 2007 08:37:32 GMT"/>
 				</widget>
 				<packing>
 				  <property name="padding">0</property>
@@ -1477,6 +1484,7 @@ You should have received a copy of the GNU General Public License along with thi
 		      <child>
 			<widget class="GtkLabel" id="label50">
 			  <property name="visible">True</property>
+			  <property name="sensitive">False</property>
 			  <property name="label" translatable="yes">Preview</property>
 			  <property name="use_underline">True</property>
 			  <property name="use_markup">False</property>
@@ -1630,7 +1638,7 @@ You should have received a copy of the GNU General Public License along with thi
 			      <property name="digits">1</property>
 			      <property name="update_policy">GTK_UPDATE_CONTINUOUS</property>
 			      <property name="inverted">False</property>
-			      <property name="adjustment">1.4 0.10000000149 10 0.10000000149 1 1</property>
+			      <property name="adjustment">1 0.10000000149 10 0.10000000149 1 1</property>
 			      <signal name="value_changed" handler="on_scale_settings_gamma_value_changed" last_modification_time="Thu, 29 Jun 2006 17:03:52 GMT"/>
 			    </widget>
 			    <packing>
@@ -1645,6 +1653,7 @@ You should have received a copy of the GNU General Public License along with thi
 			  <child>
 			    <widget class="GtkLabel" id="label51">
 			      <property name="visible">True</property>
+			      <property name="sensitive">False</property>
 			      <property name="label" translatable="yes">Rotate: </property>
 			      <property name="use_underline">False</property>
 			      <property name="use_markup">False</property>
@@ -1673,6 +1682,7 @@ You should have received a copy of the GNU General Public License along with thi
 			  <child>
 			    <widget class="GtkHScale" id="hscale_settings_rotate">
 			      <property name="visible">True</property>
+			      <property name="sensitive">False</property>
 			      <property name="can_focus">True</property>
 			      <property name="draw_value">True</property>
 			      <property name="value_pos">GTK_POS_LEFT</property>
@@ -1695,6 +1705,7 @@ You should have received a copy of the GNU General Public License along with thi
 			  <child>
 			    <widget class="GtkLabel" id="label58">
 			      <property name="visible">True</property>
+			      <property name="sensitive">False</property>
 			      <property name="label" translatable="yes">Crop: </property>
 			      <property name="use_underline">False</property>
 			      <property name="use_markup">False</property>
@@ -1729,6 +1740,7 @@ You should have received a copy of the GNU General Public License along with thi
 			      <child>
 				<widget class="GtkSpinButton" id="spinbutton_crop_top">
 				  <property name="visible">True</property>
+				  <property name="sensitive">False</property>
 				  <property name="can_focus">True</property>
 				  <property name="climb_rate">1</property>
 				  <property name="digits">0</property>
@@ -1748,6 +1760,7 @@ You should have received a copy of the GNU General Public License along with thi
 			      <child>
 				<widget class="GtkSpinButton" id="spinbutton_crop_right">
 				  <property name="visible">True</property>
+				  <property name="sensitive">False</property>
 				  <property name="can_focus">True</property>
 				  <property name="climb_rate">1</property>
 				  <property name="digits">0</property>
@@ -1767,6 +1780,7 @@ You should have received a copy of the GNU General Public License along with thi
 			      <child>
 				<widget class="GtkSpinButton" id="spinbutton_crop_bottom">
 				  <property name="visible">True</property>
+				  <property name="sensitive">False</property>
 				  <property name="can_focus">True</property>
 				  <property name="climb_rate">1</property>
 				  <property name="digits">0</property>
@@ -1786,6 +1800,7 @@ You should have received a copy of the GNU General Public License along with thi
 			      <child>
 				<widget class="GtkSpinButton" id="spinbutton_crop_left">
 				  <property name="visible">True</property>
+				  <property name="sensitive">False</property>
 				  <property name="can_focus">True</property>
 				  <property name="climb_rate">1</property>
 				  <property name="digits">0</property>
