@@ -195,15 +195,13 @@ struct gallery
     gint           image_h3;           /* height of web images3 */
     gint           image_h4;           /* height of web images4 */
     gboolean       edited;             /* is the gallery edited */
-    /* FIXME: should "remove_exif" be actually convert's strip? */
-    gboolean       remove_exif;        /* remove exif info */
+    gboolean       remove_exif;        /* strip exif etc. info */
     gboolean       rename;             /* rename images */
 
 };
 
 struct image
 {
-    /* FIXME: is image need? Would child-of-button do? */
     GtkWidget       *image;            /* pointer to image widget */
     GtkWidget       *button;           /* pointer to button widget */
     GSList          *sizes;            /* List of image sizes */
@@ -217,7 +215,7 @@ struct image
     gchar           *uri;              /* URI to the original image */
     gchar           *basefilename;     /* filename without extension */
     gchar           *ext;              /* extension of the image */
-    /* FIXME: add edited uri */
+
     /* FIXME: add renamed uri */
     /* FIXME: add page gen int */
     gboolean        nomodify;          /* do not modify flag */

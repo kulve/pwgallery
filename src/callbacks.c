@@ -25,10 +25,13 @@
 #include "callbacks.h"
 #include "widgets.h"
 #include "gallery.h"
+#include "image.h"
+#include "vfs.h"
 
 #include <glib.h>
 #include <gtk/gtk.h>
 #include <glade/glade-xml.h>
+#include <libgnomevfs/gnome-vfs.h>
 
 #define PWGALLERY_IMAGE_MOVE_TOP      1
 #define PWGALLERY_IMAGE_MOVE_UP       2
@@ -44,6 +47,7 @@ static void action_gal_save(gpointer user_data);
 static void action_gal_save_as(gpointer user_data);
 static void action_gal_make(gpointer user_data);
 static void action_image_add(gpointer user_data);
+static void action_image_edit(gpointer user_data);
 static void update_preview_cb(GtkFileChooser *file_chooser, gpointer data);
 static void action_image_remove(gpointer user_data);
 static void action_about_show(gpointer user_data);
@@ -185,7 +189,7 @@ void on_menu_discard_activate(GtkMenuItem *menuitem,
 void on_menu_edit_activate(GtkMenuItem *menuitem,
                            gpointer user_data)
 {
-    g_error("NOT IMPLEMENTED: on_menu_edit_activate");
+    action_image_edit(user_data);
 }
 
 
@@ -663,6 +667,98 @@ static void update_preview_cb(GtkFileChooser *file_chooser, gpointer data)
     
     gtk_file_chooser_set_preview_widget_active (file_chooser, have_preview);
 }
+
+
+
+/*
+ * Make a copy of the image for editing.
+ */
+static void action_image_edit(gpointer user_data)
+{
+    struct data   *data;
+    gchar         *run_args[3];
+    gint          exit_status;
+    GError        *error = NULL;
+
+
+    g_assert(user_data != NULL);
+
+    data = user_data;
+
+    g_debug("in action_image_edit");
+
+    if (data->current_img == NULL)
+        return;
+
+    /* Not edited, make the "edited" dir if needed and a copy the image */
+    if (image_is_edited(data, data->current_img) == FALSE)
+    {
+        gchar *dir, *edited_uri;
+        GnomeVFSURI *vfsuri, *edituri;
+
+        vfsuri = gnome_vfs_uri_new(data->current_img->uri);
+        g_assert(vfsuri);
+
+        /* get directory of the image */
+        dir = gnome_vfs_uri_extract_dirname(vfsuri);
+        gnome_vfs_uri_unref(vfsuri);
+
+        vfsuri = gnome_vfs_uri_new(dir);
+        g_free(dir);
+
+        /* get "edited" directory */
+        edituri = gnome_vfs_uri_append_path(vfsuri, "edited");
+        g_assert(edituri);
+
+        dir = gnome_vfs_uri_to_string(edituri, GNOME_VFS_URI_HIDE_NONE);
+        gnome_vfs_uri_unref(edituri);
+        
+        /* make dir if needed */
+        if (vfs_is_dir(data, dir) == FALSE) {
+            vfs_mkdir(data, dir);
+        }       
+
+        edited_uri = g_strdup_printf("%s/%s.%s", dir, 
+                                     data->current_img->basefilename,
+                                     data->current_img->ext);
+        g_free(dir);
+
+        g_debug("copying %s -> %s", 
+                data->current_img->uri, edited_uri);
+        vfs_copy(data, data->current_img->uri, edited_uri);
+
+        g_free(data->current_img->uri);
+        data->current_img->uri = edited_uri;
+    }
+
+    g_debug("editing %s", data->current_img->uri);
+
+
+    /* iconify, run gimp, deiconify */
+    run_args[0] = g_strdup("gimp");
+    run_args[1] = g_filename_from_uri(data->current_img->uri, NULL, NULL);
+    run_args[2] = NULL;
+
+    gtk_window_iconify( GTK_WINDOW( data->top_window ) );
+    while (g_main_context_iteration(NULL, FALSE));
+
+    if (!g_spawn_sync("/", run_args, NULL,
+                      G_SPAWN_SEARCH_PATH | G_SPAWN_STDOUT_TO_DEV_NULL,
+                      NULL, NULL,
+                      NULL, NULL,
+                      &exit_status,
+                      &error))
+    {
+        g_warning("Failed exec gimp: %s", error->message);
+        g_error_free(error);
+    }
+
+    gtk_window_deiconify( GTK_WINDOW( data->top_window ) );
+    while (g_main_context_iteration(NULL, FALSE));
+
+    data->gal->edited = TRUE;
+}
+
 
 
 /*
