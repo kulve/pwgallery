@@ -352,9 +352,19 @@ gboolean on_scale_settings_gamma_value_changed(GtkRange      *range,
                                                gdouble        value,
                                                gpointer       user_data)
 {
-    g_error("NOT IMPLEMENTED: on_menu_dicard_activate");
+    g_error("NOT IMPLEMENTED: on_menu_scale_settings_gamma_value_changed");
     
     return FALSE;
+}
+
+
+
+void
+on_button_advanced_clicked(GtkButton *button, gpointer user_data)
+{
+    g_debug("in on_button_advanced_clicked");
+
+    g_error("NOT IMPLEMENTED: on_button_advanced_clicked");
 }
 
 

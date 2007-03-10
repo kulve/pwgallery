@@ -151,6 +151,11 @@ gboolean on_scale_settings_gamma_value_changed(GtkRange      *range,
                                                gdouble        value,
                                                gpointer       user_data);
 /*
+ * "Advance" button clicked
+ */
+void on_button_advanced_clicked(GtkButton *button, gpointer user_data);
+
+/*
  * "Move image top" button clicked
  */
 void on_button_move_top_clicked(GtkButton *button, gpointer user_data);
