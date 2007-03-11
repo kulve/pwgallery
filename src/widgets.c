@@ -93,28 +93,11 @@ widgets_update_table(struct data *data)
 
 
     /* scroll where we should be */
-    g_value_init(&value, G_TYPE_DOUBLE);
-    g_value_set_double(&value, (gdouble)listlen);
-    g_object_set_property(G_OBJECT(adjust), "upper", &value);
-
-    g_value_set_double(&value, (gdouble)1);
-    g_object_set_property(G_OBJECT(adjust), "page-size", &value);
-
-    g_value_set_double(&value, (gdouble)1);
-    g_object_set_property(G_OBJECT(adjust), "step-increment", &value);
-
-    g_value_set_double(&value, (gdouble)1);
-    g_object_set_property(G_OBJECT(adjust), "page-increment", &value);
-
     t =
-        (gdouble)((current_no + 1) / (gdouble)listlen) * 
+        (gdouble)((current_no) / (gdouble)listlen) * 
         ((adjust->upper - adjust->page_size ) - adjust->lower);
-
-    g_value_set_double(&value, (gdouble)t);
-    g_object_set_property(G_OBJECT(adjust), "value", &value);
-
-    gtk_adjustment_changed(adjust);
-    gtk_adjustment_value_changed(adjust);
+    
+    gtk_adjustment_set_value(adjust, t);
 
     /* scroll thumbnails according to selected image */    
     g_debug("in widgets_update_table: t: %.2f, %.2f, %.2f,%.2f",
