@@ -101,7 +101,7 @@ image_free(struct image *img)
 
 
 struct image *
-image_open(struct data *data, gchar *uri)
+image_open(struct data *data, gchar *uri, gint rotate)
 {
 
     GdkPixbufLoader  *loader;
@@ -144,6 +144,10 @@ image_open(struct data *data, gchar *uri)
     /* load exif data and set rotation */
     exif_data_get(data, img);
     img->rotate = img->exif->orientation;
+    if (img->rotate == 0 && rotate != 0)
+    {
+        img->rotate = rotate;
+    }
 
     loader = gdk_pixbuf_loader_new();
     g_signal_connect(loader, "size-prepared", G_CALLBACK(set_size), img);

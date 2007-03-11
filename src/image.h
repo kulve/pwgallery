@@ -41,7 +41,7 @@ void image_free(struct image *img);
 /*
  * Open image. *uri cannot be used once this is called.
  */
-struct image *image_open(struct data *data, gchar *uri);
+struct image *image_open(struct data *data, gchar *uri, gint rotate);
 
 
 /*

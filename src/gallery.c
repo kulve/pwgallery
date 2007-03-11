@@ -540,7 +540,7 @@ gallery_add_new_images(struct data *data, GSList *uris)
 
 	/* Add images */
 	while (uris) {
-		img = image_open(data, uris->data);
+		img = image_open(data, uris->data, 0);
 		if (img != NULL) {
 			/* update progress */
 			g_snprintf(p_text, 128, "%d/%d", file_counter++, tot_files);
@@ -613,7 +613,7 @@ gallery_open_images(struct data *data, GSList *imgs)
 	while (imgs)
 	{
         tmpimg = imgs->data;
-		img = image_open(data, g_strdup(tmpimg->uri));
+		img = image_open(data, g_strdup(tmpimg->uri), tmpimg->rotate);
 		if (img != NULL)
 		{
 			/* update progress */
