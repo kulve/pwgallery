@@ -1,6 +1,9 @@
-AC_INIT(Makefile.am)
-AM_INIT_AUTOMAKE(pwgallery, 0.1.0)
+AC_PREREQ(2.52)
+AC_INIT(pwgallery, 0.1.0, tuomas@kulve.fi)
+AC_CONFIG_SRCDIR(src/main.c)
 AM_CONFIG_HEADER(config.h)
+
+AM_INIT_AUTOMAKE
 
 dnl Set of available languages.
 ALL_LINGUAS="en"
@@ -17,9 +20,20 @@ AC_PROG_RANLIB
 dnl FIXME: This overrides the debian/rules
 CFLAGS="-Wall -Werror -pedantic -Wmissing-prototypes -Wmissing-declarations -O0 -ggdb -std=gnu99"
 
-AH_TEMPLATE([PACKAGE_DATA_DIR], [Application's data directory])
-dnl FIXME: NO HARDCODING
-AC_DEFINE(PACKAGE_DATA_DIR, "/usr/share/pwgallery")
+dnl Set PACKAGE_DATA_DIR in config.h.
+AH_TEMPLATE(PACKAGE_DATA_DIR,, [Package data directory])
+if test "x${datadir}" = 'x${prefix}/share'; then
+  if test "x${prefix}" = "xNONE"; then
+    PACKAGE_DATA_DIR="${ac_default_prefix}/share/${PACKAGE}"
+  else
+    PACKAGE_DATA_DIR="${prefix}/share/${PACKAGE}"
+  fi
+else
+  PACKAGE_DATA_DIR="${datadir}/${PACKAGE}"
+fi
+
+AC_DEFINE_UNQUOTED(PACKAGE_DATA_DIR, "${PACKAGE_DATA_DIR}")
+
 
 dnl Checks for libraries.
 PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.2.4)
