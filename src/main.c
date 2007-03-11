@@ -34,6 +34,8 @@
 #include <glade/glade-xml.h>
 #include <libgnomevfs/gnome-vfs.h>
 
+void user_function(GtkAdjustment *adjustment, gpointer  user_data) ;
+
 static void glade_xml_connect_func(const gchar *handler_name,
                                    GObject *object,
                                    const gchar *signal_name,
@@ -49,7 +51,9 @@ int
 main (int argc, char *argv[])
 {
     struct data *data;
-
+    GtkWidget        *scrolledwindow;
+    GtkAdjustment    *adjust;
+ 
 #ifdef ENABLE_NLS
     bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
     bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
@@ -74,11 +78,27 @@ main (int argc, char *argv[])
     /* set critical to be always fatal */
     g_log_set_always_fatal(G_LOG_LEVEL_CRITICAL);
 
+    scrolledwindow = 
+        glade_xml_get_widget( data->glade, "scrolledwindow_thumbnails");
+	g_assert(scrolledwindow != NULL);
+
+    adjust = gtk_scrolled_window_get_vadjustment(
+        GTK_SCROLLED_WINDOW(scrolledwindow));
+    g_assert(adjust);
+    g_signal_connect(adjust, "value-changed", (GCallback) user_function, NULL);
+
+
     gtk_main();
 
     free_data(data);
 
     return 0;
+}
+
+
+void user_function(GtkAdjustment *adjustment, gpointer  user_data) 
+{
+    printf("value: %2.f\n", gtk_adjustment_get_value(adjustment));
 }
 
 /*

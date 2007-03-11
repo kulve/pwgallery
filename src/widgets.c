@@ -48,15 +48,7 @@ widgets_update_table(struct data *data)
     table = glade_xml_get_widget( data->glade, "table_thumb");
 	g_assert(table != NULL);
 
-    scrolledwindow = 
-        glade_xml_get_widget( data->glade, "scrolledwindow_thumbnails");
-	g_assert(scrolledwindow != NULL);
-    
-    adjust = gtk_scrolled_window_get_vadjustment(
-        GTK_SCROLLED_WINDOW(scrolledwindow));
-    g_assert(adjust);
-
-    listlen = g_slist_length( data->gal->images );
+    listlen = g_slist_length(data->gal->images);
 
     if (data->current_img != NULL)
         current_no = g_slist_index(data->gal->images, data->current_img);
@@ -80,7 +72,7 @@ widgets_update_table(struct data *data)
 
         img = list->data;
         
-        /* FIXME: what it the current position is used already? */
+        /* FIXME: what if the current position is used already? */
         /* remove button from gtktable before adding it again */
         if( gtk_widget_get_parent(img->button) != NULL)
             gtk_container_remove(GTK_CONTAINER(table), img->button);
@@ -90,7 +82,17 @@ widgets_update_table(struct data *data)
         
         list = list->next;
     }
+    /* get adjustment */
+    scrolledwindow = 
+        glade_xml_get_widget( data->glade, "scrolledwindow_thumbnails");
+	g_assert(scrolledwindow != NULL);
+    
+    adjust = gtk_scrolled_window_get_vadjustment(
+        GTK_SCROLLED_WINDOW(scrolledwindow));
+    g_assert(adjust);
 
+
+    /* scroll where we should be */
     g_value_init(&value, G_TYPE_DOUBLE);
     g_value_set_double(&value, (gdouble)listlen);
     g_object_set_property(G_OBJECT(adjust), "upper", &value);
@@ -104,7 +106,6 @@ widgets_update_table(struct data *data)
     g_value_set_double(&value, (gdouble)1);
     g_object_set_property(G_OBJECT(adjust), "page-increment", &value);
 
-
     t =
         (gdouble)((current_no + 1) / (gdouble)listlen) * 
         ((adjust->upper - adjust->page_size ) - adjust->lower);
@@ -112,9 +113,8 @@ widgets_update_table(struct data *data)
     g_value_set_double(&value, (gdouble)t);
     g_object_set_property(G_OBJECT(adjust), "value", &value);
 
+    gtk_adjustment_changed(adjust);
     gtk_adjustment_value_changed(adjust);
-
-    /*gtk_adjustment_set_value(adjust, t);*/
 
     /* scroll thumbnails according to selected image */    
     g_debug("in widgets_update_table: t: %.2f, %.2f, %.2f,%.2f",

@@ -158,6 +158,7 @@ gboolean magick_show_preview(struct data *data,
 {
     MagickWand *wand;
     struct image_size *img_size = NULL;
+    const gchar *display;
 
     g_debug("in magick_show_preview");
 
@@ -169,7 +170,9 @@ gboolean magick_show_preview(struct data *data,
 
     gtk_window_iconify( GTK_WINDOW( data->top_window ) );
     while (g_main_context_iteration(NULL, FALSE));
-    MagickDisplayImage(wand, ":0.0");
+
+    display = g_getenv("DISPLAY");
+    MagickDisplayImage(wand, display ? display : ":0.0");
 
     DestroyMagickWand(wand);
 
