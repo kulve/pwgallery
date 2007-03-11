@@ -29,7 +29,7 @@ if test "x${datadir}" = 'x${prefix}/share'; then
     PACKAGE_DATA_DIR="${prefix}/share/${PACKAGE}"
   fi
 else
-  PACKAGE_DATA_DIR="${datadir}/${PACKAGE}"
+  PACKAGE_DATA_DIR="${prefix}/share/${PACKAGE}"
 fi
 
 AC_DEFINE_UNQUOTED(PACKAGE_DATA_DIR, "${PACKAGE_DATA_DIR}")
