@@ -679,11 +679,7 @@ gallery_remove_image(struct data *data, struct image *img)
     data->gal->images = g_slist_remove(data->gal->images, img);
     image_free(img);
 
-    /* set currently selected image to the previous one of the deleted image */
-    if (current_no > 0)
-    {
-        current_no--;
-    }
+    /* set currently selected image to the next one of the deleted image */
     tmplist = g_slist_nth(data->gal->images, current_no);
 
     /* select the last image if deleted one was the last one */
