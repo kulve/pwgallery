@@ -187,7 +187,11 @@ html_make_index_page(struct data *data)
     g_free(image_tmpl_ext);
 
     /* replace tags in index page template */
-    _tag_replace(&index_templ, TAG_INDEX_TITLE, data->gal->name);
+    /* title tag */
+    esc_desc = _escape(data->gal->name);
+    _tag_replace(&index_templ, TAG_INDEX_TITLE, esc_desc->str);
+    g_string_free(esc_desc, TRUE);
+
     _tag_replace(&index_templ, TAG_INDEX_INDEX_IMG, index_img->str);
 
     /* description tag */
