@@ -93,16 +93,38 @@ widgets_update_table(struct data *data)
 
 
     /* scroll where we should be */
-    t =
-        (gdouble)((current_no) / (gdouble)listlen) * 
-        ((adjust->upper - adjust->page_size ) - adjust->lower);
+    {
+        gint x;
+        gint y;
+        gint width;
+        gint height;
+        gint depth;
+        
+        t =
+            (gdouble)((current_no) / (gdouble)listlen) * 
+            ((adjust->upper - adjust->page_size ) - adjust->lower);
     
-    gtk_adjustment_set_value(adjust, t);
+        
+        struct image *img =
+            g_slist_nth_data(data->gal->images, current_no);
+        
+        gdk_window_get_geometry(GDK_WINDOW(GTK_WIDGET(img->button)->window),
+                                &x,
+                                &y,
+                                &width,
+                                &height,
+                                &depth);
+        
+    
+        /* scroll thumbnails according to selected image */    
+        g_debug("in widgets_update_table: t: %.2f, wx: %d, %.2f, %.2f,%.2f",
+                t, 
+                -1 * y,
+                adjust->lower, adjust->upper, adjust->page_size);
 
-    /* scroll thumbnails according to selected image */    
-    g_debug("in widgets_update_table: t: %.2f, %.2f, %.2f,%.2f",
-            t, adjust->lower, adjust->upper, adjust->page_size);
+        gtk_adjustment_set_value(adjust, (gdouble)(-1 * y));
 
+    }
     gtk_widget_show(table);
 }
 
