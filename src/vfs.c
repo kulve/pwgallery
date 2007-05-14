@@ -105,7 +105,10 @@ vfs_mkdir(struct data *data, const gchar *uri)
 
     result = gnome_vfs_make_directory(uri,
                                       GNOME_VFS_PERM_USER_ALL |
-                                      GNOME_VFS_PERM_GROUP_ALL);
+                                      GNOME_VFS_PERM_GROUP_READ |
+                                      GNOME_VFS_PERM_GROUP_EXEC |
+                                      GNOME_VFS_PERM_OTHER_READ |
+                                      GNOME_VFS_PERM_OTHER_EXEC);
     if (result != GNOME_VFS_OK) {
         /* FIXME: show popup */
         g_warning("Exiting because failed to make directory '%s': %s", 
@@ -238,7 +241,7 @@ vfs_write_file(struct data *data, const gchar *uri, const guchar *content,
                                   GNOME_VFS_PERM_USER_READ |
                                   GNOME_VFS_PERM_USER_WRITE |
                                   GNOME_VFS_PERM_GROUP_READ |
-                                  GNOME_VFS_PERM_GROUP_WRITE);
+                                  GNOME_VFS_PERM_OTHER_READ);
     if (result != GNOME_VFS_OK) {
         /* FIXME: show popup */
         g_warning("Exiting because failed to create uri '%s': %s", 
