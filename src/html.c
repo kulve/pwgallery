@@ -295,7 +295,10 @@ html_make_image_pages(struct data *data)
             /* replace tags in index page template */
             
             /* title */
-            _tag_replace(&page, TAG_IMAGE_TITLE, data->gal->name);
+            esc = _escape(data->gal->name);
+            _tag_replace(&page, TAG_IMAGE_TITLE, esc->str);
+            g_string_free(esc, TRUE);
+
             
             /* prev link to previous image or, if null, to index */
             if (prev_img == NULL) {
