@@ -194,7 +194,7 @@ vfs_copy_htaccess(struct data *data, const gchar *from, const gchar *to)
     src = g_strdup_printf("%s/.htaccess", from);
     dst = g_strdup_printf("%s/.htaccess", to);
 
-    if (vfs_is_file(data, from)) {
+    if (vfs_is_file(data, src)) {
         vfs_copy(data, src, dst);
     }
 
