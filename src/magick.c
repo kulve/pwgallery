@@ -35,6 +35,9 @@
 static gboolean _apply_modifications(struct data *data, 
                                      MagickWand *wand, 
                                      struct image *image);
+static gboolean _load_image(struct data *data, 
+                            MagickWand *wand, 
+                            struct image *image);
 static gboolean _resize(struct data *data,
                         MagickWand *wand, 
                         struct image *image,
@@ -63,6 +66,12 @@ gboolean magick_make_thumbnail(struct data *data,
 
     wand = NewMagickWand();
     g_return_val_if_fail( wand, FALSE );
+
+    /* load image from file */
+    if (!_load_image(data, wand, image)) {
+        DestroyMagickWand(wand);
+        return FALSE;
+    }
 
     /* apply modifications, if nomodify is not checked */
     if (!image->nomodify) {
@@ -213,6 +222,12 @@ static MagickWand *_generate_webimage(struct data *data,
     wand = NewMagickWand();
     g_return_val_if_fail( wand, FALSE );
 
+    /* load image from file */
+    if (!_load_image(data, wand, image)) {
+        DestroyMagickWand(wand);
+        return FALSE;
+    }
+
     /* apply modifications, if nomodify is not checked */
     if (!image->nomodify) {
         if (!_apply_modifications(data, wand, image)) {
@@ -247,25 +262,28 @@ static MagickWand *_generate_webimage(struct data *data,
             g_free((*img_size));
             return NULL;
         }
-    }
+    } else {
+        /* no modify, just return original size */
+        (*img_size)->height = image->height;
+        (*img_size)->width = image->width;
+   }
     
     return wand;
 }
 
 /*
- * Apply image modifications (rotate, gamma, etc) to the
- * image. Resizing to web image or thumbnail is done afterwards
+ * Load image to image magic
  */
-static gboolean _apply_modifications(struct data *data, 
-                                     MagickWand *wand, 
-                                     struct image *image)
+static gboolean _load_image(struct data *data, 
+                            MagickWand *wand, 
+                            struct image *image)
 {
     gchar *desc;
     ExceptionType severity;
     guchar *img_data;
     gsize img_len;
 
-    g_debug("in _apply_modifications");
+    g_debug("in _load_image");
 
     g_assert(data != NULL);
     g_assert(wand != NULL);
@@ -279,11 +297,32 @@ static gboolean _apply_modifications(struct data *data,
         desc = MagickGetException(wand, &severity) ;
      
         /* FIXME: popup */
-        g_warning("_apply_modifications: error reading image: %s\n", desc);
+        g_warning("_load_image: error reading image: %s\n", desc);
         g_free(img_data);
         return FALSE;
     }
+
     g_free(img_data);
+
+    return TRUE;
+}    
+
+/*
+ * Apply image modifications (rotate, gamma, etc) to the
+ * image. Resizing to web image or thumbnail is done afterwards
+ */
+static gboolean _apply_modifications(struct data *data, 
+                                     MagickWand *wand, 
+                                     struct image *image)
+{
+    gchar *desc;
+    ExceptionType severity;
+
+    g_debug("in _apply_modifications");
+
+    g_assert(data != NULL);
+    g_assert(wand != NULL);
+    g_assert(image != NULL);
     
     /* rotate image */
     if (image->rotate) {
