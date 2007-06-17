@@ -5,11 +5,11 @@ use strict;
 my %GALLERY;       # hash for data
 my $img_count = 0; # image counter
 
-my $TEMPL_INDEX    = "file:///home/aino/.pwgallery/templates/aino_index.shtml";
-my $TEMPL_INDEXIMG = "file:///home/aino/.pwgallery/templates/aino_indeximg.shtml";
-my $TEMPL_INDEXGEN = "file:///home/aino/.pwgallery/templates/pwg_indexgen.html";
-my $TEMPL_IMAGE    = "file:///home/aino/.pwgallery/templates/aino_image-onesize.shtml";
-my $TEMPL_GEN      = "file:///home/aino/.pwgallery/templates/pwg_generic.html";
+my $TEMPL_INDEX    = "";
+my $TEMPL_INDEXIMG = "";
+my $TEMPL_INDEXGEN = "";
+my $TEMPL_IMAGE    = "";
+my $TEMPL_GEN      = ""
 
 if (not defined $ARGV[0] or not defined $ARGV[1]) {
   print "Usage: $0 gwebgalleryfile pwgalleryfile.xml\n";
