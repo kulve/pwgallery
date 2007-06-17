@@ -295,10 +295,10 @@ static gboolean _load_image(struct data *data,
     /* Read image to image magick */
     if (!MagickReadImageBlob(wand, img_data, img_len)) {
         desc = MagickGetException(wand, &severity) ;
-     
         /* FIXME: popup */
         g_warning("_load_image: error reading image: %s\n", desc);
         g_free(img_data);
+        desc = (char *) MagickRelinquishMemory(desc);
         return FALSE;
     }
 
@@ -339,7 +339,7 @@ static gboolean _apply_modifications(struct data *data,
             g_warning("_apply_modifications: "
                       "error rotating image: %s\n", desc);
             ClearPixelWand(px);
-            MagickRelinquishMemory(desc);
+            desc = (char *) MagickRelinquishMemory(desc);
             return FALSE;
         }
         DestroyPixelWand( px );
@@ -354,6 +354,7 @@ static gboolean _apply_modifications(struct data *data,
             g_warning("_apply_modifications: "
                       "error setting gamma (%.2f) of image: %s\n",
                       image->gamma, desc);
+            desc = (char *) MagickRelinquishMemory(desc);
             return FALSE;
         }
     }
@@ -387,6 +388,7 @@ static gboolean _resize(struct data *data,
         desc = MagickGetException(wand, &severity);
 
         g_warning("_resize: error resizing image: %s\n", desc);
+        desc = (char *) MagickRelinquishMemory(desc);
         return FALSE;
     }
 
@@ -414,9 +416,9 @@ static gboolean _save(struct data *data,
  
     if (data->gal->remove_exif && !MagickStripImage(wand))
     {
-        /* CHECKME: should desc be freed? */
         desc = MagickGetException(wand, &severity);
         g_warning("_save: error stripping image: %s\n", desc);
+        desc = (char *) MagickRelinquishMemory(desc);
     }
 
     img_data = MagickGetImagesBlob(wand, &img_len);
