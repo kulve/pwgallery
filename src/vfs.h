@@ -59,6 +59,11 @@ void vfs_copy(struct data *data, const gchar *src, const gchar *dst);
 void vfs_rename(struct data *data, const gchar *from, const gchar *to);
 
 /*
+ * Copy htaccess file from 'from' directory to 'to' directory
+ */
+void vfs_copy_htaccess(struct data *data, const gchar *from, const gchar *to);
+
+/*
  * Read a whole uri to buffer
  */
 void vfs_read_file(struct data *data, const gchar *uri, guchar **content,

@@ -183,6 +183,28 @@ vfs_rename(struct data *data, const gchar *from, const gchar *to)
 
 
 void
+vfs_copy_htaccess(struct data *data, const gchar *from, const gchar *to)
+{
+    gchar *src, *dst;
+
+    g_assert(data != NULL);
+    g_assert(from != NULL);
+    g_assert(to != NULL);
+
+    src = g_strdup_printf("%s/.htaccess", from);
+    dst = g_strdup_printf("%s/.htaccess", to);
+
+    if (vfs_is_file(data, from)) {
+        vfs_copy(data, src, dst);
+    }
+
+    g_free(src);
+    g_free(dst);
+}
+
+
+
+void
 vfs_read_file(struct data *data, const gchar *uri, guchar **content,
               gsize *content_len)
 {

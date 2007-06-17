@@ -479,10 +479,12 @@ gallery_make(struct data *data)
         } while(1);
 
         vfs_rename(data, data->gal->output_dir, dir);
+        vfs_mkdir(data, data->gal->output_dir);
+        vfs_copy_htaccess(data, dir, data->gal->output_dir);
         g_free(dir);
+    } else {
+        vfs_mkdir(data, data->gal->output_dir);
     }
-
-    vfs_mkdir(data, data->gal->output_dir);
 
     widgets_set_progress(data, 0, _("Creating gallery"));
 
