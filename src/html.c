@@ -282,12 +282,15 @@ html_make_image_pages(struct data *data)
         struct image   *image = images->data;
         gchar          tmpbuf[1024];
         gboolean       first_size = TRUE;
+        int            size_index = 0; /* ugly, again */
 
         /* go through all image sizes */
         sizes = image->sizes;
         while(sizes) {
             struct image_size *size = sizes->data;
             GString           *esc;
+
+            ++size_index; /* index number of sizes */
 
             /* copy empty image template */
             page = g_string_assign(page, page_templ->str);
@@ -382,9 +385,28 @@ html_make_image_pages(struct data *data)
                            data->gal->output_dir, 
                            image->basefilename, page_ext);
             } else {
+                /* ugly: we need to put all pages to same size based dir.. */
+                int common_height; 
+
+                /* ugly: get the common size */
+                switch (size_index) {
+                case 2:
+                    common_height = data->gal->image_h2;
+                    break;
+                case 3:
+                    common_height = data->gal->image_h3;
+                    break;
+                case 4:
+                    common_height = data->gal->image_h4;
+                    break;
+                default:
+                    /* FIXME: popup? */
+                    g_error("%s: Unkown size", __FUNCTION__);
+                    break;
+                }
                 g_snprintf(tmpbuf, 1024, "%s/images_%d/%s.%s", 
                            data->gal->output_dir,
-                           size->height, 
+                           common_height, 
                            image->basefilename, page_ext);
             }
             vfs_write_file(data, tmpbuf, (guchar*)page->str, page->len);
