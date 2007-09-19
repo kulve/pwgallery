@@ -215,6 +215,7 @@
 		  <child>
 		    <widget class="GtkImageMenuItem" id="menu_add_generic">
 		      <property name="visible">True</property>
+		      <property name="sensitive">False</property>
 		      <property name="tooltip" translatable="yes">Add Generic message after this without image</property>
 		      <property name="label" translatable="yes">_Add generic</property>
 		      <property name="use_underline">True</property>
