@@ -520,7 +520,6 @@ gallery_make(struct data *data)
 void
 gallery_add_new_images(struct data *data, GSList *uris)
 {
-	GtkWidget    *pbar;
 	struct image *img;
 	GSList       *first;
 	gint         tot_files, file_counter;
@@ -535,10 +534,7 @@ gallery_add_new_images(struct data *data, GSList *uris)
 	tot_files = g_slist_length(uris); /* number of images to add */
 	file_counter = 0;
 	
-	pbar = glade_xml_get_widget( data->glade, "progressbar_status");
-	g_assert(pbar != NULL);
-
-	widgets_set_status(data, _("Adding images"));
+    widgets_set_status(data, _("Adding images"));
 
 	/* Add images */
 	while (uris) {
@@ -549,9 +545,11 @@ gallery_add_new_images(struct data *data, GSList *uris)
 			widgets_set_progress(data, (gfloat)file_counter/(gfloat)tot_files,
 								 p_text);
 			data->gal->images = g_slist_append(data->gal->images, img);
-                        
-			gtk_widget_show( img->image );
-			gtk_widget_show( img->button );
+            
+            if (data->use_gui) {
+                gtk_widget_show(img->image);
+                gtk_widget_show(img->button);
+            }
 		}
 		uris = uris->next;
 	}

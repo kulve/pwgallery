@@ -51,12 +51,18 @@ static int parse_args(struct data *data, int argc, char *argv[]);
 static void print_usage(const char *self);
 static void print_version(const char *self);
 
+static void new_gallery(struct data *data);
+
+static void generate_img_gslist(struct data *data, int argc, char *argv[]);
+
 int
 main(int argc, char *argv[])
 {
     struct data *data;
     int r;
  
+    g_type_init(); /* Initialize glib type system before using anything */
+
 #ifdef ENABLE_NLS
     bindtextdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
     bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
@@ -77,24 +83,35 @@ main(int argc, char *argv[])
         }
     }
 
-    gtk_init(&argc, &argv);
-
+    if (data->use_gui) {
+        gtk_init(&argc, &argv);
+    }
+        
+    /* set critical to be always fatal */
+    g_log_set_always_fatal(G_LOG_LEVEL_CRITICAL);
+        
     init_pwgallery(data);
 
     configrc_load(data);
+
     gallery_init(data);
 
-    /* connect signals */
-    glade_xml_signal_autoconnect_full(data->glade, glade_xml_connect_func,
-                                      data);
+    if (data->arg_new != NULL) {
+        /* Create new gallery without GUI */
+        new_gallery(data);
+        gallery_save(data);
+    } else {
+        /* Start GUI */
 
-    /* show main window */
-    gtk_widget_show_all(data->top_window);
+        /* connect signals */
+        glade_xml_signal_autoconnect_full(data->glade, glade_xml_connect_func,
+                                          data);
+        
+        /* show main window */
+        gtk_widget_show_all(data->top_window);
 
-    /* set critical to be always fatal */
-    g_log_set_always_fatal(G_LOG_LEVEL_CRITICAL);
-
-    gtk_main();
+        gtk_main();
+    }
 
     free_data(data);
 
@@ -156,6 +173,8 @@ init_data(void)
 
     data = g_new0(struct data, 1);
 
+    data->use_gui = TRUE; /* Assuming we'll be running GUI */
+
     return data;
 }
 
@@ -172,15 +191,17 @@ init_pwgallery(struct data *data)
     if (gnome_vfs_init() == FALSE)
         g_error("Failed to initialize GnomeVFS");
 
-    data->glade = glade_xml_new(PWGALLERY_GLADE_FILE, NULL, NULL);
-    if (data->glade == NULL) {
-        g_warning("Error reading glade file: %s\n", PWGALLERY_GLADE_FILE);
-        exit(1);
+    if (data->use_gui) { 
+        data->glade = glade_xml_new(PWGALLERY_GLADE_FILE, NULL, NULL);
+        if (data->glade == NULL) {
+            g_warning("Error reading glade file: %s\n", PWGALLERY_GLADE_FILE);
+            exit(1);
+        }
+        
+        /* find top level window */
+        data->top_window = glade_xml_get_widget(data->glade, "mainwindow");
+        g_assert(data->top_window);
     }
-
-    /* find top level window */
-    data->top_window = glade_xml_get_widget(data->glade, "mainwindow");
-    g_assert(data->top_window);
 }
 
 
@@ -191,8 +212,21 @@ init_pwgallery(struct data *data)
 static void
 free_data(struct data *data)
 {
-
     g_assert(data);
+
+
+    /* Free image list for create new gallery cmdline argument */
+    if (data->arg_new_imgs != NULL) {
+        GSList *list;
+        list = data->arg_new_imgs;
+        while(list) {
+            g_free(list->data);
+            list->data = NULL;
+            list = list->next;
+        }
+        g_slist_free(data->arg_new_imgs);
+    }
+
 
     if (data->gal != NULL) {
         gallery_free(data);
@@ -234,9 +268,10 @@ parse_args(struct data *data, int argc, char *argv[])
 		static struct option long_options[] =  {
 			{"help",	0, 0, 'h'},
 			{"version",	0, 0, 'v'},
+			{"new",	1, 0, 'n'},
 			{0,		0, 0, 0}
 		};
-		c = getopt_long(argc, argv, "hv", 
+		c = getopt_long(argc, argv, "hvn:", 
 				long_options, &option_index);
 		if (c == -1) {
 			break;
@@ -249,6 +284,10 @@ parse_args(struct data *data, int argc, char *argv[])
 		case 'v':
 			print_version(argv[0]);
 			return 1;
+		case 'n':
+            data->arg_new = g_strdup(optarg);
+            data->use_gui = FALSE;
+            break;
 		case '?':
 			g_warning("Unknown option");
 			print_usage(argv[0]);
@@ -262,14 +301,21 @@ parse_args(struct data *data, int argc, char *argv[])
 	}
 
 	if (optind < argc) {
-		g_warning("Invalid parameters: ");
-		while (optind < argc) {
-			g_print("%s ", argv[optind++]);
-		}
-		g_print("\n");
 
-		print_usage(argv[0]);
-		return -1;
+        /* Add the rest of the arguments as images to be added to gallery */
+        if (data->arg_new != NULL) {
+            generate_img_gslist(data, argc, argv);
+        } else {
+            g_warning("Invalid parameters: ");
+
+            while (optind < argc) {
+                g_print("%s ", argv[optind++]);
+            }
+            g_print("\n");
+
+            print_usage(argv[0]);
+            return -1;
+        }
 	}
 	return 0;
 }
@@ -283,11 +329,12 @@ static void
 print_usage(const char *self)
 {
     g_print("\
-Usage: %s [options]\n\
+Usage: %s [options] [image ...]\n\
 \n\
 Options\n\
   -h  --help               Show this usage\n\
   -v  --version            Show version\n\
+  -n  --new gallery_name   Create new gallery\n\
 ",
             self);
 }
@@ -302,6 +349,50 @@ print_version(const char *self)
 {
     g_print(PACKAGE_STRING "\n" "$LastChangedDate$" "\n" "$Rev$" "\n" );
 }
+
+
+
+/*
+ * Add arguments to images list 
+ */
+static void
+generate_img_gslist(struct data *data, int argc, char *argv[])
+{
+    gchar *pwd;
+
+    /* get our current dir to form proper uris for images */
+    pwd = g_strdup_printf("file://%s", g_get_current_dir());
+
+    while (optind < argc) {
+        gchar *img;
+        
+        if (g_path_is_absolute(argv[optind])) {
+            img = g_strdup_printf("file://%s", argv[optind]);
+        } else {
+            img = g_strdup_printf("%s/%s", pwd, argv[optind]);
+        }
+        optind++;
+
+        data->arg_new_imgs = g_slist_append(data->arg_new_imgs, img);
+    }
+}
+
+
+
+/*
+ * Create new gallery without GUI. Use default values.
+ */
+static void
+new_gallery(struct data *data)
+{
+    g_assert(data != NULL);
+
+    data->gal->uri = g_strdup_printf("%s/%s.xml", data->gal_dir, data->arg_new);
+    g_free(data->arg_new);
+
+    gallery_add_new_images(data, data->arg_new_imgs);
+}
+        
 
 
 

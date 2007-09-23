@@ -149,8 +149,10 @@ image_open(struct data *data, gchar *uri, gint rotate)
         img->rotate = rotate;
     }
 
-    loader = gdk_pixbuf_loader_new();
-    g_signal_connect(loader, "size-prepared", G_CALLBACK(set_size), img);
+    if (data->use_gui) {
+        loader = gdk_pixbuf_loader_new();
+        g_signal_connect(loader, "size-prepared", G_CALLBACK(set_size), img);
+    }
 
 	/* read image from the file */
 	while (TRUE)
@@ -169,12 +171,15 @@ image_open(struct data *data, gchar *uri, gint rotate)
 			g_warning("Skipping image because of read error '%s': %s", uri, 
 					  gnome_vfs_result_to_string(result));
 			image_free(img);
-			gdk_pixbuf_loader_close (loader, NULL);
+            if (data->use_gui) {
+                gdk_pixbuf_loader_close (loader, NULL);
+            }
 			return NULL;
 		}
 
 		/* error parsing image data */
-		if (gdk_pixbuf_loader_write(loader, buf, bytes, &error) == FALSE)
+		if (data->use_gui && 
+            gdk_pixbuf_loader_write(loader, buf, bytes, &error) == FALSE)
 		{
 			gdk_pixbuf_loader_close (loader, NULL);
 			/* FIXME: popup */
@@ -186,52 +191,55 @@ image_open(struct data *data, gchar *uri, gint rotate)
 		}
 		
 	}
-
-    gdk_pixbuf_loader_close(loader, NULL); /* no more writes */
+    
 	gnome_vfs_close(handle); /* ignore result */
-	
-	/* create button and set colors */
-    img->button = gtk_button_new();
-	g_object_ref(img->button);
 
-    color.pixel = 0;
-    color.red   = 10000;
-    color.green = 20000;
-    color.blue  = 50000;
-    prelight.pixel = 0;
-    prelight.red   = 15000;
-    prelight.green = 15000;
-    prelight.blue  = 37500;
+    if (data->use_gui) {
+        gdk_pixbuf_loader_close(loader, NULL); /* no more writes */	
 
-    gtk_widget_modify_bg( img->button, GTK_STATE_NORMAL, &color);
-    gtk_widget_modify_bg( img->button, GTK_STATE_SELECTED, &color);
-    gtk_widget_modify_bg( img->button, GTK_STATE_PRELIGHT, &prelight );
+        /* create button and set colors */
+        img->button = gtk_button_new();
+        g_object_ref(img->button);
 
-    g_signal_connect( img->button, "button_press_event", 
-		      G_CALLBACK( gallery_image_selected ), data );
-
-    if (img->rotate == 90 || img->rotate == 270)
-    {
-        GdkPixbuf *pix, *pix_rotated;
-        GdkPixbufRotation rot;
-
-        if (img->rotate == 90)
-            rot = GDK_PIXBUF_ROTATE_CLOCKWISE;
-        else
-            rot = GDK_PIXBUF_ROTATE_COUNTERCLOCKWISE;
-
-        pix = gdk_pixbuf_loader_get_pixbuf(loader);
-        pix_rotated = gdk_pixbuf_rotate_simple(pix, rot);
+        color.pixel = 0;
+        color.red   = 10000;
+        color.green = 20000;
+        color.blue  = 50000;
+        prelight.pixel = 0;
+        prelight.red   = 15000;
+        prelight.green = 15000;
+        prelight.blue  = 37500;
         
-        img->image = gtk_image_new_from_pixbuf(pix_rotated);
-    } else {
-        img->image = 
-            gtk_image_new_from_pixbuf(gdk_pixbuf_loader_get_pixbuf(loader));
+        gtk_widget_modify_bg( img->button, GTK_STATE_NORMAL, &color);
+        gtk_widget_modify_bg( img->button, GTK_STATE_SELECTED, &color);
+        gtk_widget_modify_bg( img->button, GTK_STATE_PRELIGHT, &prelight );
+        
+        g_signal_connect( img->button, "button_press_event", 
+                          G_CALLBACK( gallery_image_selected ), data );
+        
+        if (img->rotate == 90 || img->rotate == 270)
+            {
+                GdkPixbuf *pix, *pix_rotated;
+                GdkPixbufRotation rot;
+                
+                if (img->rotate == 90)
+                    rot = GDK_PIXBUF_ROTATE_CLOCKWISE;
+                else
+                    rot = GDK_PIXBUF_ROTATE_COUNTERCLOCKWISE;
+                
+                pix = gdk_pixbuf_loader_get_pixbuf(loader);
+                pix_rotated = gdk_pixbuf_rotate_simple(pix, rot);
+                
+                img->image = gtk_image_new_from_pixbuf(pix_rotated);
+            } else {
+                img->image = gtk_image_new_from_pixbuf
+                    (gdk_pixbuf_loader_get_pixbuf(loader));
+            }
+        
+        gtk_container_add( GTK_CONTAINER( img->button ), img->image);
+        gtk_container_set_border_width( GTK_CONTAINER( img->button ), 
+                                        PWGALLERY_THUMBNAIL_BORDER_WIDTH );
     }
-
-    gtk_container_add( GTK_CONTAINER( img->button ), img->image);
-    gtk_container_set_border_width( GTK_CONTAINER( img->button ), 
-				    PWGALLERY_THUMBNAIL_BORDER_WIDTH );
 
     /* Set default values for a new image */
 	img->nomodify = FALSE;

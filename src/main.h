@@ -151,6 +151,10 @@ struct data
     struct image   *current_img;       /* Currently selected image */
     gboolean       *text_edited;       /* Content of textview is changed*/
 
+    gboolean       use_gui;            /* do we want to show GUI */
+    gchar          *arg_new;           /* create new gallery (cmdline) */
+    GSList         *arg_new_imgs;      /* List of images for the new gallery */
+
     gchar          *img_dir;           /* image directory */
     gchar          *output_dir;        /* Default gallery's output dir */
     gchar          *gal_dir;           /* directory for gallery files */

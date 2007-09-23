@@ -41,6 +41,10 @@ widgets_update_table(struct data *data)
     GValue           value;
     gdouble          t;
 
+    if (!data->use_gui) {
+        return;
+    }
+
     memset(&value, 0, sizeof(value));
 
     g_assert(data);
@@ -139,6 +143,10 @@ widgets_set_progress(struct data *data, gfloat fraction, const gchar *text)
 	g_assert(data != NULL);
 	g_assert(text != NULL);
 
+    if (!data->use_gui) {
+        return;
+    }
+
 	if (pbar == NULL)
 		pbar = glade_xml_get_widget( data->glade, "progressbar_status");
 	g_assert(pbar != NULL);
@@ -158,6 +166,10 @@ widgets_set_status(struct data *data, const gchar *text)
 
 	g_assert(data != NULL);
 	g_assert(text != NULL);
+
+    if (!data->use_gui) {
+        return;
+    }
 
 	if (label == NULL)
 		label = glade_xml_get_widget( data->glade, "label_pwg_status");
@@ -714,6 +726,11 @@ widgets_set_image_information(struct data *data, struct image *img)
     GtkTextBuffer *buffer;
 
 	g_assert(data != NULL);
+
+    if (!data->use_gui) {
+        return;
+    }
+
     /* if img == null, clear the info */
 
     /* Get widgets */
