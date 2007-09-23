@@ -27,7 +27,8 @@
 #include "gallery.h"
 #include "configrc.h"
 
-#include <stdlib.h>           /* exit */
+#include <stdlib.h>		/* exit, EXIT_SUCCESS/FAILURE */
+#include <getopt.h>		/* getopt */
 
 #include <glib.h>
 #include <gtk/gtk.h>
@@ -43,23 +44,42 @@ static void glade_xml_connect_func(const gchar *handler_name,
                                    gpointer user_data);
 
 static struct data *init_data(void);
+static void init_pwgallery(struct data *data);
 static void free_data(struct data *data);
 
+static int parse_args(struct data *data, int argc, char *argv[]);
+static void print_usage(const char *self);
+static void print_version(const char *self);
+
 int
-main (int argc, char *argv[])
+main(int argc, char *argv[])
 {
     struct data *data;
+    int r;
  
 #ifdef ENABLE_NLS
-    bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
+    bindtextdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
     bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
     textdomain (GETTEXT_PACKAGE);
 #endif
-    
-    gtk_set_locale ();
-    gtk_init (&argc, &argv);
 
     data = init_data();
+
+    /* Parse arguments and exit if needed */
+    r = parse_args(data, argc, argv);
+    if (r != 0) {
+        free_data(data);
+        
+        if (r == -1) {
+            exit(EXIT_FAILURE);
+        } else {
+            exit(EXIT_SUCCESS);
+        }
+    }
+
+    gtk_init(&argc, &argv);
+
+    init_pwgallery(data);
 
     configrc_load(data);
     gallery_init(data);
@@ -78,7 +98,7 @@ main (int argc, char *argv[])
 
     free_data(data);
 
-    return 0;
+    exit(EXIT_SUCCESS);
 }
 
 /*
@@ -127,7 +147,7 @@ glade_xml_connect_func(const gchar *handler_name,
 
 
 /*
- * Initialize struct data fields and other stuff
+ * Initialize struct data fields
  */
 static struct data *
 init_data(void)
@@ -135,6 +155,19 @@ init_data(void)
     struct data *data;
 
     data = g_new0(struct data, 1);
+
+    return data;
+}
+
+
+
+/*
+ * Initialize struct data fields and other stuff
+ */
+static void
+init_pwgallery(struct data *data)
+{
+    g_assert(data != NULL);
 
     if (gnome_vfs_init() == FALSE)
         g_error("Failed to initialize GnomeVFS");
@@ -148,9 +181,8 @@ init_data(void)
     /* find top level window */
     data->top_window = glade_xml_get_widget(data->glade, "mainwindow");
     g_assert(data->top_window);
-
-    return data;
 }
+
 
 
 /*
@@ -162,9 +194,13 @@ free_data(struct data *data)
 
     g_assert(data);
 
-    gallery_free(data);
+    if (data->gal != NULL) {
+        gallery_free(data);
+    }
 
-    g_object_unref(data->glade);
+    if (data->glade) {
+        g_object_unref(data->glade);
+    }
     g_free(data->img_dir);
     g_free(data->output_dir);
     g_free(data->gal_dir);
@@ -177,6 +213,96 @@ free_data(struct data *data)
     g_free(data->page_gen_prog);
     g_free(data);
 }
+
+
+
+/*
+ * Parse arguments
+ */
+static int
+parse_args(struct data *data, int argc, char *argv[])
+{
+    int c;
+
+	if (argv == NULL || argc == 0) {
+		g_warning("parse_arguments: Invalid arguments\n");
+		return -1;
+	}
+
+	while (1) {
+		int option_index = 0;
+		static struct option long_options[] =  {
+			{"help",	0, 0, 'h'},
+			{"version",	0, 0, 'v'},
+			{0,		0, 0, 0}
+		};
+		c = getopt_long(argc, argv, "hv", 
+				long_options, &option_index);
+		if (c == -1) {
+			break;
+		}
+
+		switch (c) {
+		case 'h':
+			print_usage(argv[0]);
+			return 1;
+		case 'v':
+			print_version(argv[0]);
+			return 1;
+		case '?':
+			g_warning("Unknown option");
+			print_usage(argv[0]);
+			return -1;
+
+		default:
+			g_print("Unknown option..\n");
+			print_usage(argv[0]);
+			return -1;
+		}
+	}
+
+	if (optind < argc) {
+		g_warning("Invalid parameters: ");
+		while (optind < argc) {
+			g_print("%s ", argv[optind++]);
+		}
+		g_print("\n");
+
+		print_usage(argv[0]);
+		return -1;
+	}
+	return 0;
+}
+
+
+
+/*
+ * Print usage
+ */
+static void
+print_usage(const char *self)
+{
+    g_print("\
+Usage: %s [options]\n\
+\n\
+Options\n\
+  -h  --help               Show this usage\n\
+  -v  --version            Show version\n\
+",
+            self);
+}
+
+
+
+/*
+ * Print version number
+ */
+static void
+print_version(const char *self)
+{
+    g_print(PACKAGE_STRING "\n" "$LastChangedDate$" "\n" "$Rev$" "\n" );
+}
+
 
 
 /* Emacs indentatation information
