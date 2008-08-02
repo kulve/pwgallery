@@ -35,6 +35,7 @@ exif_new(void)
 	exif = g_new0(struct exif, 1);
 	
 	exif->orientation = 0;
+    exif->timestamp = NULL;
 
 	return exif;
 }
@@ -46,6 +47,10 @@ exif_free(struct exif *exif)
 {
     if (exif == NULL)
         return;
+    
+    if (exif->timestamp == NULL) {
+        g_free(exif->timestamp);
+    }
 
     g_free(exif);
 }
@@ -112,10 +117,21 @@ exif_data_get(struct data *data, struct image *img)
             break;
         }
     }
-    /* DATETIME
-     * http://www.exif.org/Exif2-2.PDF
-     * page 28
-     */
+
+    eifd = edata->ifd[EXIF_IFD_EXIF];
+    eentry = exif_content_get_entry(eifd, EXIF_TAG_DATE_TIME_ORIGINAL);
+    if (eentry && eentry->format == EXIF_FORMAT_ASCII && 
+       (eentry->data[0] >= '0' && eentry->data[0] <= '9'))
+    {
+        
+        g_debug("EXIF_TAG_DATE_TIME: %s", eentry->data);
+        
+        /* DATETIME
+         * http://www.exif.org/Exif2-2.PDF
+         * page 28
+         */
+        img->exif->timestamp = g_strdup((gchar *)eentry->data);
+    }
 
     g_debug("Orientation: %d", img->exif->orientation);
     exif_data_free(edata);

@@ -39,6 +39,7 @@
 
 static gboolean _make_thumbnails(struct data *data);
 static gboolean _make_webimages(struct data *data);
+static gint sort_exif_timestamp(gconstpointer a, gconstpointer b);
 
 void
 gallery_init(struct data *data)
@@ -556,6 +557,9 @@ gallery_add_new_images(struct data *data, GSList *uris)
     
 	g_slist_free(first);
 
+    /* Sort the gallery based on exif time stamps */
+    data->gal->images = g_slist_sort(data->gal->images, sort_exif_timestamp);
+
     /* select first image, if there was no images before this addition */
     if (data->current_img == NULL) {
         if (data->gal->images != NULL) {
@@ -952,6 +956,33 @@ _make_webimages(struct data *data)
     return TRUE;
 }
 
+
+
+/* Compare the exif timestamps */
+static gint
+sort_exif_timestamp(gconstpointer a, gconstpointer b)
+{
+    const struct image *aimg, *bimg;
+
+    if (a == NULL || b == NULL)
+    {
+        return 0;
+    }
+
+    aimg = (struct image *)a;
+    bimg = (struct image *)b;
+
+    /* If either one is missing the exif timestamp, compare the file names */
+    if (aimg->exif == NULL || aimg->exif->timestamp == NULL ||
+        bimg->exif == NULL || bimg->exif->timestamp == NULL)
+    {
+        return g_str_equal(aimg->basefilename, bimg->basefilename);
+    }
+
+    /* String comparison equals to time comparison in case of exif
+       timestamp format */
+    return g_ascii_strcasecmp(aimg->exif->timestamp, bimg->exif->timestamp);
+}
 
 
 /* Emacs indentatation information

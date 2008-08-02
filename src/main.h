@@ -236,6 +236,7 @@ struct image_size
 struct exif
 {
     gint            orientation;       /* orientation of the image */
+    gchar           *timestamp;        /* timestamp in the exif format */
 };
 
 #endif

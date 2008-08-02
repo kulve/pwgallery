@@ -62,7 +62,7 @@ image_init(struct data *data)
     img->ext          = g_strdup("");
     img->nomodify     = FALSE;
     img->exif         = exif_new();
-        
+
 	return img;
 }
 
