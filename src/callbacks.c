@@ -46,6 +46,7 @@ static void action_gal_open(gpointer user_data);
 static void action_gal_save(gpointer user_data);
 static void action_gal_save_as(gpointer user_data);
 static void action_gal_make(gpointer user_data);
+static void action_gal_sort_by_time(gpointer user_data);
 static void action_image_add(gpointer user_data);
 static void action_image_edit(gpointer user_data);
 static void update_preview_cb(GtkFileChooser *file_chooser, gpointer data);
@@ -150,6 +151,17 @@ on_menu_make_gal_activate(GtkMenuItem *menuitem,
     g_debug("in on_menu_make_activate");
 
     action_gal_make(user_data);
+}
+
+
+
+void
+on_menu_sort_by_time_activate(GtkMenuItem *menuitem,
+                              gpointer user_data)
+{
+    g_debug("in on_menu_sort_by_time");
+
+    action_gal_sort_by_time(user_data);
 }
 
 
@@ -581,6 +593,32 @@ action_gal_make(gpointer user_data)
 
     /* changes are checked in gallery_make */
     gallery_make(data);
+}
+
+
+
+
+
+/*
+ * Sort gallery based on EXIF time stamps
+ */
+static void 
+action_gal_sort_by_time(gpointer user_data)
+{
+    struct data *data;
+
+    g_assert(user_data != NULL );
+
+    g_debug("in %s", __FUNCTION__);
+
+    data = user_data;
+
+    /* sort images */
+    gallery_sort_by_time(data);
+
+    /* save selected image's (if any) text */
+    gallery_image_save_text(data);
+
 }
 
 

@@ -519,6 +519,23 @@ gallery_make(struct data *data)
 
 
 void
+gallery_sort_by_time(struct data *data)
+{
+    g_debug("in %s", __FUNCTION__);
+
+    if (data && data->gal && data->gal->images) {
+
+        /* Sort the gallery based on exif time stamps */
+        data->gal->images =
+            g_slist_sort(data->gal->images, sort_exif_timestamp);
+
+        widgets_update_table(data);
+
+    }
+}
+
+
+void
 gallery_add_new_images(struct data *data, GSList *uris)
 {
 	struct image *img;
@@ -556,9 +573,6 @@ gallery_add_new_images(struct data *data, GSList *uris)
 	}
     
 	g_slist_free(first);
-
-    /* Sort the gallery based on exif time stamps */
-    data->gal->images = g_slist_sort(data->gal->images, sort_exif_timestamp);
 
     /* select first image, if there was no images before this addition */
     if (data->current_img == NULL) {

@@ -59,6 +59,12 @@ void gallery_save_as(struct data *data);
  */
 void gallery_make(struct data *data);
 
+/*
+ * Sort gallery based on EXIF time stamps
+ */
+void
+gallery_sort_by_time(struct data *data);
+
 /* 
  * Free gallery
  */

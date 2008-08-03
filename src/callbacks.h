@@ -72,6 +72,13 @@ void on_menu_save_as_activate(GtkMenuItem *menuitem,
  */
 void on_menu_make_gal_activate(GtkMenuItem *menuitem,
                                gpointer user_data);
+
+/*
+ * Gallery -> Sort by time
+ */
+void on_menu_sort_by_time_activate(GtkMenuItem *menuitem,
+                                   gpointer user_data);
+
 /*
  * Image -> Add images to gallery
  */
