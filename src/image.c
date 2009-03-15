@@ -33,8 +33,10 @@
 #include <string.h>       /* memset */
 
 
-static void set_size( GdkPixbufLoader *gdkpixbufloader, 
-					  gint arg1, gint arg2, gpointer data);
+static void set_size(GdkPixbufLoader *gdkpixbufloader, 
+                     gint arg1, gint arg2, gpointer data);
+static void set_ss_size(GdkPixbufLoader *gdkpixbufloader, 
+                        gint arg1, gint arg2, gpointer data);
 
 
 struct image *
@@ -49,6 +51,7 @@ image_init(struct data *data)
     /* initialize values */
     img->image        = NULL;
     img->button       = NULL;
+    img->ss_pixbuf    = NULL;
     img->sizes        = NULL;
     img->width        = 0;
     img->height       = 0;
@@ -89,6 +92,10 @@ image_free(struct image *img)
         list = g_slist_delete_link(list, list);
     }
 
+    if (img->ss_pixbuf) {
+        g_object_unref(img->ss_pixbuf);
+        img->ss_pixbuf = NULL;
+    }
 	/* free other fields */
 	g_free(img->text);
 	g_free(img->uri);
@@ -265,6 +272,7 @@ image_open(struct data *data, gchar *uri, gint rotate)
 }
 
 
+
 gboolean
 image_is_edited(struct data *data, struct image *img)
 {
@@ -286,6 +294,104 @@ image_is_edited(struct data *data, struct image *img)
 
 
 
+gboolean
+image_load_ss_pixbuf(struct data *data, struct image *img)
+{
+    GdkPixbufLoader  *loader;
+    guchar           buf[PWGALLERY_IMG_READ_BUF_SIZE];
+	GnomeVFSResult   result;
+	GnomeVFSHandle   *handle;
+	GnomeVFSFileSize bytes;
+	GError           *error = NULL;
+
+	g_assert(data != NULL);
+	g_assert(img != NULL);
+	g_assert(data->ss_window != NULL);
+
+	g_debug("in %s", __FUNCTION__);
+
+	/* open image */
+	result = gnome_vfs_open_uri(&handle, gnome_vfs_uri_new(img->uri),
+								GNOME_VFS_OPEN_READ);
+	if (result != GNOME_VFS_OK)
+	{
+		/* FIXME: popup */
+		g_warning("Failed to open slide show image '%s': %s", img->uri, 
+				  gnome_vfs_result_to_string(result));
+		return FALSE;
+	}
+
+    loader = gdk_pixbuf_loader_new();
+    g_signal_connect(loader, "size-prepared", G_CALLBACK(set_ss_size), data);
+
+	/* read image from the file */
+	while (TRUE)
+	{
+		result = gnome_vfs_read(handle, buf,
+								PWGALLERY_IMG_READ_BUF_SIZE, &bytes);
+
+		/* all read */
+		if (result == GNOME_VFS_ERROR_EOF)
+			break;
+		
+		/* error reading */
+		if (result != GNOME_VFS_OK)
+		{
+			/* FIXME: popup */
+			g_warning("Failed to load slow show image '%s': %s", img->uri, 
+					  gnome_vfs_result_to_string(result));
+            gdk_pixbuf_loader_close (loader, NULL);
+			return FALSE;
+		}
+
+		/* error parsing image data */
+		if (gdk_pixbuf_loader_write(loader, buf, bytes, &error) == FALSE)
+		{
+			gdk_pixbuf_loader_close (loader, NULL);
+			/* FIXME: popup */
+			g_warning("Failed to parse slide show image '%s': %s", img->uri,
+					  error->message);
+			g_error_free(error);
+			return FALSE;
+		}
+		
+	}
+    
+	gnome_vfs_close(handle); /* ignore result */
+
+    gdk_pixbuf_loader_close(loader, NULL); /* no more writes */	
+
+    img->ss_pixbuf = gdk_pixbuf_loader_get_pixbuf(loader);
+    if (img->ss_pixbuf == NULL) {
+        return FALSE;
+    }
+
+    if (img->rotate == 90 || img->rotate == 270) {
+        GdkPixbuf *orig;
+        GdkPixbufRotation rot;
+        
+        orig = img->ss_pixbuf;
+
+        if (img->rotate == 90)
+            rot = GDK_PIXBUF_ROTATE_CLOCKWISE;
+        else
+            rot = GDK_PIXBUF_ROTATE_COUNTERCLOCKWISE;
+        
+        img->ss_pixbuf = gdk_pixbuf_rotate_simple(orig, rot);
+        g_object_unref(orig);
+    }
+
+    if (img->ss_pixbuf == NULL) {
+        return FALSE;
+    }
+    g_object_ref(img->ss_pixbuf);
+
+    /* FIXME: adjust gamma, etc */
+
+    return TRUE;	
+}
+
+
 /**********************
  *                    *
  * Static functions   *
@@ -293,6 +399,9 @@ image_is_edited(struct data *data, struct image *img)
  **********************/
 
 
+/*
+ * Calculate the size for thumbnails
+ */
 static void 
 set_size( GdkPixbufLoader *gdkpixbufloader, gint arg1, gint arg2, gpointer data)
 {
@@ -314,25 +423,78 @@ set_size( GdkPixbufLoader *gdkpixbufloader, gint arg1, gint arg2, gpointer data)
         h = PWGALLERY_THUMB_W;
         w = (gint)(h / scale);
 
-        g_debug("in set_size: %dx%d -> %dx%d",  arg1, arg2, w, h);
-        
-        img->width = arg1;
-        img->height = arg2;
     } else {
         scale = (gdouble)arg1 / (gdouble)arg2;
         
         /* FIXME: get this from the width of the gtk_table? */
         w = PWGALLERY_THUMB_W;
         h = (gint)(w / scale);
-
-        g_debug("in set_size: %dx%d -> %dx%d",  arg1, arg2, w, h);
-        
-        img->width = arg1;
-        img->height = arg2;
     }
 
-    gdk_pixbuf_loader_set_size(gdkpixbufloader, w, h);
+    g_debug("in set_size: %dx%d -> %dx%d",  arg1, arg2, w, h);
+    
+    img->width = arg1;
+    img->height = arg2;
 
+    gdk_pixbuf_loader_set_size(gdkpixbufloader, w, h);
+}
+
+
+
+/*
+ * Calculate the size for full screen slide show
+ */
+static void 
+set_ss_size(GdkPixbufLoader *gdkpixbufloader,
+            gint arg1, gint arg2,
+            gpointer user_data)
+{
+    gint         w, h, fs_w, fs_h;
+    gdouble      img_scale, fs_scale;
+    struct data *data;
+    struct image *img;
+    GdkScreen *screen;
+
+	g_assert(user_data != NULL );
+
+    g_debug("in %s", __FUNCTION__ );
+
+    data = user_data;
+    img = data->current_ss_img;
+
+    screen = gdk_display_get_screen(gdk_display_get_default(), 0);
+    fs_w = gdk_screen_get_width(screen);
+    fs_h = gdk_screen_get_height(screen);
+
+    fs_scale = (gdouble)fs_w / (gdouble)fs_h;
+
+    if (img->rotate == 90 || img->rotate == 270)
+    {
+        img_scale = (gdouble)arg1 / (gdouble)arg2;
+        
+        if (img_scale > 1) {
+            w = fs_h;
+            h = (gint)(w / img_scale);
+        } else {
+            h = fs_w;
+            w = (gint)(h * img_scale);
+        }
+
+    } else {
+        img_scale = (gdouble)arg1 / (gdouble)arg2;
+
+        if (img_scale > 1) {
+            w = fs_w;
+            h = (gint)(w / img_scale);
+        } else {
+            h = fs_h;
+            w = (gint)(h * img_scale);
+        }
+    }
+    
+    g_debug("in %s: %dx%d -> %dx%d", __FUNCTION__, arg1, arg2, w, h);
+
+    gdk_pixbuf_loader_set_size(gdkpixbufloader, w, h);
 }
 
 

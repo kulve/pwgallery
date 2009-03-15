@@ -65,6 +65,12 @@ void gallery_make(struct data *data);
 void
 gallery_sort_by_time(struct data *data);
 
+/*
+ * Show a slide show
+ */
+void
+gallery_slide_show(struct data *data);
+
 /* 
  * Free gallery
  */

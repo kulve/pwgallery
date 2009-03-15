@@ -147,10 +147,14 @@ struct data
 {
     GladeXML       *glade;             /* Glade XML */
     GtkWidget      *top_window;        /* pointer to top level window */
+    GtkWidget      *ss_window;         /* pointer to slide show window */
     struct gallery *gal;               /* pointer to current gallery */
     struct image   *current_img;       /* Currently selected image */
+    struct image   *current_ss_img;    /* Currently selected image */
     gboolean       *text_edited;       /* Content of textview is changed*/
 
+    gint           ss_timer;           /* slide show timer */
+    gint           ss_timer_interval;  /* slide show timer interval */
     gboolean       use_gui;            /* do we want to show GUI */
     gchar          *arg_new;           /* create new gallery (cmdline) */
     GSList         *arg_new_imgs;      /* List of images for the new gallery */
@@ -208,6 +212,7 @@ struct image
 {
     GtkWidget       *image;            /* pointer to image widget */
     GtkWidget       *button;           /* pointer to button widget */
+    GdkPixbuf       *ss_pixbuf;        /* pointer to slide show pixbuf */
     GSList          *sizes;            /* List of image sizes */
     gint            width;             /* original width of the image */
     gint            height;            /* original height of the image */

@@ -160,8 +160,6 @@ configrc_load(struct data *data)
     g_free(configrc_data);
     g_free(configrc_file);
     g_key_file_free(keyfile);
-
-
 }
 
 

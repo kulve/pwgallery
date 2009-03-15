@@ -80,6 +80,12 @@ void on_menu_sort_by_time_activate(GtkMenuItem *menuitem,
                                    gpointer user_data);
 
 /*
+ * Gallery -> Slide show
+ */
+void on_menu_slide_show_activate(GtkMenuItem *menuitem,
+                                 gpointer user_data);
+
+/*
  * Image -> Add images to gallery
  */
 void on_menu_add_image_activate(GtkMenuItem *menuitem,

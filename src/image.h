@@ -43,6 +43,10 @@ void image_free(struct image *img);
  */
 struct image *image_open(struct data *data, gchar *uri, gint rotate);
 
+/*
+ * Load an image from file to a pixbuf and scale it to full screen
+ */
+gboolean image_load_ss_pixbuf(struct data *data, struct image *img);
 
 /*
  * Check if the image is edited (the last dir in uri is 'edited')

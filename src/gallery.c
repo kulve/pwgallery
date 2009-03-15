@@ -31,15 +31,29 @@
 #include "html.h"
 
 #include <glib.h>
+#include <gdk/gdkkeysyms.h>          /* GDK key symbols */
 #include <gtk/gtk.h>
-#include <string.h>        /* memset, strcmp */
-#include <strings.h>       /* rindex */
+#include <string.h>                  /* memset, strcmp */
+#include <strings.h>                 /* rindex */
 
 
 
 static gboolean _make_thumbnails(struct data *data);
 static gboolean _make_webimages(struct data *data);
 static gint sort_exif_timestamp(gconstpointer a, gconstpointer b);
+static gboolean ss_key(GtkWidget *widget,
+                       GdkEventKey *event,
+                       gpointer user_data);
+static gboolean ss_motion(GtkWidget *widget,
+                          GdkEventMotion *event,
+                          gpointer user_data);
+static gboolean ss_load_next(gpointer user_data);
+static void ss_stop(struct data *data);
+static void ss_restart_timer(struct data *data);
+static void ss_skip_forward(struct data *data);
+static void ss_skip_backward(struct data *data);
+
+
 
 void
 gallery_init(struct data *data)
@@ -55,6 +69,7 @@ gallery_init(struct data *data)
 	data->gal = g_new0(struct gallery, 1);
 
     data->current_img = NULL; /* no currently selected image */
+    data->current_ss_img = NULL; /* no currently selected image for slideshow */
 
 	data->gal->edited = FALSE;
     data->gal->images = NULL;
@@ -535,6 +550,80 @@ gallery_sort_by_time(struct data *data)
 }
 
 
+
+void
+gallery_slide_show(struct data *data)
+{
+    GtkWidget *ss_image;
+    struct image *img;
+    GdkColor color = {0, 0, 0, 0};
+
+    g_debug("in %s", __FUNCTION__);
+
+    if (!data || !data->gal || !data->gal->images) {
+        /* No images, notify the user */
+        GtkWidget *label;
+        GtkWidget *dialog;
+        int result;
+        dialog = gtk_dialog_new_with_buttons(_("No images to show!"),
+                                             GTK_WINDOW(data->top_window),
+                                             GTK_DIALOG_MODAL | 
+                                             GTK_DIALOG_DESTROY_WITH_PARENT,
+                                             GTK_STOCK_OK,
+                                             GTK_RESPONSE_OK,
+                                             NULL);
+
+
+        label = gtk_label_new(_("Load a gallery before starting a slide show"));
+
+        
+        gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox),
+                           label);
+        gtk_widget_show(label);
+        
+        result = gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy (dialog);
+        return;
+    }
+
+    if (data->ss_window != NULL) {
+        gtk_widget_destroy(data->ss_window);
+        data->ss_window = NULL;
+    }
+
+    /* Create a new full screen window for the slide show */
+    data->ss_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_widget_modify_bg(data->ss_window, GTK_STATE_NORMAL, &color);
+    gtk_window_fullscreen(GTK_WINDOW(data->ss_window));
+    gtk_widget_add_events(data->ss_window, GDK_POINTER_MOTION_MASK); 
+
+    /* Set fullscreen window key handler */
+    g_signal_connect(data->ss_window, "key-press-event",
+                     (GCallback)&ss_key, (gpointer)data);
+
+    /* Set fullscreen window motion handler */
+    g_signal_connect(data->ss_window, "motion-notify-event",
+                     (GCallback)&ss_motion, (gpointer)data);
+
+    img = data->gal->images->data;
+    if (img->ss_pixbuf == NULL) {
+        data->current_ss_img = img;
+        if (!image_load_ss_pixbuf(data, img)) {
+            return;
+        }
+    }
+
+    ss_image = gtk_image_new_from_pixbuf(img->ss_pixbuf);
+    
+    gtk_container_add(GTK_CONTAINER(data->ss_window), ss_image);
+
+    gtk_widget_show_all(data->ss_window);
+
+    data->ss_timer = g_timeout_add(data->ss_timer_interval,
+                                   ss_load_next, (gpointer)data);
+}
+
+
 void
 gallery_add_new_images(struct data *data, GSList *uris)
 {
@@ -996,6 +1085,278 @@ sort_exif_timestamp(gconstpointer a, gconstpointer b)
     /* String comparison equals to time comparison in case of exif
        timestamp format */
     return g_ascii_strcasecmp(aimg->exif->timestamp, bimg->exif->timestamp);
+}
+
+
+
+/*
+ * Key press handler for the fullscreen slide show window
+ */
+static gboolean
+ss_key(GtkWidget *widget, GdkEventKey *event, gpointer user_data)
+{
+    struct data *data;
+
+    g_assert(user_data != NULL);
+    data = user_data;
+
+    g_debug("in %s, keyval: %d", __FUNCTION__, event->keyval);
+  
+    if (event->type != GDK_KEY_PRESS) {
+        return FALSE;
+    }
+
+    switch (event->keyval) {
+
+    case GDK_Escape:           /* Stop slide show on ESC or Q */
+    case GDK_q:
+        ss_stop(data);
+        break;
+    case GDK_plus:             /* Increase timer interval */
+    case GDK_KP_Add:
+        data->ss_timer_interval += 500;
+        g_debug("in %s, new ss timer interval: %d",
+                __FUNCTION__, data->ss_timer_interval);
+        ss_restart_timer(data);
+        break;
+    case GDK_minus:             /* Decrease timer interval */
+    case GDK_KP_Subtract:
+        data->ss_timer_interval -= 500;
+        g_debug("in %s, new ss timer interval: %d",
+                __FUNCTION__, data->ss_timer_interval);
+        ss_restart_timer(data);
+        break;
+    case GDK_Left:              /* Select previous image, restart timer */
+        ss_skip_backward(data);
+        ss_restart_timer(data);
+        break;
+    case GDK_Right:             /* Select next image, restart timer */
+        ss_skip_forward(data);
+        ss_restart_timer(data);
+        break;
+    }
+
+
+
+    return FALSE;
+}
+
+
+
+/*
+ * This is called everytime the mouse moves in the slide show window
+ */
+static gboolean
+ss_motion(GtkWidget *widget, GdkEventMotion *event, gpointer user_data)
+{
+    struct data *data;
+
+    g_assert(user_data != NULL);
+    data = user_data;
+
+    g_debug("in %s", __FUNCTION__);
+
+    if (event->type != GDK_MOTION_NOTIFY) {
+        return FALSE;
+    }
+
+    ss_restart_timer(data);
+    
+    return FALSE;
+}
+
+
+/*
+ * Called with certain interval to load next image in slide show
+ */
+static gboolean
+ss_load_next(gpointer user_data)
+{
+    struct data *data;
+    GSList *current_image;
+    struct image *old_img;
+    GtkWidget *ss_image;
+
+    g_assert(user_data != NULL);
+    data = user_data;
+
+    g_debug("in %s", __FUNCTION__);
+  
+    current_image = g_slist_find(data->gal->images, data->current_ss_img);
+
+    ss_image = gtk_bin_get_child(GTK_BIN(data->ss_window));
+
+    if (current_image == NULL) {
+        ss_stop(data);
+        return FALSE;
+    }
+
+    /* Stop after the slide show keeping the last image showing */
+    if (current_image->next == NULL) {
+        return TRUE;
+    }
+
+    old_img = data->current_ss_img;
+    data->current_ss_img = current_image->next->data;
+
+    if (!image_load_ss_pixbuf(data, data->current_ss_img)) {
+        ss_stop(data);
+        return FALSE;
+    }
+    
+    gtk_image_set_from_pixbuf(GTK_IMAGE(ss_image), 
+                              data->current_ss_img->ss_pixbuf);
+
+    g_object_unref(old_img->ss_pixbuf);
+    old_img->ss_pixbuf = NULL;
+
+    return TRUE;
+}
+
+
+
+/*
+ * Stop slide show
+ */
+static void
+ss_stop(struct data *data)
+{
+    g_assert(data != NULL);
+
+    g_debug("in %s", __FUNCTION__);
+
+    if (data->ss_window != NULL) {
+        gtk_widget_destroy(data->ss_window);
+        data->ss_window = NULL;
+    }
+
+    if (data->ss_timer != 0) {
+        g_source_remove(data->ss_timer);
+        data->ss_timer = 0;
+    }
+}
+
+
+
+/*
+ * Restart the slide show timer
+ */
+static void
+ss_restart_timer(struct data *data)
+{
+    g_assert(data != NULL);
+
+    g_debug("in %s", __FUNCTION__);
+
+    if (data->ss_timer != 0) {
+        g_source_remove(data->ss_timer);
+    }
+    
+    data->ss_timer = g_timeout_add(data->ss_timer_interval,
+                                   ss_load_next, (gpointer)data);
+}
+
+
+
+/*
+ * Skip to next image in slide show
+ */
+static void
+ss_skip_forward(struct data *data)
+{
+    GSList *current_image;
+    struct image *old_img;
+    GtkWidget *ss_image;
+
+    g_assert(data != NULL);
+
+    g_debug("in %s", __FUNCTION__);
+  
+    current_image = g_slist_find(data->gal->images, data->current_ss_img);
+
+    ss_image = gtk_bin_get_child(GTK_BIN(data->ss_window));
+
+    if (current_image == NULL) {
+        ss_stop(data);
+        return;
+    }
+
+    /* Stop after the slide show keeping the last image showing */
+    if (current_image->next == NULL) {
+        return;
+    }
+
+    old_img = data->current_ss_img;
+    data->current_ss_img = current_image->next->data;
+
+    if (data->current_ss_img->ss_pixbuf == NULL) {
+        if (!image_load_ss_pixbuf(data, data->current_ss_img)) {
+            ss_stop(data);
+            return;
+        }
+    }
+    
+    gtk_image_set_from_pixbuf(GTK_IMAGE(ss_image), 
+                              data->current_ss_img->ss_pixbuf);
+
+    g_object_unref(old_img->ss_pixbuf);
+    old_img->ss_pixbuf = NULL;
+
+    return;
+
+}
+
+
+
+/*
+ * Skip to previous image in slide show
+ */
+static void
+ss_skip_backward(struct data *data)
+{
+    GSList *images, *prev_img = NULL;
+
+    struct image *old_img;
+    GtkWidget *ss_image;
+
+    g_assert(data != NULL);
+
+    g_debug("in %s", __FUNCTION__);
+  
+    /* find the previous image */
+    images = data->gal->images->next;
+    prev_img = data->gal->images;
+    while (images) {
+        if (images->data == data->current_ss_img) {
+            break;
+        }
+        prev_img = images;
+        images = images->next;
+    }
+    if (prev_img == NULL) {
+        prev_img = data->gal->images;
+    }
+
+    ss_image = gtk_bin_get_child(GTK_BIN(data->ss_window));
+
+    old_img = data->current_ss_img;
+    data->current_ss_img = prev_img->data;
+
+    if (data->current_ss_img->ss_pixbuf == NULL) {
+        if (!image_load_ss_pixbuf(data, data->current_ss_img)) {
+            ss_stop(data);
+            return;
+        }
+    }
+    
+    gtk_image_set_from_pixbuf(GTK_IMAGE(ss_image), 
+                              data->current_ss_img->ss_pixbuf);
+
+    g_object_unref(old_img->ss_pixbuf);
+    old_img->ss_pixbuf = NULL;
+
+    return;
+
 }
 
 

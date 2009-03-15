@@ -26,9 +26,11 @@
 #include "callbacks.h"
 #include "gallery.h"
 #include "configrc.h"
+#include "vfs.h"
 
 #include <stdlib.h>		/* exit, EXIT_SUCCESS/FAILURE */
 #include <getopt.h>		/* getopt */
+#include <limits.h>     /* PATH_MAX */
 
 #include <glib.h>
 #include <gtk/gtk.h>
@@ -173,7 +175,8 @@ init_data(void)
 
     data = g_new0(struct data, 1);
 
-    data->use_gui = TRUE; /* Assuming we'll be running GUI */
+    data->use_gui = TRUE; /* Use GUI unless state otherwise */
+    data->ss_timer_interval = 2000; /* Default to 2sec slide show interval */
 
     return data;
 }
@@ -192,7 +195,22 @@ init_pwgallery(struct data *data)
         g_error("Failed to initialize GnomeVFS");
 
     if (data->use_gui) { 
-        data->glade = glade_xml_new(PWGALLERY_GLADE_FILE, NULL, NULL);
+        gchar gladefile[PATH_MAX];
+        gchar *dir;
+
+        dir = g_get_current_dir();
+
+        g_snprintf(gladefile, PATH_MAX, "%s/%s", 
+                   dir, "src/glade/pwgallery.glade");
+        g_free(dir);
+
+        if (vfs_is_file(data, gladefile)) {
+            g_debug("Loading glade file from source tree.");
+            data->glade = glade_xml_new(gladefile, NULL, NULL);
+        } else {
+            data->glade = glade_xml_new(PWGALLERY_GLADE_FILE, NULL, NULL);
+        }
+
         if (data->glade == NULL) {
             g_warning("Error reading glade file: %s\n", PWGALLERY_GLADE_FILE);
             exit(1);
