@@ -128,6 +128,7 @@ image_open(struct data *data, gchar *uri, gint rotate)
 
     /* check if the file is image */
     if (vfs_is_image(data, uri) == FALSE) {
+        g_warning("%s: not an image: %s", __FUNCTION__, uri);
         return NULL;
     }
 

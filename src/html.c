@@ -401,7 +401,8 @@ html_make_image_pages(struct data *data)
                     break;
                 default:
                     /* FIXME: popup? */
-                    g_error("%s: Unkown size", __FUNCTION__);
+                    g_error("%s: Unknown size index: %d",
+                            __FUNCTION__, size_index);
                     break;
                 }
                 g_snprintf(tmpbuf, 1024, "%s/images_%d/%s.%s", 

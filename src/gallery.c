@@ -652,12 +652,15 @@ gallery_add_new_images(struct data *data, GSList *uris)
 			widgets_set_progress(data, (gfloat)file_counter/(gfloat)tot_files,
 								 p_text);
 			data->gal->images = g_slist_append(data->gal->images, img);
+            g_debug("Added %s", img->uri);
             
             if (data->use_gui) {
                 gtk_widget_show(img->image);
                 gtk_widget_show(img->button);
             }
-		}
+		} else {
+            g_warning("Failed to open image");
+        }
 		uris = uris->next;
 	}
     
@@ -739,7 +742,9 @@ gallery_open_images(struct data *data, GSList *imgs)
             img->rotate   = tmpimg->rotate;
             img->nomodify = tmpimg->nomodify;
             
-		}
+		} else {
+            g_warning("Failed to add image");
+        }
         image_free(tmpimg);
 		imgs = imgs->next;
 	}
@@ -747,7 +752,9 @@ gallery_open_images(struct data *data, GSList *imgs)
 	g_slist_free(first);
 
     /* select first image of the gallery */
-    data->current_img = (struct image *)(data->gal->images->data);
+    if (data->gal->images != NULL) {
+        data->current_img = (struct image *)(data->gal->images->data);
+    }
 
 	widgets_update_table(data);
     
