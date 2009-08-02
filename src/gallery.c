@@ -559,7 +559,6 @@ void
 gallery_slide_show(struct data *data)
 {
     GtkWidget *ss_image;
-    struct image *img;
     GdkColor color = {0, 0, 0, 0};
 
     g_debug("in %s", __FUNCTION__);
@@ -595,11 +594,6 @@ gallery_slide_show(struct data *data)
         data->ss_window = NULL;
     }
 
-    img = data->gal->images->data;
-    if (img->ss_pixbuf == NULL) {
-        data->current_ss_img = img;
-    }
-
     /* Create a new full screen window for the slide show */
     data->ss_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_widget_modify_bg(data->ss_window, GTK_STATE_NORMAL, &color);
@@ -625,12 +619,8 @@ gallery_slide_show(struct data *data)
 
     data->ss_stop = FALSE;
     data->ss_show_text = TRUE;
-
-    /* Start a thread loading images */
-    data->ss_thread = g_thread_create(ss_loading_thread,
-                                      data,
-                                      FALSE,
-                                      NULL);
+    data->current_ss_img = NULL;
+   
     /* Start slide show */
     g_debug("%s: Starting slideshow timer", __FUNCTION__);
     data->ss_timer = g_timeout_add(0, ss_load_next, (gpointer)data);
@@ -1206,20 +1196,31 @@ ss_load_next(gpointer user_data)
 
     ss_stop_timer(data);
 
-    current_image = g_slist_find(data->gal->images, data->current_ss_img);
+    if (data->current_ss_img == NULL) {
+        /* We are about to show the first image*/
+        data->current_ss_img = data->gal->images->data;
 
-    if (current_image == NULL) {
-        ss_stop(data);
-        return FALSE;
+        /* Start a thread loading images */
+        data->ss_thread = g_thread_create(ss_loading_thread,
+                                          data,
+                                          FALSE,
+                                          NULL);
+
+    } else {
+        current_image = g_slist_find(data->gal->images, data->current_ss_img);
+
+        if (current_image == NULL) {
+            ss_stop(data);
+            return FALSE;
+        }
+        
+        /* Stop after the slide show keeping the last image showing */
+        if (current_image->next == NULL) {
+            return TRUE;
+        }
+
+        data->current_ss_img = current_image->next->data;
     }
-
-    /* Stop after the slide show keeping the last image showing */
-    if (current_image->next == NULL) {
-        return TRUE;
-    }
-
-
-    data->current_ss_img = current_image->next->data;
 
     ss_show_image(data);
 
@@ -1504,9 +1505,6 @@ ss_show_image(struct data *data)
     int screen_w, screen_h;
     GdkScreen *screen;
     GdkGC *gc;
-    GdkColor b_color = {0, 0, 0, 0};
-    GdkColor w_color = {255, 255, 255, 0};
-
 
     ss_image = gtk_bin_get_child(GTK_BIN(data->ss_window));
 
@@ -1539,10 +1537,6 @@ ss_show_image(struct data *data)
     /* Fill the pixmap with black */
     gc = gdk_gc_new(pixmap);
 
-    gdk_gc_set_rgb_fg_color(gc, &w_color);
-    gdk_gc_set_rgb_bg_color(gc, &b_color);
-    gdk_gc_set_foreground(gc, &b_color);
-
     gdk_draw_rectangle(pixmap,
                        gc,
                        TRUE,
@@ -1562,13 +1556,14 @@ ss_show_image(struct data *data)
     if (data->ss_show_text) {
         PangoLayout *pango_layout;
         PangoFontDescription* font_desc;
+        char markup[4096];
 
         /* Set font */
-#define PWGALLERY_SS_FONT  "Helvetica,Sans Bold 36"
+#define PWGALLERY_SS_BG_FONT  "Helvetica,Sans Bold 36"
+#define PWGALLERY_SS_FONT  "Helvetica,Sans 36"
 
-        pango_layout = 
-            gtk_widget_create_pango_layout(ss_image,
-                                           data->current_ss_img->text);
+        pango_layout =  gtk_widget_create_pango_layout(ss_image, "");
+
 
         font_desc = pango_font_description_from_string(PWGALLERY_SS_FONT);
         pango_layout_set_font_description(pango_layout, font_desc);
@@ -1577,13 +1572,22 @@ ss_show_image(struct data *data)
         pango_layout_set_width(pango_layout, 
                                PANGO_SCALE * (int)(screen_w * 0.9));
         pango_layout_set_height(pango_layout, 
-                               PANGO_SCALE * (int)(screen_w * 0.15));
+                               PANGO_SCALE * (int)(screen_w * 0.1));
         pango_layout_set_ellipsize(pango_layout, PANGO_ELLIPSIZE_END);
+
+        /* Draw font */
+        snprintf(markup, 4096, "%s%s%s",
+                 "<span background=\"black\" foreground=\"white\">",
+                 data->current_ss_img->text,
+                 "</span>");
+        pango_layout_set_markup(pango_layout, markup, -1);
 
         gdk_draw_layout(pixmap, gc,
                         (int)(screen_w * 0.05), 
                         (int)(screen_h * 0.85), 
                         pango_layout);
+
+
     }
 
     gtk_widget_set_size_request(ss_image, 
