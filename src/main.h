@@ -150,11 +150,18 @@ struct data
     GtkWidget      *ss_window;         /* pointer to slide show window */
     struct gallery *gal;               /* pointer to current gallery */
     struct image   *current_img;       /* Currently selected image */
-    struct image   *current_ss_img;    /* Currently selected image */
+    struct image   *current_ss_img;    /* Currently slideshowed image */
+    struct image   *ss_resize_img;     /* Currently resized ss image */
+    GCond          *ss_data_cond;      /* Slideshow "new data" condition */
+    GMutex         *ss_data_mutex;     /* Slideshow "new data" mutex */
+
     gboolean       *text_edited;       /* Content of textview is changed*/
 
-    gint           ss_timer;           /* slide show timer */
-    gint           ss_timer_interval;  /* slide show timer interval */
+    gint           ss_timer;           /* Slide show timer */
+    gint           ss_timer_interval;  /* Slide show timer interval */
+    GThread        *ss_thread;         /* Slide show loading thread */
+    gboolean       ss_stop;            /* Flag for loading thread to exit */
+
     gboolean       use_gui;            /* do we want to show GUI */
     gchar          *arg_new;           /* create new gallery (cmdline) */
     GSList         *arg_new_imgs;      /* List of images for the new gallery */

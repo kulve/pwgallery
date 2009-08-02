@@ -87,8 +87,11 @@ main(int argc, char *argv[])
 
     if (data->use_gui) {
         gtk_init(&argc, &argv);
+        if (!g_thread_supported ()){
+            g_thread_init (NULL);
+        }
     }
-        
+
     /* set critical to be always fatal */
     g_log_set_always_fatal(G_LOG_LEVEL_CRITICAL);
         
@@ -365,7 +368,7 @@ Options\n\
 static void
 print_version(const char *self)
 {
-    g_print(PACKAGE_STRING "\n" "$LastChangedDate$" "\n" "$Rev$" "\n" );
+    g_print(PACKAGE_STRING "\n" "$LastChangedDate: 2009-03-15 20:10:59 +0200 (Sun, 15 Mar 2009) $" "\n" "$Rev: 77 $" "\n" );
 }
 
 

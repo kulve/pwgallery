@@ -36,6 +36,7 @@
 #include <string.h>                  /* memset, strcmp */
 #include <strings.h>                 /* rindex */
 
+#define PWGALLERY_MAX_SLIDESHOW_PRELOAD  5
 
 
 static gboolean _make_thumbnails(struct data *data);
@@ -50,9 +51,11 @@ static gboolean ss_motion(GtkWidget *widget,
 static gboolean ss_load_next(gpointer user_data);
 static void ss_stop(struct data *data);
 static void ss_restart_timer(struct data *data);
+static void ss_stop_timer(struct data *data);
+static void ss_start_timer(struct data *data);
 static void ss_skip_forward(struct data *data);
 static void ss_skip_backward(struct data *data);
-
+static gpointer ss_loading_thread(gpointer data);
 
 
 void
@@ -591,6 +594,14 @@ gallery_slide_show(struct data *data)
         data->ss_window = NULL;
     }
 
+    img = data->gal->images->data;
+    if (img->ss_pixbuf == NULL) {
+        data->current_ss_img = img;
+        if (!image_load_ss_pixbuf(data, img)) {
+            return;
+        }
+    }
+
     /* Create a new full screen window for the slide show */
     data->ss_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_widget_modify_bg(data->ss_window, GTK_STATE_NORMAL, &color);
@@ -605,20 +616,24 @@ gallery_slide_show(struct data *data)
     g_signal_connect(data->ss_window, "motion-notify-event",
                      (GCallback)&ss_motion, (gpointer)data);
 
-    img = data->gal->images->data;
-    if (img->ss_pixbuf == NULL) {
-        data->current_ss_img = img;
-        if (!image_load_ss_pixbuf(data, img)) {
-            return;
-        }
-    }
-
     ss_image = gtk_image_new_from_pixbuf(img->ss_pixbuf);
     
     gtk_container_add(GTK_CONTAINER(data->ss_window), ss_image);
 
     gtk_widget_show_all(data->ss_window);
 
+    data->ss_data_cond = g_cond_new();
+    data->ss_data_mutex = g_mutex_new();
+
+    data->ss_stop = FALSE;
+
+    /* Start a thread loading images */
+    data->ss_thread = g_thread_create(ss_loading_thread,
+                                      data,
+                                      FALSE,
+                                      NULL);
+    /* Start slide show */
+    g_debug("%s: Starting slideshow timer", __FUNCTION__);
     data->ss_timer = g_timeout_add(data->ss_timer_interval,
                                    ss_load_next, (gpointer)data);
 }
@@ -645,7 +660,8 @@ gallery_add_new_images(struct data *data, GSList *uris)
 
 	/* Add images */
 	while (uris) {
-		img = image_open(data, uris->data, 0);
+        /* Set rotate to -1 to choose the exif rotation */
+		img = image_open(data, uris->data, -1);
 		if (img != NULL) {
 			/* update progress */
 			g_snprintf(p_text, 128, "%d/%d", file_counter++, tot_files);
@@ -723,6 +739,7 @@ gallery_open_images(struct data *data, GSList *imgs)
 	while (imgs)
 	{
         tmpimg = imgs->data;
+        /* Always use the rotate from the saved gallery instead of exif */
 		img = image_open(data, g_strdup(tmpimg->uri), tmpimg->rotate);
 		if (img != NULL)
 		{
@@ -1133,13 +1150,11 @@ ss_key(GtkWidget *widget, GdkEventKey *event, gpointer user_data)
                 __FUNCTION__, data->ss_timer_interval);
         ss_restart_timer(data);
         break;
-    case GDK_Left:              /* Select previous image, restart timer */
+    case GDK_Left:              /* Select previous image */
         ss_skip_backward(data);
-        ss_restart_timer(data);
         break;
-    case GDK_Right:             /* Select next image, restart timer */
+    case GDK_Right:             /* Select next image */
         ss_skip_forward(data);
-        ss_restart_timer(data);
         break;
     }
 
@@ -1188,7 +1203,9 @@ ss_load_next(gpointer user_data)
     data = user_data;
 
     g_debug("in %s", __FUNCTION__);
-  
+
+    ss_stop_timer(data);
+
     current_image = g_slist_find(data->gal->images, data->current_ss_img);
 
     ss_image = gtk_bin_get_child(GTK_BIN(data->ss_window));
@@ -1206,16 +1223,30 @@ ss_load_next(gpointer user_data)
     old_img = data->current_ss_img;
     data->current_ss_img = current_image->next->data;
 
-    if (!image_load_ss_pixbuf(data, data->current_ss_img)) {
-        ss_stop(data);
-        return FALSE;
+    /* Wait for pixbuf data, if not exist yet */
+    g_debug("%s: waiting for data", __FUNCTION__);
+    g_mutex_lock(data->ss_data_mutex);
+    while (!data->current_ss_img->ss_pixbuf) {
+        g_cond_wait(data->ss_data_cond, data->ss_data_mutex);
     }
-    
+    g_mutex_unlock(data->ss_data_mutex);
+    g_debug("%s: got data", __FUNCTION__);
+
+    gtk_widget_set_size_request(ss_image, 
+                                ss_image->allocation.width,
+                                ss_image->allocation.height);
     gtk_image_set_from_pixbuf(GTK_IMAGE(ss_image), 
                               data->current_ss_img->ss_pixbuf);
 
-    g_object_unref(old_img->ss_pixbuf);
-    old_img->ss_pixbuf = NULL;
+    g_debug("%s: %s ss_image allocation: %dx%d+%d+%d", __FUNCTION__,
+            data->current_ss_img->basefilename,
+            ss_image->allocation.width, ss_image->allocation.height,
+            ss_image->allocation.x, ss_image->allocation.y);
+    g_debug("%s: pixbuf: %dx%d", __FUNCTION__,
+            gdk_pixbuf_get_width(data->current_ss_img->ss_pixbuf),
+            gdk_pixbuf_get_height(data->current_ss_img->ss_pixbuf));
+
+    ss_start_timer(data);
 
     return TRUE;
 }
@@ -1231,6 +1262,18 @@ ss_stop(struct data *data)
     g_assert(data != NULL);
 
     g_debug("in %s", __FUNCTION__);
+
+    data->ss_stop = TRUE;
+
+    if (data->ss_data_mutex != NULL) {
+        g_mutex_free(data->ss_data_mutex);
+        data->ss_data_mutex = NULL;
+    }
+        
+    if (data->ss_data_cond != NULL) {
+        g_cond_free(data->ss_data_cond);
+        data->ss_data_cond = NULL;
+    }
 
     if (data->ss_window != NULL) {
         gtk_widget_destroy(data->ss_window);
@@ -1251,10 +1294,41 @@ ss_stop(struct data *data)
 static void
 ss_restart_timer(struct data *data)
 {
+    ss_stop_timer(data);
+    ss_start_timer(data);
+}
+
+
+/*
+ * Stop the slide show timer
+ */
+static void
+ss_stop_timer(struct data *data)
+{
     g_assert(data != NULL);
 
     g_debug("in %s", __FUNCTION__);
 
+    if (data->ss_timer != 0) {
+        g_source_remove(data->ss_timer);
+        data->ss_timer = 0;
+    } else {
+        g_warning("%s: timer not active", __FUNCTION__);
+    }
+}
+
+
+/*
+ * Start the slide show timer
+ */
+static void
+ss_start_timer(struct data *data)
+{
+    g_assert(data != NULL);
+
+    g_debug("in %s", __FUNCTION__);
+
+    /* Remove old timer, if one exists */
     if (data->ss_timer != 0) {
         g_source_remove(data->ss_timer);
     }
@@ -1278,6 +1352,8 @@ ss_skip_forward(struct data *data)
     g_assert(data != NULL);
 
     g_debug("in %s", __FUNCTION__);
+
+    ss_stop_timer(data);
   
     current_image = g_slist_find(data->gal->images, data->current_ss_img);
 
@@ -1296,21 +1372,21 @@ ss_skip_forward(struct data *data)
     old_img = data->current_ss_img;
     data->current_ss_img = current_image->next->data;
 
-    if (data->current_ss_img->ss_pixbuf == NULL) {
-        if (!image_load_ss_pixbuf(data, data->current_ss_img)) {
-            ss_stop(data);
-            return;
-        }
+    /* Wait for pixbuf data, if not exist yet */
+    g_debug("%s: waiting for data", __FUNCTION__);
+    g_mutex_lock(data->ss_data_mutex);
+    while (!data->current_ss_img->ss_pixbuf) {
+        g_cond_wait(data->ss_data_cond, data->ss_data_mutex);
     }
-    
+    g_mutex_unlock(data->ss_data_mutex);
+    g_debug("%s: got data", __FUNCTION__);
+
     gtk_image_set_from_pixbuf(GTK_IMAGE(ss_image), 
                               data->current_ss_img->ss_pixbuf);
 
-    g_object_unref(old_img->ss_pixbuf);
-    old_img->ss_pixbuf = NULL;
+    ss_start_timer(data);
 
     return;
-
 }
 
 
@@ -1329,6 +1405,8 @@ ss_skip_backward(struct data *data)
     g_assert(data != NULL);
 
     g_debug("in %s", __FUNCTION__);
+
+    ss_stop_timer(data);
   
     /* find the previous image */
     images = data->gal->images->next;
@@ -1349,21 +1427,120 @@ ss_skip_backward(struct data *data)
     old_img = data->current_ss_img;
     data->current_ss_img = prev_img->data;
 
-    if (data->current_ss_img->ss_pixbuf == NULL) {
-        if (!image_load_ss_pixbuf(data, data->current_ss_img)) {
-            ss_stop(data);
-            return;
-        }
+     /* Wait for pixbuf data, if not exist yet */
+    g_debug("%s: waiting for data", __FUNCTION__);
+    g_mutex_lock(data->ss_data_mutex);
+    while (!data->current_ss_img->ss_pixbuf) {
+        g_cond_wait(data->ss_data_cond, data->ss_data_mutex);
     }
-    
+    g_mutex_unlock(data->ss_data_mutex);
+    g_debug("%s: got data", __FUNCTION__);
+
     gtk_image_set_from_pixbuf(GTK_IMAGE(ss_image), 
                               data->current_ss_img->ss_pixbuf);
 
-    g_object_unref(old_img->ss_pixbuf);
-    old_img->ss_pixbuf = NULL;
+    ss_start_timer(data);
 
     return;
+}
 
+
+
+/*
+ * A separate thread loading images to keep +-5 images loaded all the time
+ */
+static gpointer
+ss_loading_thread(gpointer user_data)
+{
+    struct data *data;
+
+    g_assert(user_data != NULL);
+    data = user_data;
+    
+    g_debug("in %s", __FUNCTION__);
+    
+    while(TRUE) {
+        GSList         *current_image;
+        GSList         *image_to_load;
+        struct image   *current_ss_img;
+        int i;
+
+        /* Store current status of the viewer thread */
+        current_ss_img = data->current_ss_img;
+        current_image = g_slist_find(data->gal->images, current_ss_img);
+        
+        if (current_image == NULL) {
+            /* FIXME: signal main thread */
+            g_error("%s: Failed to find current image", __FUNCTION__);
+            g_thread_exit(FALSE);
+        }
+        
+
+        image_to_load = current_image;
+        for(i = 0; i < PWGALLERY_MAX_SLIDESHOW_PRELOAD; ++i) {
+            struct image *img; 
+            struct image *image;
+            GSList *list;
+            int index;
+            int j;
+            
+            if (i > 0 && image_to_load->next != NULL) {
+                image_to_load = image_to_load->next;
+            }
+            
+            img = image_to_load->data;
+
+            /* Load the pixbuf, if not loaded yet */
+            if (img->ss_pixbuf == NULL) {
+                g_debug("%s: loading pixbuf for %s",
+                        __FUNCTION__, img->basefilename);
+                if (!image_load_ss_pixbuf(data, img)) {
+                    /* FIXME: signal main thread */
+                    g_error("%s: Failed to load image pixbuf data",
+                            __FUNCTION__);
+                    g_thread_exit(FALSE);
+                }
+                
+                /* Signal viewer thread about new image data */
+                g_debug("%s: Signalling viewer thread about new data",
+                        __FUNCTION__);
+                g_cond_signal(data->ss_data_cond);
+            }
+
+            /* Clean up old image data */
+            index = g_slist_index(data->gal->images, current_ss_img);
+            index -= PWGALLERY_MAX_SLIDESHOW_PRELOAD;
+            if (index < 0) {
+                index = 0;
+            }
+            
+            list = data->gal->images;
+            j = 0;
+            while (j++ < index && list != NULL) {
+                image = list->data;
+                if (image->ss_pixbuf) {
+                    g_debug("%s: free pixbuf for %s",
+                            __FUNCTION__, image->basefilename);
+                    g_object_unref(image->ss_pixbuf);
+                    image->ss_pixbuf = NULL;
+                }
+                list = list->next;
+            }
+            
+            if (current_ss_img != data->current_ss_img) {
+                /* Start again */
+                break;
+            }
+   
+            if (data->ss_stop == TRUE) {
+                g_debug("%s: Stop flag true, exiting", __FUNCTION__);
+                g_thread_exit(FALSE);
+            }
+        }
+
+        /* Wait 100ms to "prevent" busylooping */
+        g_usleep(100 * 1000);
+    }
 }
 
 

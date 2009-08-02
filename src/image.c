@@ -152,7 +152,7 @@ image_open(struct data *data, gchar *uri, gint rotate)
     /* load exif data and set rotation */
     exif_data_get(data, img);
     img->rotate = img->exif->orientation;
-    if (img->rotate == 0 && rotate != 0)
+    if (rotate != -1)
     {
         img->rotate = rotate;
     }
@@ -307,7 +307,6 @@ image_load_ss_pixbuf(struct data *data, struct image *img)
 
 	g_assert(data != NULL);
 	g_assert(img != NULL);
-	g_assert(data->ss_window != NULL);
 
 	g_debug("in %s", __FUNCTION__);
 
@@ -322,6 +321,7 @@ image_load_ss_pixbuf(struct data *data, struct image *img)
 		return FALSE;
 	}
 
+    data->ss_resize_img = img;
     loader = gdk_pixbuf_loader_new();
     g_signal_connect(loader, "size-prepared", G_CALLBACK(set_ss_size), data);
 
@@ -461,19 +461,25 @@ set_ss_size(GdkPixbufLoader *gdkpixbufloader,
     g_debug("in %s", __FUNCTION__ );
 
     data = user_data;
-    img = data->current_ss_img;
+    img = data->ss_resize_img;
 
     screen = gdk_display_get_screen(gdk_display_get_default(), 0);
+
     fs_w = gdk_screen_get_width(screen);
     fs_h = gdk_screen_get_height(screen);
 
     fs_scale = (gdouble)fs_w / (gdouble)fs_h;
 
+    g_debug("in %s: img: %s, screen: %dx%d, scale: %.2f, rotate: %d",
+            __FUNCTION__,
+            img->basefilename, fs_w, fs_h, fs_scale, img->rotate);
+
+    img_scale = (gdouble)arg1 / (gdouble)arg2;
+
     if (img->rotate == 90 || img->rotate == 270)
     {
-        img_scale = (gdouble)arg1 / (gdouble)arg2;
         
-        if (img_scale > 1) {
+        if (img_scale > 1 && fs_scale > img_scale) {
             w = fs_h;
             h = (gint)(w / img_scale);
         } else {
@@ -482,9 +488,8 @@ set_ss_size(GdkPixbufLoader *gdkpixbufloader,
         }
 
     } else {
-        img_scale = (gdouble)arg1 / (gdouble)arg2;
 
-        if (img_scale > 1) {
+        if (img_scale > 1 && fs_scale < img_scale) {
             w = fs_w;
             h = (gint)(w / img_scale);
         } else {
