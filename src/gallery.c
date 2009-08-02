@@ -298,7 +298,7 @@ gallery_open(struct data *data)
     gtk_file_chooser_set_current_folder_uri(GTK_FILE_CHOOSER(dialog), 
                                             data->gal_dir);
     gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), FALSE);
-
+    gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(dialog), TRUE);
     /* cancel pressed, destroy the dialog and return */
     if (gtk_dialog_run(GTK_DIALOG(dialog)) != GTK_RESPONSE_ACCEPT)
     {
