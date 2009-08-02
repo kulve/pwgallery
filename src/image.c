@@ -476,26 +476,40 @@ set_ss_size(GdkPixbufLoader *gdkpixbufloader,
 
     img_scale = (gdouble)arg1 / (gdouble)arg2;
 
-    if (img->rotate == 90 || img->rotate == 270)
-    {
-        
-        if (img_scale > 1 && fs_scale > img_scale) {
+    if (img_scale > fs_scale) {                /* Normal 4:3 monitor */
+            
+        if (img->rotate == 90 || img->rotate == 270) { /* rotated */
+                
+            if (img_scale > 1) {               /* normal image aspect */
+                w = fs_h;
+                h = (gint)(w / img_scale);
+            } else {                           /* "wrong" aspect */
+                h = fs_w;
+                w = (gint)(h * img_scale);
+            }
+            
+        } else {                               /* not rotated */
+            
+            if (img_scale > 1) {               /* normal image aspect */
+                w = fs_w;
+                h = (gint)(w / img_scale);
+            } else {                           /* "wrong" aspect */
+                h = fs_h;
+                w = (gint)(h * img_scale);
+            }
+        }
+    } else {                                   /* Wide screen monitor */
+
+        if (img->rotate == 90 || img->rotate == 270) { /* rotated */
+            /* image aspect ratio doesn't matter */
             w = fs_h;
             h = (gint)(w / img_scale);
-        } else {
-            h = fs_w;
-            w = (gint)(h * img_scale);
-        }
-
-    } else {
-
-        if (img_scale > 1 && fs_scale < img_scale) {
-            w = fs_w;
-            h = (gint)(w / img_scale);
-        } else {
+        } else {                               /* not rotated */
+            /* image aspect ratio doesn't matter */
             h = fs_h;
             w = (gint)(h * img_scale);
         }
+        
     }
     
     g_debug("in %s: %dx%d -> %dx%d", __FUNCTION__, arg1, arg2, w, h);
