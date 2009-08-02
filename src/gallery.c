@@ -55,6 +55,7 @@ static void ss_stop_timer(struct data *data);
 static void ss_start_timer(struct data *data);
 static void ss_skip_forward(struct data *data);
 static void ss_skip_backward(struct data *data);
+static void ss_show_image(struct data *data);
 static gpointer ss_loading_thread(gpointer data);
 
 
@@ -597,9 +598,6 @@ gallery_slide_show(struct data *data)
     img = data->gal->images->data;
     if (img->ss_pixbuf == NULL) {
         data->current_ss_img = img;
-        if (!image_load_ss_pixbuf(data, img)) {
-            return;
-        }
     }
 
     /* Create a new full screen window for the slide show */
@@ -616,7 +614,7 @@ gallery_slide_show(struct data *data)
     g_signal_connect(data->ss_window, "motion-notify-event",
                      (GCallback)&ss_motion, (gpointer)data);
 
-    ss_image = gtk_image_new_from_pixbuf(img->ss_pixbuf);
+    ss_image = gtk_image_new();
     
     gtk_container_add(GTK_CONTAINER(data->ss_window), ss_image);
 
@@ -626,6 +624,7 @@ gallery_slide_show(struct data *data)
     data->ss_data_mutex = g_mutex_new();
 
     data->ss_stop = FALSE;
+    data->ss_show_text = TRUE;
 
     /* Start a thread loading images */
     data->ss_thread = g_thread_create(ss_loading_thread,
@@ -634,8 +633,7 @@ gallery_slide_show(struct data *data)
                                       NULL);
     /* Start slide show */
     g_debug("%s: Starting slideshow timer", __FUNCTION__);
-    data->ss_timer = g_timeout_add(data->ss_timer_interval,
-                                   ss_load_next, (gpointer)data);
+    data->ss_timer = g_timeout_add(0, ss_load_next, (gpointer)data);
 }
 
 
@@ -1156,6 +1154,10 @@ ss_key(GtkWidget *widget, GdkEventKey *event, gpointer user_data)
     case GDK_Right:             /* Select next image */
         ss_skip_forward(data);
         break;
+    case GDK_T:                 /* Toggle showing descriptions  */
+    case GDK_t:
+        data->ss_show_text = !data->ss_show_text;
+        break;
     }
 
 
@@ -1196,8 +1198,6 @@ ss_load_next(gpointer user_data)
 {
     struct data *data;
     GSList *current_image;
-    struct image *old_img;
-    GtkWidget *ss_image;
 
     g_assert(user_data != NULL);
     data = user_data;
@@ -1207,8 +1207,6 @@ ss_load_next(gpointer user_data)
     ss_stop_timer(data);
 
     current_image = g_slist_find(data->gal->images, data->current_ss_img);
-
-    ss_image = gtk_bin_get_child(GTK_BIN(data->ss_window));
 
     if (current_image == NULL) {
         ss_stop(data);
@@ -1220,31 +1218,10 @@ ss_load_next(gpointer user_data)
         return TRUE;
     }
 
-    old_img = data->current_ss_img;
+
     data->current_ss_img = current_image->next->data;
 
-    /* Wait for pixbuf data, if not exist yet */
-    g_debug("%s: waiting for data", __FUNCTION__);
-    g_mutex_lock(data->ss_data_mutex);
-    while (!data->current_ss_img->ss_pixbuf) {
-        g_cond_wait(data->ss_data_cond, data->ss_data_mutex);
-    }
-    g_mutex_unlock(data->ss_data_mutex);
-    g_debug("%s: got data", __FUNCTION__);
-
-    gtk_widget_set_size_request(ss_image, 
-                                ss_image->allocation.width,
-                                ss_image->allocation.height);
-    gtk_image_set_from_pixbuf(GTK_IMAGE(ss_image), 
-                              data->current_ss_img->ss_pixbuf);
-
-    g_debug("%s: %s ss_image allocation: %dx%d+%d+%d", __FUNCTION__,
-            data->current_ss_img->basefilename,
-            ss_image->allocation.width, ss_image->allocation.height,
-            ss_image->allocation.x, ss_image->allocation.y);
-    g_debug("%s: pixbuf: %dx%d", __FUNCTION__,
-            gdk_pixbuf_get_width(data->current_ss_img->ss_pixbuf),
-            gdk_pixbuf_get_height(data->current_ss_img->ss_pixbuf));
+    ss_show_image(data);
 
     ss_start_timer(data);
 
@@ -1346,8 +1323,6 @@ static void
 ss_skip_forward(struct data *data)
 {
     GSList *current_image;
-    struct image *old_img;
-    GtkWidget *ss_image;
 
     g_assert(data != NULL);
 
@@ -1356,8 +1331,6 @@ ss_skip_forward(struct data *data)
     ss_stop_timer(data);
   
     current_image = g_slist_find(data->gal->images, data->current_ss_img);
-
-    ss_image = gtk_bin_get_child(GTK_BIN(data->ss_window));
 
     if (current_image == NULL) {
         ss_stop(data);
@@ -1369,20 +1342,9 @@ ss_skip_forward(struct data *data)
         return;
     }
 
-    old_img = data->current_ss_img;
     data->current_ss_img = current_image->next->data;
 
-    /* Wait for pixbuf data, if not exist yet */
-    g_debug("%s: waiting for data", __FUNCTION__);
-    g_mutex_lock(data->ss_data_mutex);
-    while (!data->current_ss_img->ss_pixbuf) {
-        g_cond_wait(data->ss_data_cond, data->ss_data_mutex);
-    }
-    g_mutex_unlock(data->ss_data_mutex);
-    g_debug("%s: got data", __FUNCTION__);
-
-    gtk_image_set_from_pixbuf(GTK_IMAGE(ss_image), 
-                              data->current_ss_img->ss_pixbuf);
+    ss_show_image(data);
 
     ss_start_timer(data);
 
@@ -1398,9 +1360,6 @@ static void
 ss_skip_backward(struct data *data)
 {
     GSList *images, *prev_img = NULL;
-
-    struct image *old_img;
-    GtkWidget *ss_image;
 
     g_assert(data != NULL);
 
@@ -1422,22 +1381,9 @@ ss_skip_backward(struct data *data)
         prev_img = data->gal->images;
     }
 
-    ss_image = gtk_bin_get_child(GTK_BIN(data->ss_window));
-
-    old_img = data->current_ss_img;
     data->current_ss_img = prev_img->data;
 
-     /* Wait for pixbuf data, if not exist yet */
-    g_debug("%s: waiting for data", __FUNCTION__);
-    g_mutex_lock(data->ss_data_mutex);
-    while (!data->current_ss_img->ss_pixbuf) {
-        g_cond_wait(data->ss_data_cond, data->ss_data_mutex);
-    }
-    g_mutex_unlock(data->ss_data_mutex);
-    g_debug("%s: got data", __FUNCTION__);
-
-    gtk_image_set_from_pixbuf(GTK_IMAGE(ss_image), 
-                              data->current_ss_img->ss_pixbuf);
+    ss_show_image(data);
 
     ss_start_timer(data);
 
@@ -1543,6 +1489,119 @@ ss_loading_thread(gpointer user_data)
     }
 }
 
+
+
+/*
+ * Show the image once the current image pointer is set.
+ */
+static void
+ss_show_image(struct data *data)
+{
+    GtkWidget *ss_image;
+    GdkPixmap *pixmap;
+    GdkPixbuf *pixbuf;
+    int pixbuf_w, pixbuf_h;
+    int screen_w, screen_h;
+    GdkScreen *screen;
+    GdkGC *gc;
+    GdkColor b_color = {0, 0, 0, 0};
+    GdkColor w_color = {255, 255, 255, 0};
+
+
+    ss_image = gtk_bin_get_child(GTK_BIN(data->ss_window));
+
+    /* Wait for pixbuf data, if not exist yet */
+    g_debug("%s: waiting for data", __FUNCTION__);
+    g_mutex_lock(data->ss_data_mutex);
+    while (!data->current_ss_img->ss_pixbuf) {
+        g_cond_wait(data->ss_data_cond, data->ss_data_mutex);
+    }
+    g_mutex_unlock(data->ss_data_mutex);
+    g_debug("%s: got data", __FUNCTION__);
+
+
+    /* Create a drawable for optional text rendering */
+    pixbuf = data->current_ss_img->ss_pixbuf;
+    pixbuf_w = gdk_pixbuf_get_width(pixbuf);
+    pixbuf_h = gdk_pixbuf_get_height(pixbuf);
+
+    screen = gdk_display_get_screen(gdk_display_get_default(), 0);
+    screen_w = gdk_screen_get_width(screen);
+    screen_h = gdk_screen_get_height(screen);
+
+
+    pixmap = gdk_pixmap_new(NULL, 
+                            screen_w,
+                            screen_h,  
+                            24);
+
+
+    /* Fill the pixmap with black */
+    gc = gdk_gc_new(pixmap);
+
+    gdk_gc_set_rgb_fg_color(gc, &w_color);
+    gdk_gc_set_rgb_bg_color(gc, &b_color);
+    gdk_gc_set_foreground(gc, &b_color);
+
+    gdk_draw_rectangle(pixmap,
+                       gc,
+                       TRUE,
+                       0, 0,
+                       screen_w, screen_h);
+
+    gdk_draw_pixbuf(pixmap,
+                    gc,
+                    pixbuf,
+                    0, 0, 
+                    (screen_w - pixbuf_w) / 2,
+                    (screen_h - pixbuf_h) / 2,
+                    pixbuf_w, pixbuf_h,
+                    GDK_RGB_DITHER_NONE,
+                    0, 0);
+
+    if (data->ss_show_text) {
+        PangoLayout *pango_layout;
+        PangoFontDescription* font_desc;
+
+        /* Set font */
+#define PWGALLERY_SS_FONT  "Helvetica,Sans Bold 36"
+
+        pango_layout = 
+            gtk_widget_create_pango_layout(ss_image,
+                                           data->current_ss_img->text);
+
+        font_desc = pango_font_description_from_string(PWGALLERY_SS_FONT);
+        pango_layout_set_font_description(pango_layout, font_desc);
+        pango_layout_set_wrap(pango_layout, PANGO_WRAP_WORD_CHAR);
+        /* Set text width to 80% */
+        pango_layout_set_width(pango_layout, 
+                               PANGO_SCALE * (int)(screen_w * 0.9));
+        pango_layout_set_height(pango_layout, 
+                               PANGO_SCALE * (int)(screen_w * 0.15));
+        pango_layout_set_ellipsize(pango_layout, PANGO_ELLIPSIZE_END);
+
+        gdk_draw_layout(pixmap, gc,
+                        (int)(screen_w * 0.05), 
+                        (int)(screen_h * 0.85), 
+                        pango_layout);
+    }
+
+    gtk_widget_set_size_request(ss_image, 
+                                ss_image->allocation.width,
+                                ss_image->allocation.height);
+    gtk_image_set_from_pixmap(GTK_IMAGE(ss_image),  pixmap, NULL);
+
+    g_debug("%s: %s ss_image allocation: %dx%d+%d+%d", __FUNCTION__,
+            data->current_ss_img->basefilename,
+            ss_image->allocation.width, ss_image->allocation.height,
+            ss_image->allocation.x, ss_image->allocation.y);
+    g_debug("%s: pixbuf: %dx%d", __FUNCTION__,
+            gdk_pixbuf_get_width(pixbuf),
+            gdk_pixbuf_get_height(pixbuf));
+
+    g_object_unref(pixmap);
+
+}
 
 /* Emacs indentatation information
    Local Variables:

@@ -154,7 +154,7 @@ struct data
     struct image   *ss_resize_img;     /* Currently resized ss image */
     GCond          *ss_data_cond;      /* Slideshow "new data" condition */
     GMutex         *ss_data_mutex;     /* Slideshow "new data" mutex */
-
+    gboolean       ss_show_text;       /* Show description in slide show */
     gboolean       *text_edited;       /* Content of textview is changed*/
 
     gint           ss_timer;           /* Slide show timer */
