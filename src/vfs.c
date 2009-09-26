@@ -51,24 +51,31 @@ vfs_is_file(struct data *data, const gchar *uri)
 gboolean
 vfs_is_image(struct data *data, const gchar *uri)
 {
-    GnomeVFSFileInfo info;
+    GnomeVFSFileInfo *info;
     GnomeVFSResult result;
 
     g_assert(data != NULL);
     g_assert(uri != NULL);
 
+    info = gnome_vfs_file_info_new();
+
     /* get mime type */
-    result = gnome_vfs_get_file_info(uri, &info, 
+    result = gnome_vfs_get_file_info(uri, info, 
                                      GNOME_VFS_FILE_INFO_DEFAULT | 
                                      GNOME_VFS_FILE_INFO_GET_MIME_TYPE |
                                      GNOME_VFS_FILE_INFO_FORCE_SLOW_MIME_TYPE |
                                      GNOME_VFS_FILE_INFO_FOLLOW_LINKS);
+
     if (result == GNOME_VFS_OK) {
-        const char *mime = gnome_vfs_file_info_get_mime_type(&info);
+        const char *mime = gnome_vfs_file_info_get_mime_type(info);
+        
         if (strncmp(mime, "image/", 6) == 0) {
+            gnome_vfs_file_info_unref(info);
             return TRUE;
         }
     } 
+
+    gnome_vfs_file_info_unref(info);
 
     return FALSE;
 }
