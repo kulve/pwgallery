@@ -152,6 +152,10 @@ xml_gal_write(struct data *data, gsize *len)
         xmlNewChild(page_settings, NULL, BAD_CAST "rotate",
                     BAD_CAST tmp_setting);
 
+        g_snprintf(tmp_setting, 256, "%d", img->image_h);
+        xmlNewChild(page_settings, NULL, BAD_CAST "image_h",
+                    BAD_CAST tmp_setting);
+
         g_snprintf(tmp_setting, 256, "%s", 
                    img->nomodify == TRUE ? "true" : "false");
         xmlNewChild(page_settings, NULL, BAD_CAST "nomodify",
@@ -468,6 +472,12 @@ parse_image_settings(struct data *data, xmlNodePtr node)
         {
             gchar *tmpstr = (gchar *)xmlNodeGetContent(node);
             img->rotate = (gint)g_ascii_strtoull(tmpstr, NULL, 0);
+            xmlFree((xmlChar*)tmpstr);
+        }
+        else if ((!xmlStrcmp(node->name, (const xmlChar *) "image_h")))
+        {
+            gchar *tmpstr = (gchar *)xmlNodeGetContent(node);
+            img->image_h = (gint)g_ascii_strtoull(tmpstr, NULL, 0);
             xmlFree((xmlChar*)tmpstr);
         }
         else if ((!xmlStrcmp(node->name, (const xmlChar *) "nomodify")))

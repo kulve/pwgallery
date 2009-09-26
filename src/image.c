@@ -57,6 +57,7 @@ image_init(struct data *data)
     img->height       = 0;
     img->thumb_w      = 0;
     img->thumb_h      = 0;
+    img->image_h      = 0;
     img->rotate       = 0;
     img->gamma        = 1.0;
     img->text         = g_strdup("");
@@ -119,7 +120,8 @@ image_open(struct data *data, gchar *uri, gint rotate)
 	GnomeVFSHandle   *handle;
 	GnomeVFSFileSize bytes;
 	GError           *error = NULL;
-    gchar            *tmpp;
+	gchar            *tmpp;
+	GnomeVFSURI*     vfsuri = NULL;
 
 	g_assert(data != NULL);
 	g_assert(uri != NULL);
@@ -133,13 +135,16 @@ image_open(struct data *data, gchar *uri, gint rotate)
     }
 
 	/* open image */
-	result = gnome_vfs_open_uri(&handle, gnome_vfs_uri_new(uri),
+	vfsuri = gnome_vfs_uri_new(uri);
+	result = gnome_vfs_open_uri(&handle, vfsuri,
 								GNOME_VFS_OPEN_READ);
+	gnome_vfs_uri_unref(vfsuri);
 	if (result != GNOME_VFS_OK)
 	{
 		/* FIXME: popup */
 		g_warning("Skipping image because of error opening '%s': %s", uri, 
 				  gnome_vfs_result_to_string(result));
+		g_free(uri);
 		/* FIXME: show invalid image? */
 		return NULL;
 	}

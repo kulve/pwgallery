@@ -746,6 +746,7 @@ gallery_open_images(struct data *data, GSList *imgs)
             img->gamma    = tmpimg->gamma;
             img->rotate   = tmpimg->rotate;
             img->nomodify = tmpimg->nomodify;
+            img->image_h  = tmpimg->image_h;
             
 		} else {
             g_warning("Failed to add image");
@@ -1044,12 +1045,20 @@ _make_webimages(struct data *data)
             struct image *image = images->data;
             gfloat frac;
             gchar progress[256];
+            int tmp_h;
             
             img_uri = g_strdup_printf("%s/%s.%s", dir_uri, image->basefilename, 
                                       image->ext);
             
+            /* Check if the image overrides the generic size */
+            if (image->image_h != 0) {
+                tmp_h = image->image_h;
+            } else {
+                tmp_h = image_h;
+            }
+
             /* make the webimage and save it to a file */
-            if (magick_make_webimage(data, image, img_uri, image_h) == FALSE) {
+            if (magick_make_webimage(data, image, img_uri, tmp_h) == FALSE) {
                 g_free(img_uri);
                 g_free(dir_uri);
                 return FALSE;

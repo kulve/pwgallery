@@ -225,6 +225,7 @@ struct image
     gint            height;            /* original height of the image */
     gint            thumb_w;           /* thumbnail width */
     gint            thumb_h;           /* thumbnail height */
+    gint            image_h;           /* Overridden output image height */
     gint            rotate;            /* rotation of the image */
     gfloat          gamma;             /* gamma of the image */
     gchar           *text;             /* image description */
