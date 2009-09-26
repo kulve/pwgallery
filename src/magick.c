@@ -127,7 +127,7 @@ gboolean magick_make_webimage(struct data *data,
     MagickWand *wand;
     struct image_size *img_size = NULL;
     GnomeVFSResult result;
-    GnomeVFSFileInfo info;
+    GnomeVFSFileInfo *info;
 
     g_debug("in magick_make_webimage");
 
@@ -145,16 +145,18 @@ gboolean magick_make_webimage(struct data *data,
     DestroyMagickWand(wand);
 
     /* get file size */
-    result = gnome_vfs_get_file_info(uri, &info,
+    info = gnome_vfs_file_info_new();
+    result = gnome_vfs_get_file_info(uri, info,
                                      GNOME_VFS_FILE_INFO_DEFAULT | 
                                      GNOME_VFS_FILE_INFO_FOLLOW_LINKS);
     if (result == GNOME_VFS_OK) {
-        img_size->size = info.size / 1024;
+        img_size->size = info->size / 1024;
     } else {
         img_size->size = 0;
     }
     
     image->sizes = g_slist_append(image->sizes, img_size);
+    gnome_vfs_file_info_unref(info);
 
     return TRUE;
 }
