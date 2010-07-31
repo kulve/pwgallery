@@ -70,7 +70,7 @@
                         <property name="label" translatable="yes">_Settings</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="on_menu_gal_settings_activate"/>
-                        <accelerator key="e" modifiers="GDK_CONTROL_MASK" signal="activate"/>
+                        <accelerator key="t" modifiers="GDK_CONTROL_MASK" signal="activate"/>
                         <child internal-child="image">
                           <widget class="GtkImage" id="image117">
                             <property name="visible">True</property>
@@ -246,6 +246,7 @@
                     <child>
                       <widget class="GtkImageMenuItem" id="menu_discard">
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                         <property name="tooltip" translatable="yes">Discard any editions to image</property>
                         <property name="label" translatable="yes">_Discard edit</property>
                         <property name="use_underline">True</property>
@@ -1979,8 +1980,8 @@ You should have received a copy of the GNU General Public License along with thi
                       <widget class="GtkFileChooserButton" id="filechooserbutton_pref_templ_dir">
                         <property name="visible">True</property>
                         <property name="show_hidden">True</property>
-                        <property name="action">GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER</property>
                         <property name="local_only">False</property>
+                        <property name="action">GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER</property>
                         <property name="title" translatable="yes">Select the default directory for templates</property>
                       </widget>
                       <packing>
@@ -2247,8 +2248,8 @@ You should have received a copy of the GNU General Public License along with thi
                       <widget class="GtkFileChooserButton" id="filechooserbutton_pref_gal_dir">
                         <property name="visible">True</property>
                         <property name="show_hidden">True</property>
-                        <property name="action">GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER</property>
                         <property name="local_only">False</property>
+                        <property name="action">GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER</property>
                         <property name="title" translatable="yes">Select folder for gallery XML files</property>
                       </widget>
                       <packing>
@@ -2263,8 +2264,8 @@ You should have received a copy of the GNU General Public License along with thi
                       <widget class="GtkFileChooserButton" id="filechooserbutton_pref_output_dir">
                         <property name="visible">True</property>
                         <property name="show_hidden">True</property>
-                        <property name="action">GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER</property>
                         <property name="local_only">False</property>
+                        <property name="action">GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER</property>
                         <property name="title" translatable="yes">Select the default gallery output directory</property>
                       </widget>
                       <packing>
@@ -2497,8 +2498,8 @@ You should have received a copy of the GNU General Public License along with thi
                       <widget class="GtkFileChooserButton" id="filechooserbutton_pref_img_dir">
                         <property name="visible">True</property>
                         <property name="show_hidden">True</property>
-                        <property name="action">GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER</property>
                         <property name="local_only">False</property>
+                        <property name="action">GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER</property>
                         <property name="title" translatable="yes">Select the default image root directory</property>
                       </widget>
                       <packing>
