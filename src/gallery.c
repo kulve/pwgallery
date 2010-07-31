@@ -37,8 +37,10 @@
 #include <strings.h>                 /* rindex */
 
 #define PWGALLERY_MAX_SLIDESHOW_PRELOAD  5
+#define PWGALLERY_MAKE_THREADS           4
 
-
+static gpointer _thread_make_image(gpointer data);
+static gpointer _thread_make_thumb(gpointer data);
 static gboolean _make_thumbnails(struct data *data);
 static gboolean _make_webimages(struct data *data);
 static gint sort_exif_timestamp(gconstpointer a, gconstpointer b);
@@ -58,6 +60,20 @@ static void ss_skip_backward(struct data *data);
 static void ss_show_image(struct data *data);
 static gpointer ss_loading_thread(gpointer data);
 
+struct thread_image_data {
+    struct data *data;
+    gchar *img_uri;
+    int tmp_h;
+    struct image *image;
+};
+
+
+struct thread_thumb_data {
+    struct data *data;
+    gchar *thumb_uri;
+    struct image *image;
+};
+    
 
 void
 gallery_init(struct data *data)
@@ -934,6 +950,7 @@ _make_thumbnails(struct data *data)
     gchar       *dir_uri;
     GSList      *images;  
     gint        tot, i;
+    gboolean    failed = FALSE;
 
     g_assert(data != NULL);
 
@@ -949,35 +966,123 @@ _make_thumbnails(struct data *data)
     /* make the thumbnails for all images in gallery */
     images = data->gal->images;
     while(images != NULL) {
-        gchar *thumb_uri;
-        struct image *image = images->data;
-        gfloat frac;
-        gchar progress[256];
-
-        thumb_uri = g_strdup_printf("%s/%s.%s", dir_uri, 
-                                    image->basefilename, image->ext);
+        int cpu_index;
+        GThread *threads[PWGALLERY_MAKE_THREADS];
         
-        /* make the thumbnail and save it to a file */
-        if (magick_make_thumbnail(data, image, thumb_uri) == FALSE) {
+        for (cpu_index = 0; cpu_index < PWGALLERY_MAKE_THREADS; cpu_index++) {
+            threads[cpu_index] = NULL;
+        }
+        
+        for (cpu_index = 0; cpu_index < PWGALLERY_MAKE_THREADS; cpu_index++) {
+            gchar *thumb_uri;
+            struct image *image = images->data;
+            gfloat frac;
+            gchar progress[256];
+            struct thread_thumb_data *td;
+            
+            thumb_uri = g_strdup_printf("%s/%s.%s", dir_uri, 
+                                        image->basefilename, image->ext);
+            
+            td = malloc(sizeof(struct thread_thumb_data));
+            g_assert(td != NULL);
+            td->data = data;
+            td->image = image;
+            td->thumb_uri = g_strdup(thumb_uri);
+            
+            threads[cpu_index] = g_thread_create(_thread_make_thumb,
+                                                 (void*)td,
+                                                 TRUE,
+                                                 NULL);
             g_free(thumb_uri);
-            g_free(dir_uri);
+            
+            images = images->next;
+            
+            /* update status */
+            ++i;
+            snprintf(progress, 256, "%s: %d/%d", _("Creating thumbnails"), i, tot);
+            frac = (gfloat)i/(gfloat)tot;
+            g_debug("frac: %f", frac);
+            widgets_set_progress(data, frac, progress);
+
+            if (images == NULL) {
+                break;
+            }
+        }
+
+        /* Wait for threads to finish */
+        for (cpu_index = 0; cpu_index < PWGALLERY_MAKE_THREADS; cpu_index++) {
+            gpointer retval;
+            gint r;
+            
+            if (threads[cpu_index] == NULL) {
+                    break;
+            }
+            
+            retval = g_thread_join(threads[cpu_index]);
+            
+            /* Check the return values */
+            r = GPOINTER_TO_INT(retval);
+            if (r == FALSE) {
+                failed = TRUE;
+            }
+        }
+        
+        if (failed) {
             return FALSE;
         }
-        g_free(thumb_uri);
 
-        images = images->next;
-        /* update status */
-        ++i;
-        snprintf(progress, 256, "%s: %d/%d", _("Creating thumbnails"), i, tot);
-        frac = (gfloat)i/(gfloat)tot;
-        g_debug("frac: %f", frac);
-        widgets_set_progress(data, frac, progress);
     }
     g_free(dir_uri);
 
     return TRUE;
 }
 
+
+
+/*
+ * Make image in a thread
+ */
+static gpointer
+_thread_make_image(gpointer data)
+{
+    struct thread_image_data *td;
+    gboolean retval;
+
+    g_assert(data != NULL);
+    td = data;
+
+    /* make the webimage and save it to a file */
+    retval = magick_make_webimage(td->data, td->image, td->img_uri, td->tmp_h);
+
+    g_free(td->img_uri);
+    g_free(td);
+    
+    return GINT_TO_POINTER(retval);
+}
+
+
+
+/*
+ * Make thumbnail in a thread
+ */
+static gpointer
+_thread_make_thumb(gpointer data)
+{
+    struct thread_thumb_data *td;
+    gboolean retval;
+
+    g_assert(data != NULL);
+    td = data;
+
+    g_debug("FOO: %s\n", td->thumb_uri);
+    /* make the thumbnail and save it to a file */
+    retval = magick_make_thumbnail(td->data, td->image, td->thumb_uri);
+ 
+    g_free(td->thumb_uri);
+    g_free(td);
+    
+    return GINT_TO_POINTER(retval);
+}
 
 
 /*
@@ -1000,7 +1105,8 @@ _make_webimages(struct data *data)
         gchar       *dir_uri;
         GSList      *images;
         gint        image_h = -1;
-
+        gboolean    failed = FALSE;
+        
         i = 0; /* zero image counter */
 
         /* FIXME: ugly. Sizes should be in a list */
@@ -1040,40 +1146,84 @@ _make_webimages(struct data *data)
         /* make the webimages for all images in gallery */
         images = data->gal->images;
         while(images != NULL) {
+            int cpu_index;
+            GThread *threads[PWGALLERY_MAKE_THREADS];
 
-            gchar *img_uri;
-            struct image *image = images->data;
-            gfloat frac;
-            gchar progress[256];
-            int tmp_h;
-            
-            img_uri = g_strdup_printf("%s/%s.%s", dir_uri, image->basefilename, 
-                                      image->ext);
-            
-            /* Check if the image overrides the generic size */
-            if (image->image_h != 0) {
-                tmp_h = image->image_h;
-            } else {
-                tmp_h = image_h;
+            for (cpu_index = 0; cpu_index < PWGALLERY_MAKE_THREADS; cpu_index++) {
+                threads[cpu_index] = NULL;
             }
 
-            /* make the webimage and save it to a file */
-            if (magick_make_webimage(data, image, img_uri, tmp_h) == FALSE) {
+            for (cpu_index = 0; cpu_index < PWGALLERY_MAKE_THREADS; cpu_index++) {
+
+                gchar *img_uri;
+                struct image *image = images->data;
+                gfloat frac;
+                gchar progress[256];
+                int tmp_h;
+                struct thread_image_data *td;
+
+                img_uri = g_strdup_printf("%s/%s.%s", dir_uri, image->basefilename, 
+                                          image->ext);
+                
+                /* Check if the image overrides the generic size */
+                if (image->image_h != 0) {
+                    tmp_h = image->image_h;
+                } else {
+                    tmp_h = image_h;
+                }
+                
+                td = malloc(sizeof(struct thread_image_data));
+                g_assert(td != NULL);
+                td->data = data;
+                td->image = image;
+                td->tmp_h = tmp_h;
+                td->img_uri = g_strdup(img_uri);
+
+
+                threads[cpu_index] = g_thread_create(_thread_make_image,
+                                                     (void*)td,
+                                                     TRUE,
+                                                     NULL);
+
                 g_free(img_uri);
-                g_free(dir_uri);
+                
+                images = images->next;
+                
+                /* update status */
+                ++i;
+                snprintf(progress, 256, "%s %d: %d/%d", 
+                         _("Creating images"), image_h, i, tot);
+                frac = (gfloat)i/(gfloat)tot;
+                g_debug("frac: %f", frac);
+                widgets_set_progress(data, frac, progress);
+
+                if (images == NULL) {
+                    break;
+                }
+            }
+
+            /* Wait for threads to finish */
+            for (cpu_index = 0; cpu_index < PWGALLERY_MAKE_THREADS; cpu_index++) {
+                gpointer retval;
+                gint r;
+
+                if (threads[cpu_index] == NULL) {
+                    break;
+                }
+
+                retval = g_thread_join(threads[cpu_index]);
+
+                /* Check the return values */
+                r = GPOINTER_TO_INT(retval);
+                if (r == FALSE) {
+                    failed = TRUE;
+                }
+            }
+
+            if (failed) {
                 return FALSE;
             }
-            g_free(img_uri);
-            
-            images = images->next;
 
-            /* update status */
-            ++i;
-            snprintf(progress, 256, "%s %d: %d/%d", 
-                     _("Creating images"), image_h, i, tot);
-            frac = (gfloat)i/(gfloat)tot;
-            g_debug("frac: %f", frac);
-            widgets_set_progress(data, frac, progress);
         }
         g_free(dir_uri);
     }
