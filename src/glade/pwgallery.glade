@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--*- mode: xml -*-->
+<?xml version="1.0"?>
 <glade-interface>
+  <!-- interface-requires gtk+ 2.16 -->
+  <!-- interface-naming-policy toplevel-contextual -->
   <widget class="GtkWindow" id="mainwindow">
     <property name="title" translatable="yes">Penguin's Web Gallery</property>
     <property name="default_width">800</property>
@@ -22,19 +22,13 @@
                   <widget class="GtkMenu" id="file1_menu">
                     <child>
                       <widget class="GtkImageMenuItem" id="menu_pref">
+                        <property name="label">_Preferences</property>
                         <property name="visible">True</property>
                         <property name="tooltip" translatable="yes">Edit pwgallery preferences</property>
-                        <property name="label" translatable="yes">_Preferences</property>
                         <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
                         <signal name="activate" handler="on_menu_preferences_activate"/>
-                        <accelerator key="p" modifiers="GDK_CONTROL_MASK" signal="activate"/>
-                        <child internal-child="image">
-                          <widget class="GtkImage" id="image116">
-                            <property name="visible">True</property>
-                            <property name="stock">gtk-preferences</property>
-                            <property name="icon_size">1</property>
-                          </widget>
-                        </child>
+                        <accelerator key="p" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </widget>
                     </child>
                     <child>
@@ -44,9 +38,9 @@
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="menu_quit">
+                        <property name="label">gtk-quit</property>
                         <property name="visible">True</property>
                         <property name="tooltip" translatable="yes">Quit pwgallery</property>
-                        <property name="label">gtk-quit</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_menu_quit_activate"/>
@@ -65,25 +59,19 @@
                   <widget class="GtkMenu" id="menuitem1_menu">
                     <child>
                       <widget class="GtkImageMenuItem" id="menu_gal_settings">
+                        <property name="label">_Settings</property>
                         <property name="visible">True</property>
                         <property name="tooltip" translatable="yes">Configure gallery</property>
-                        <property name="label" translatable="yes">_Settings</property>
                         <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
                         <signal name="activate" handler="on_menu_gal_settings_activate"/>
-                        <accelerator key="t" modifiers="GDK_CONTROL_MASK" signal="activate"/>
-                        <child internal-child="image">
-                          <widget class="GtkImage" id="image117">
-                            <property name="visible">True</property>
-                            <property name="stock">gtk-properties</property>
-                            <property name="icon_size">1</property>
-                          </widget>
-                        </child>
+                        <accelerator key="t" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </widget>
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="menu_new">
-                        <property name="visible">True</property>
                         <property name="label">gtk-new</property>
+                        <property name="visible">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_menu_new_activate"/>
@@ -91,8 +79,8 @@
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="menu_open">
-                        <property name="visible">True</property>
                         <property name="label">gtk-open</property>
+                        <property name="visible">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_menu_open_activate"/>
@@ -100,8 +88,8 @@
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="menu_save">
-                        <property name="visible">True</property>
                         <property name="label">gtk-save</property>
+                        <property name="visible">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_menu_save_activate"/>
@@ -109,8 +97,8 @@
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="menu_save_as">
-                        <property name="visible">True</property>
                         <property name="label">gtk-save-as</property>
+                        <property name="visible">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_menu_save_as_activate"/>
@@ -118,49 +106,33 @@
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="menu_make_gal">
+                        <property name="label">_Make</property>
                         <property name="visible">True</property>
                         <property name="tooltip" translatable="yes">Create a web gallery</property>
-                        <property name="label" translatable="yes">_Make</property>
                         <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
                         <signal name="activate" handler="on_menu_make_gal_activate"/>
-                        <accelerator key="m" modifiers="GDK_CONTROL_MASK" signal="activate"/>
-                        <child internal-child="image">
-                          <widget class="GtkImage" id="image118">
-                            <property name="visible">True</property>
-                            <property name="stock">gtk-execute</property>
-                            <property name="icon_size">1</property>
-                          </widget>
-                        </child>
+                        <accelerator key="m" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </widget>
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="sort_by_time">
+                        <property name="label">Sort by _time</property>
                         <property name="visible">True</property>
                         <property name="tooltip" translatable="yes">Sort images based on EXIF time stamp</property>
-                        <property name="label" translatable="yes">Sort by _time</property>
                         <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
                         <signal name="activate" handler="on_menu_sort_by_time_activate"/>
-                        <child internal-child="image">
-                          <widget class="GtkImage" id="image119">
-                            <property name="visible">True</property>
-                            <property name="stock">gtk-sort-ascending</property>
-                            <property name="icon_size">1</property>
-                          </widget>
-                        </child>
                       </widget>
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="menu_slide_show">
+                        <property name="label">Slide sho_w</property>
                         <property name="visible">True</property>
                         <property name="tooltip" translatable="yes">Show all images in as a slide show</property>
-                        <property name="label" translatable="yes">Slide sho_w</property>
                         <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
                         <signal name="activate" handler="on_menu_slide_show_activate"/>
-                        <child internal-child="image">
-                          <widget class="GtkImage" id="menu-item-image10">
-                            <property name="stock">gtk-media-play</property>
-                          </widget>
-                        </child>
                       </widget>
                     </child>
                   </widget>
@@ -176,88 +148,58 @@
                   <widget class="GtkMenu" id="menuitem2_menu">
                     <child>
                       <widget class="GtkImageMenuItem" id="menu_add_image">
+                        <property name="label">_Add image</property>
                         <property name="visible">True</property>
                         <property name="tooltip" translatable="yes">Add images to gallery</property>
-                        <property name="label" translatable="yes">_Add image</property>
                         <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
                         <signal name="activate" handler="on_menu_add_image_activate"/>
-                        <accelerator key="Insert" modifiers="GDK_CONTROL_MASK" signal="activate"/>
-                        <child internal-child="image">
-                          <widget class="GtkImage" id="image120">
-                            <property name="visible">True</property>
-                            <property name="stock">gtk-add</property>
-                            <property name="icon_size">1</property>
-                          </widget>
-                        </child>
+                        <accelerator key="Insert" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </widget>
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="menu_add_generic">
+                        <property name="label">_Add generic</property>
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="tooltip" translatable="yes">Add Generic message after this without image</property>
-                        <property name="label" translatable="yes">_Add generic</property>
                         <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
                         <signal name="activate" handler="on_menu_add_generic_activate"/>
-                        <accelerator key="g" modifiers="GDK_CONTROL_MASK" signal="activate"/>
-                        <child internal-child="image">
-                          <widget class="GtkImage" id="image121">
-                            <property name="visible">True</property>
-                            <property name="stock">gtk-add</property>
-                            <property name="icon_size">1</property>
-                          </widget>
-                        </child>
+                        <accelerator key="g" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </widget>
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="menu_remove_image">
+                        <property name="label">_Remove</property>
                         <property name="visible">True</property>
                         <property name="tooltip" translatable="yes">Remove current image/generic</property>
-                        <property name="label" translatable="yes">_Remove</property>
                         <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
                         <signal name="activate" handler="on_menu_remove_image_activate"/>
-                        <accelerator key="Delete" modifiers="GDK_CONTROL_MASK" signal="activate"/>
-                        <child internal-child="image">
-                          <widget class="GtkImage" id="image122">
-                            <property name="visible">True</property>
-                            <property name="stock">gtk-remove</property>
-                            <property name="icon_size">1</property>
-                          </widget>
-                        </child>
+                        <accelerator key="Delete" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </widget>
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="edit">
+                        <property name="label">_Edit</property>
                         <property name="visible">True</property>
                         <property name="tooltip" translatable="yes">Edit image</property>
-                        <property name="label" translatable="yes">_Edit</property>
                         <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
                         <signal name="activate" handler="on_menu_edit_activate"/>
-                        <accelerator key="e" modifiers="GDK_CONTROL_MASK" signal="activate"/>
-                        <child internal-child="image">
-                          <widget class="GtkImage" id="image123">
-                            <property name="visible">True</property>
-                            <property name="stock">gtk-edit</property>
-                            <property name="icon_size">1</property>
-                          </widget>
-                        </child>
+                        <accelerator key="e" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </widget>
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="menu_discard">
+                        <property name="label">_Discard edit</property>
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="tooltip" translatable="yes">Discard any editions to image</property>
-                        <property name="label" translatable="yes">_Discard edit</property>
                         <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
                         <signal name="activate" handler="on_menu_discard_activate"/>
-                        <child internal-child="image">
-                          <widget class="GtkImage" id="image124">
-                            <property name="visible">True</property>
-                            <property name="stock">gtk-undo</property>
-                            <property name="icon_size">1</property>
-                          </widget>
-                        </child>
                       </widget>
                     </child>
                   </widget>
@@ -287,6 +229,7 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">False</property>
+            <property name="position">0</property>
           </packing>
         </child>
         <child>
@@ -301,10 +244,10 @@
                   <widget class="GtkButton" id="button_move_top">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="response_id">0</property>
+                    <property name="receives_default">False</property>
                     <signal name="clicked" handler="on_button_move_top_clicked"/>
-                    <accelerator key="KP_Home" modifiers="GDK_CONTROL_MASK" signal="clicked"/>
-                    <accelerator key="Home" modifiers="GDK_CONTROL_MASK" signal="clicked"/>
+                    <accelerator key="KP_Home" signal="clicked" modifiers="GDK_CONTROL_MASK"/>
+                    <accelerator key="Home" signal="clicked" modifiers="GDK_CONTROL_MASK"/>
                     <child>
                       <widget class="GtkAlignment" id="alignment5">
                         <property name="visible">True</property>
@@ -322,6 +265,7 @@
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">False</property>
+                                <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
@@ -344,16 +288,17 @@
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
+                    <property name="position">0</property>
                   </packing>
                 </child>
                 <child>
                   <widget class="GtkButton" id="button_move_up">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="response_id">0</property>
+                    <property name="receives_default">False</property>
                     <signal name="clicked" handler="on_button_move_up_clicked"/>
-                    <accelerator key="Up" modifiers="GDK_CONTROL_MASK" signal="clicked"/>
-                    <accelerator key="KP_Up" modifiers="GDK_CONTROL_MASK" signal="clicked"/>
+                    <accelerator key="Up" signal="clicked" modifiers="GDK_CONTROL_MASK"/>
+                    <accelerator key="KP_Up" signal="clicked" modifiers="GDK_CONTROL_MASK"/>
                     <child>
                       <widget class="GtkAlignment" id="alignment3">
                         <property name="visible">True</property>
@@ -371,6 +316,7 @@
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">False</property>
+                                <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
@@ -400,17 +346,15 @@
                   <widget class="GtkScrolledWindow" id="scrolledwindow_thumbnails">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="hscrollbar_policy">GTK_POLICY_NEVER</property>
-                    <property name="shadow_type">GTK_SHADOW_IN</property>
+                    <property name="hscrollbar_policy">never</property>
+                    <property name="shadow_type">in</property>
                     <child>
                       <widget class="GtkViewport" id="viewport2">
                         <property name="visible">True</property>
-                        <property name="shadow_type">GTK_SHADOW_NONE</property>
+                        <property name="shadow_type">none</property>
                         <child>
                           <widget class="GtkTable" id="table_thumb">
                             <property name="visible">True</property>
-                            <property name="n_rows">1</property>
-                            <property name="n_columns">1</property>
                             <child>
                               <placeholder/>
                             </child>
@@ -427,9 +371,9 @@
                   <widget class="GtkButton" id="button_move_down">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="response_id">0</property>
+                    <property name="receives_default">False</property>
                     <signal name="clicked" handler="on_button_move_down_clicked"/>
-                    <accelerator key="KP_Down" modifiers="GDK_CONTROL_MASK" signal="clicked"/>
+                    <accelerator key="KP_Down" signal="clicked" modifiers="GDK_CONTROL_MASK"/>
                     <child>
                       <widget class="GtkAlignment" id="alignment4">
                         <property name="visible">True</property>
@@ -447,6 +391,7 @@
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">False</property>
+                                <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
@@ -476,10 +421,10 @@
                   <widget class="GtkButton" id="button_move_bottom">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="response_id">0</property>
+                    <property name="receives_default">False</property>
                     <signal name="clicked" handler="on_button_move_bottom_clicked"/>
-                    <accelerator key="KP_End" modifiers="GDK_CONTROL_MASK" signal="clicked"/>
-                    <accelerator key="End" modifiers="GDK_CONTROL_MASK" signal="clicked"/>
+                    <accelerator key="KP_End" signal="clicked" modifiers="GDK_CONTROL_MASK"/>
+                    <accelerator key="End" signal="clicked" modifiers="GDK_CONTROL_MASK"/>
                     <child>
                       <widget class="GtkAlignment" id="alignment6">
                         <property name="visible">True</property>
@@ -497,6 +442,7 @@
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">False</property>
+                                <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
@@ -549,6 +495,7 @@
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">False</property>
+                            <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
@@ -570,7 +517,7 @@
                             <property name="xalign">0</property>
                             <property name="label" translatable="yes">filename</property>
                             <property name="selectable">True</property>
-                            <property name="ellipsize">PANGO_ELLIPSIZE_START</property>
+                            <property name="ellipsize">start</property>
                           </widget>
                           <packing>
                             <property name="expand">False</property>
@@ -590,6 +537,7 @@
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">False</property>
+                                <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
@@ -598,7 +546,6 @@
                                 <property name="sensitive">False</property>
                                 <property name="can_focus">True</property>
                                 <property name="tooltip" translatable="yes">Insert base filename here for renaming (no directory and no extension)</property>
-                                <property name="invisible_char">*</property>
                               </widget>
                               <packing>
                                 <property name="position">1</property>
@@ -621,17 +568,18 @@
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
+                                <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
                               <widget class="GtkRadioButton" id="radiobutton_gal_img_image">
+                                <property name="label" translatable="yes">Image</property>
                                 <property name="visible">True</property>
                                 <property name="sensitive">False</property>
                                 <property name="can_focus">True</property>
+                                <property name="receives_default">False</property>
                                 <property name="tooltip" translatable="yes">Click here to generate normal image based page</property>
-                                <property name="label" translatable="yes">Image</property>
                                 <property name="use_underline">True</property>
-                                <property name="response_id">0</property>
                                 <property name="active">True</property>
                                 <property name="draw_indicator">True</property>
                               </widget>
@@ -643,13 +591,13 @@
                             </child>
                             <child>
                               <widget class="GtkRadioButton" id="radiobutton_gal_img_generic">
+                                <property name="label" translatable="yes">HTML only</property>
                                 <property name="visible">True</property>
                                 <property name="sensitive">False</property>
                                 <property name="can_focus">True</property>
+                                <property name="receives_default">False</property>
                                 <property name="tooltip" translatable="yes">Click here to generate a "generic" web page without explicit image</property>
-                                <property name="label" translatable="yes">HTML only</property>
                                 <property name="use_underline">True</property>
-                                <property name="response_id">0</property>
                                 <property name="draw_indicator">True</property>
                                 <property name="group">radiobutton_gal_img_image</property>
                               </widget>
@@ -680,6 +628,7 @@
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
+                    <property name="position">0</property>
                   </packing>
                 </child>
                 <child>
@@ -698,13 +647,13 @@
                               <widget class="GtkScrolledWindow" id="scrolledwindow1">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="hscrollbar_policy">GTK_POLICY_NEVER</property>
-                                <property name="shadow_type">GTK_SHADOW_IN</property>
+                                <property name="hscrollbar_policy">never</property>
+                                <property name="shadow_type">in</property>
                                 <child>
                                   <widget class="GtkTextView" id="textview_image_desc">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="wrap_mode">GTK_WRAP_WORD</property>
+                                    <property name="wrap_mode">word</property>
                                     <property name="text" translatable="yes">You can set your preferences (default templates and directories) from
 File-&gt;Preferences (ctrl+p)
 
@@ -733,6 +682,7 @@ Gallery -&gt; Settings (ctrl+e)
                       </widget>
                       <packing>
                         <property name="expand">False</property>
+                        <property name="position">0</property>
                       </packing>
                     </child>
                   </widget>
@@ -757,23 +707,26 @@ Gallery -&gt; Settings (ctrl+e)
                                 <property name="visible">True</property>
                                 <child>
                                   <widget class="GtkCheckButton" id="check_settings_nomodify">
+                                    <property name="label" translatable="yes">Copy the image without modifying</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="label" translatable="yes">Copy the image without modifying</property>
+                                    <property name="receives_default">False</property>
                                     <property name="use_underline">True</property>
-                                    <property name="response_id">0</property>
                                     <property name="draw_indicator">True</property>
                                     <signal name="toggled" handler="on_check_settings_nomodify_toggled"/>
                                   </widget>
+                                  <packing>
+                                    <property name="position">0</property>
+                                  </packing>
                                 </child>
                                 <child>
                                   <widget class="GtkButton" id="button_advanced">
+                                    <property name="label" translatable="yes">Advanced...</property>
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
-                                    <property name="label" translatable="yes">Advanced...</property>
+                                    <property name="receives_default">False</property>
                                     <property name="use_underline">True</property>
-                                    <property name="response_id">0</property>
                                     <signal name="clicked" handler="on_button_advanced_clicked"/>
                                   </widget>
                                   <packing>
@@ -786,6 +739,7 @@ Gallery -&gt; Settings (ctrl+e)
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">False</property>
+                                <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
@@ -799,6 +753,7 @@ Gallery -&gt; Settings (ctrl+e)
                                   <packing>
                                     <property name="expand">False</property>
                                     <property name="fill">False</property>
+                                    <property name="position">0</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -807,13 +762,13 @@ Gallery -&gt; Settings (ctrl+e)
                                     <property name="homogeneous">True</property>
                                     <child>
                                       <widget class="GtkRadioButton" id="radiobutton_rotate_0">
+                                        <property name="label" translatable="yes">0</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
                                         <property name="tooltip" translatable="yes">Image is not rotated</property>
-                                        <property name="label" translatable="yes">0</property>
                                         <property name="use_underline">True</property>
                                         <property name="focus_on_click">False</property>
-                                        <property name="response_id">0</property>
                                         <property name="active">True</property>
                                         <property name="draw_indicator">True</property>
                                         <signal name="toggled" handler="on_radiobutton_rotate_0_toggled"/>
@@ -821,17 +776,18 @@ Gallery -&gt; Settings (ctrl+e)
                                       <packing>
                                         <property name="expand">False</property>
                                         <property name="fill">False</property>
+                                        <property name="position">0</property>
                                       </packing>
                                     </child>
                                     <child>
                                       <widget class="GtkRadioButton" id="radiobutton_rotate_90">
+                                        <property name="label" translatable="yes">90</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
                                         <property name="tooltip" translatable="yes">Rotate image 90 degrees clockwise</property>
-                                        <property name="label" translatable="yes">90</property>
                                         <property name="use_underline">True</property>
                                         <property name="focus_on_click">False</property>
-                                        <property name="response_id">0</property>
                                         <property name="draw_indicator">True</property>
                                         <property name="group">radiobutton_rotate_0</property>
                                         <signal name="toggled" handler="on_radiobutton_rotate_90_toggled"/>
@@ -844,13 +800,13 @@ Gallery -&gt; Settings (ctrl+e)
                                     </child>
                                     <child>
                                       <widget class="GtkRadioButton" id="radiobutton_rotate_180">
+                                        <property name="label" translatable="yes">180</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
                                         <property name="tooltip" translatable="yes">Rotate image 180 degrees clockwise</property>
-                                        <property name="label" translatable="yes">180</property>
                                         <property name="use_underline">True</property>
                                         <property name="focus_on_click">False</property>
-                                        <property name="response_id">0</property>
                                         <property name="draw_indicator">True</property>
                                         <property name="group">radiobutton_rotate_0</property>
                                         <signal name="toggled" handler="on_radiobutton_rotate_180_toggled"/>
@@ -863,13 +819,13 @@ Gallery -&gt; Settings (ctrl+e)
                                     </child>
                                     <child>
                                       <widget class="GtkRadioButton" id="radiobutton_rotate_270">
+                                        <property name="label" translatable="yes">270</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
                                         <property name="tooltip" translatable="yes">Rotate image 270 degrees clockwise</property>
-                                        <property name="label" translatable="yes">270</property>
                                         <property name="use_underline">True</property>
                                         <property name="focus_on_click">False</property>
-                                        <property name="response_id">0</property>
                                         <property name="draw_indicator">True</property>
                                         <property name="group">radiobutton_rotate_0</property>
                                         <signal name="toggled" handler="on_radiobutton_rotate_270_toggled"/>
@@ -882,13 +838,13 @@ Gallery -&gt; Settings (ctrl+e)
                                     </child>
                                     <child>
                                       <widget class="GtkRadioButton" id="radiobutton_rotate_other">
+                                        <property name="label" translatable="yes">Other</property>
                                         <property name="visible">True</property>
                                         <property name="sensitive">False</property>
                                         <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
                                         <property name="tooltip" translatable="yes">This indicates that image is not rotated exactly 90,180 or 270 degrees.</property>
-                                        <property name="label" translatable="yes">Other</property>
                                         <property name="use_underline">True</property>
-                                        <property name="response_id">0</property>
                                         <property name="draw_indicator">True</property>
                                         <property name="group">radiobutton_rotate_0</property>
                                       </widget>
@@ -943,7 +899,7 @@ Gallery -&gt; Settings (ctrl+e)
     </child>
   </widget>
   <widget class="GtkAboutDialog" id="aboutdialog">
-    <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
+    <property name="type_hint">normal</property>
     <property name="copyright" translatable="yes">Copyright Tuomas Kulve</property>
     <property name="comments" translatable="yes">Web gallery generator</property>
     <property name="website">http://tuomas.kulve.fi/projects/pwgallery</property>
@@ -962,11 +918,11 @@ You should have received a copy of the GNU General Public License along with thi
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox1">
         <child internal-child="action_area">
-          <widget class="GtkHButtonBox" id="dialog-action_area1">
-          </widget>
+          <widget class="GtkHButtonBox" id="dialog-action_area1"/>
           <packing>
             <property name="expand">False</property>
-            <property name="pack_type">GTK_PACK_END</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
           </packing>
         </child>
       </widget>
@@ -977,7 +933,7 @@ You should have received a copy of the GNU General Public License along with thi
     <property name="modal">True</property>
     <property name="default_width">400</property>
     <property name="default_height">400</property>
-    <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
+    <property name="type_hint">dialog</property>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox2">
         <property name="visible">True</property>
@@ -993,7 +949,7 @@ You should have received a copy of the GNU General Public License along with thi
                   <widget class="GtkScrolledWindow" id="scrolledwindow5">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="shadow_type">GTK_SHADOW_IN</property>
+                    <property name="shadow_type">in</property>
                     <child>
                       <widget class="GtkViewport" id="viewport4">
                         <property name="visible">True</property>
@@ -1015,9 +971,9 @@ You should have received a copy of the GNU General Public License along with thi
                   <widget class="GtkScrolledWindow" id="scrolledwindow7">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="hscrollbar_policy">GTK_POLICY_NEVER</property>
-                    <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                    <property name="shadow_type">GTK_SHADOW_IN</property>
+                    <property name="hscrollbar_policy">never</property>
+                    <property name="vscrollbar_policy">automatic</property>
+                    <property name="shadow_type">in</property>
                     <child>
                       <widget class="GtkViewport" id="viewport6">
                         <property name="visible">True</property>
@@ -1037,6 +993,9 @@ You should have received a copy of the GNU General Public License along with thi
                                     <property name="climb_rate">1</property>
                                     <property name="numeric">True</property>
                                   </widget>
+                                  <packing>
+                                    <property name="position">0</property>
+                                  </packing>
                                 </child>
                                 <child>
                                   <widget class="GtkSpinButton" id="spinbutton_crop_right">
@@ -1108,7 +1067,7 @@ You should have received a copy of the GNU General Public License along with thi
                                 <property name="can_focus">True</property>
                                 <property name="adjustment">0 0 389 1 30 30</property>
                                 <property name="digits">0</property>
-                                <property name="value_pos">GTK_POS_LEFT</property>
+                                <property name="value_pos">left</property>
                                 <signal name="value_changed" handler="on_scale_settings_gamma_value_changed"/>
                               </widget>
                               <packing>
@@ -1139,7 +1098,7 @@ You should have received a copy of the GNU General Public License along with thi
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="adjustment">1 0.10000000149 10 0.10000000149 1 1</property>
-                                <property name="value_pos">GTK_POS_LEFT</property>
+                                <property name="value_pos">left</property>
                                 <signal name="value_changed" handler="on_scale_settings_gamma_value_changed"/>
                               </widget>
                               <packing>
@@ -1170,6 +1129,9 @@ You should have received a copy of the GNU General Public License along with thi
                   </packing>
                 </child>
               </widget>
+              <packing>
+                <property name="position">0</property>
+              </packing>
             </child>
           </widget>
           <packing>
@@ -1179,36 +1141,46 @@ You should have received a copy of the GNU General Public License along with thi
         <child internal-child="action_area">
           <widget class="GtkHButtonBox" id="dialog-action_area2">
             <property name="visible">True</property>
-            <property name="layout_style">GTK_BUTTONBOX_END</property>
+            <property name="layout_style">end</property>
             <child>
               <widget class="GtkButton" id="helpbutton1">
+                <property name="label">gtk-help</property>
+                <property name="response_id">-11</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
-                <property name="label">gtk-help</property>
+                <property name="receives_default">False</property>
                 <property name="use_stock">True</property>
-                <property name="response_id">-11</property>
               </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
             </child>
             <child>
               <widget class="GtkButton" id="cancelbutton1">
+                <property name="label">gtk-cancel</property>
+                <property name="response_id">-6</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
-                <property name="label">gtk-cancel</property>
+                <property name="receives_default">False</property>
                 <property name="use_stock">True</property>
-                <property name="response_id">-6</property>
               </widget>
               <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
                 <property name="position">1</property>
               </packing>
             </child>
             <child>
               <widget class="GtkButton" id="okbutton1">
+                <property name="response_id">-5</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
-                <property name="response_id">-5</property>
+                <property name="receives_default">False</property>
                 <child>
                   <widget class="GtkAlignment" id="alignment13">
                     <property name="visible">True</property>
@@ -1226,6 +1198,7 @@ You should have received a copy of the GNU General Public License along with thi
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">False</property>
+                            <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
@@ -1247,26 +1220,32 @@ You should have received a copy of the GNU General Public License along with thi
                 </child>
               </widget>
               <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
                 <property name="position">2</property>
               </packing>
             </child>
             <child>
               <widget class="GtkButton" id="button1">
+                <property name="label">gtk-ok</property>
+                <property name="response_id">-5</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
-                <property name="label">gtk-ok</property>
+                <property name="receives_default">False</property>
                 <property name="use_stock">True</property>
-                <property name="response_id">-5</property>
               </widget>
               <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
                 <property name="position">3</property>
               </packing>
             </child>
           </widget>
           <packing>
             <property name="expand">False</property>
-            <property name="pack_type">GTK_PACK_END</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
           </packing>
         </child>
       </widget>
@@ -1277,7 +1256,7 @@ You should have received a copy of the GNU General Public License along with thi
     <property name="modal">True</property>
     <property name="default_width">400</property>
     <property name="default_height">500</property>
-    <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
+    <property name="type_hint">dialog</property>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox3">
         <property name="visible">True</property>
@@ -1285,9 +1264,9 @@ You should have received a copy of the GNU General Public License along with thi
           <widget class="GtkScrolledWindow" id="scrolledwindow6">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
-            <property name="hscrollbar_policy">GTK_POLICY_NEVER</property>
-            <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-            <property name="shadow_type">GTK_SHADOW_IN</property>
+            <property name="hscrollbar_policy">never</property>
+            <property name="vscrollbar_policy">automatic</property>
+            <property name="shadow_type">in</property>
             <child>
               <widget class="GtkViewport" id="viewport5">
                 <property name="visible">True</property>
@@ -1301,7 +1280,6 @@ You should have received a copy of the GNU General Public License along with thi
                       <widget class="GtkEntry" id="entry_gal_dir_name">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="invisible_char">*</property>
                       </widget>
                       <packing>
                         <property name="left_attach">1</property>
@@ -1359,6 +1337,9 @@ You should have received a copy of the GNU General Public License along with thi
                             <property name="climb_rate">1</property>
                             <property name="numeric">True</property>
                           </widget>
+                          <packing>
+                            <property name="position">0</property>
+                          </packing>
                         </child>
                         <child>
                           <widget class="GtkSpinButton" id="spinbutton_gal_image_h2">
@@ -1479,26 +1460,27 @@ You should have received a copy of the GNU General Public License along with thi
                         <property name="visible">True</property>
                         <child>
                           <widget class="GtkRadioButton" id="radiobutton_gal_gen_templ">
+                            <property name="label" translatable="yes">Templates</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="label" translatable="yes">Templates</property>
+                            <property name="receives_default">False</property>
                             <property name="use_underline">True</property>
-                            <property name="response_id">0</property>
                             <property name="active">True</property>
                             <property name="draw_indicator">True</property>
                           </widget>
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">False</property>
+                            <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
                           <widget class="GtkRadioButton" id="radiobutton_gal_gen_prog">
+                            <property name="label" translatable="yes">Program</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="label" translatable="yes">Program</property>
+                            <property name="receives_default">False</property>
                             <property name="use_underline">True</property>
-                            <property name="response_id">0</property>
                             <property name="draw_indicator">True</property>
                             <property name="group">radiobutton_gal_gen_templ</property>
                           </widget>
@@ -1535,7 +1517,7 @@ You should have received a copy of the GNU General Public License along with thi
                       <widget class="GtkToggleButton" id="togglebutton_gal_rename">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="response_id">0</property>
+                        <property name="receives_default">False</property>
                         <child>
                           <widget class="GtkAlignment" id="alignment10">
                             <property name="visible">True</property>
@@ -1553,6 +1535,7 @@ You should have received a copy of the GNU General Public License along with thi
                                   <packing>
                                     <property name="expand">False</property>
                                     <property name="fill">False</property>
+                                    <property name="position">0</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -1584,7 +1567,7 @@ You should have received a copy of the GNU General Public License along with thi
                       <widget class="GtkToggleButton" id="togglebutton_gal_hideexif">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="response_id">0</property>
+                        <property name="receives_default">False</property>
                         <child>
                           <widget class="GtkAlignment" id="alignment7">
                             <property name="visible">True</property>
@@ -1602,6 +1585,7 @@ You should have received a copy of the GNU General Public License along with thi
                                   <packing>
                                     <property name="expand">False</property>
                                     <property name="fill">False</property>
+                                    <property name="position">0</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -1699,7 +1683,6 @@ You should have received a copy of the GNU General Public License along with thi
                       <widget class="GtkEntry" id="entry_gal_name">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="invisible_char">*</property>
                       </widget>
                       <packing>
                         <property name="left_attach">1</property>
@@ -1711,9 +1694,9 @@ You should have received a copy of the GNU General Public License along with thi
                       <widget class="GtkScrolledWindow" id="scrolledwindow9">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="hscrollbar_policy">GTK_POLICY_NEVER</property>
-                        <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                        <property name="shadow_type">GTK_SHADOW_IN</property>
+                        <property name="hscrollbar_policy">never</property>
+                        <property name="vscrollbar_policy">automatic</property>
+                        <property name="shadow_type">in</property>
                         <child>
                           <widget class="GtkViewport" id="viewport7">
                             <property name="visible">True</property>
@@ -1721,7 +1704,7 @@ You should have received a copy of the GNU General Public License along with thi
                               <widget class="GtkTextView" id="textview_gal_desc">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="wrap_mode">GTK_WRAP_WORD</property>
+                                <property name="wrap_mode">word</property>
                                 <property name="accepts_tab">False</property>
                               </widget>
                             </child>
@@ -1805,7 +1788,7 @@ You should have received a copy of the GNU General Public License along with thi
                     <child>
                       <widget class="GtkFileChooserButton" id="filechooserbutton_gal_dest_dir">
                         <property name="visible">True</property>
-                        <property name="action">GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER</property>
+                        <property name="action">select-folder</property>
                         <property name="title" translatable="yes">Select A Folder</property>
                       </widget>
                       <packing>
@@ -1892,47 +1875,60 @@ You should have received a copy of the GNU General Public License along with thi
         <child internal-child="action_area">
           <widget class="GtkHButtonBox" id="dialog-action_area3">
             <property name="visible">True</property>
-            <property name="layout_style">GTK_BUTTONBOX_END</property>
+            <property name="layout_style">end</property>
             <child>
               <widget class="GtkButton" id="button_gal_help">
+                <property name="label">gtk-help</property>
+                <property name="response_id">-11</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
-                <property name="label">gtk-help</property>
+                <property name="receives_default">False</property>
                 <property name="use_stock">True</property>
-                <property name="response_id">-11</property>
               </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
             </child>
             <child>
               <widget class="GtkButton" id="button_gal_cancel">
+                <property name="label">gtk-cancel</property>
+                <property name="response_id">-6</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
-                <property name="label">gtk-cancel</property>
+                <property name="receives_default">False</property>
                 <property name="use_stock">True</property>
-                <property name="response_id">-6</property>
               </widget>
               <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
                 <property name="position">1</property>
               </packing>
             </child>
             <child>
               <widget class="GtkButton" id="button_hal_ok">
+                <property name="label">gtk-ok</property>
+                <property name="response_id">-5</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
-                <property name="label">gtk-ok</property>
+                <property name="receives_default">False</property>
                 <property name="use_stock">True</property>
-                <property name="response_id">-5</property>
               </widget>
               <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
                 <property name="position">2</property>
               </packing>
             </child>
           </widget>
           <packing>
             <property name="expand">False</property>
-            <property name="pack_type">GTK_PACK_END</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
           </packing>
         </child>
       </widget>
@@ -1943,7 +1939,7 @@ You should have received a copy of the GNU General Public License along with thi
     <property name="modal">True</property>
     <property name="default_width">400</property>
     <property name="default_height">500</property>
-    <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
+    <property name="type_hint">dialog</property>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox4">
         <property name="visible">True</property>
@@ -1951,13 +1947,13 @@ You should have received a copy of the GNU General Public License along with thi
           <widget class="GtkScrolledWindow" id="scrolledwindow4">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
-            <property name="hscrollbar_policy">GTK_POLICY_NEVER</property>
-            <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-            <property name="shadow_type">GTK_SHADOW_IN</property>
+            <property name="hscrollbar_policy">never</property>
+            <property name="vscrollbar_policy">automatic</property>
+            <property name="shadow_type">in</property>
             <child>
               <widget class="GtkViewport" id="viewport3">
                 <property name="visible">True</property>
-                <property name="shadow_type">GTK_SHADOW_NONE</property>
+                <property name="shadow_type">none</property>
                 <child>
                   <widget class="GtkTable" id="table6">
                     <property name="visible">True</property>
@@ -1979,9 +1975,9 @@ You should have received a copy of the GNU General Public License along with thi
                     <child>
                       <widget class="GtkFileChooserButton" id="filechooserbutton_pref_templ_dir">
                         <property name="visible">True</property>
-                        <property name="show_hidden">True</property>
                         <property name="local_only">False</property>
-                        <property name="action">GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER</property>
+                        <property name="action">select-folder</property>
+                        <property name="show_hidden">True</property>
                         <property name="title" translatable="yes">Select the default directory for templates</property>
                       </widget>
                       <packing>
@@ -2023,26 +2019,27 @@ You should have received a copy of the GNU General Public License along with thi
                         <property name="visible">True</property>
                         <child>
                           <widget class="GtkRadioButton" id="radiobutton_pref_gen_templ">
+                            <property name="label" translatable="yes">Templates</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="label" translatable="yes">Templates</property>
+                            <property name="receives_default">False</property>
                             <property name="use_underline">True</property>
-                            <property name="response_id">0</property>
                             <property name="active">True</property>
                             <property name="draw_indicator">True</property>
                           </widget>
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">False</property>
+                            <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
                           <widget class="GtkRadioButton" id="radiobutton_pref_gen_prog">
+                            <property name="label" translatable="yes">Program</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="label" translatable="yes">Program</property>
+                            <property name="receives_default">False</property>
                             <property name="use_underline">True</property>
-                            <property name="response_id">0</property>
                             <property name="draw_indicator">True</property>
                             <property name="group">radiobutton_pref_gen_templ</property>
                           </widget>
@@ -2079,7 +2076,7 @@ You should have received a copy of the GNU General Public License along with thi
                       <widget class="GtkToggleButton" id="togglebutton_pref_hideexif">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="response_id">0</property>
+                        <property name="receives_default">False</property>
                         <child>
                           <widget class="GtkAlignment" id="alignment11">
                             <property name="visible">True</property>
@@ -2097,6 +2094,7 @@ You should have received a copy of the GNU General Public License along with thi
                                   <packing>
                                     <property name="expand">False</property>
                                     <property name="fill">False</property>
+                                    <property name="position">0</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -2128,7 +2126,7 @@ You should have received a copy of the GNU General Public License along with thi
                       <widget class="GtkToggleButton" id="togglebutton_pref_rename">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="response_id">0</property>
+                        <property name="receives_default">False</property>
                         <child>
                           <widget class="GtkAlignment" id="alignment12">
                             <property name="visible">True</property>
@@ -2146,6 +2144,7 @@ You should have received a copy of the GNU General Public License along with thi
                                   <packing>
                                     <property name="expand">False</property>
                                     <property name="fill">False</property>
+                                    <property name="position">0</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -2189,9 +2188,10 @@ You should have received a copy of the GNU General Public License along with thi
                     <child>
                       <widget class="GtkFileChooserButton" id="filechooserbutton_pref_templ_image">
                         <property name="visible">True</property>
-                        <property name="show_hidden">True</property>
                         <property name="local_only">False</property>
-                        <property name="title" translatable="yes">Select the default template for index page</property>
+                        <property name="show_hidden">True</property>
+                        <property name="use_preview_label">False</property>
+                        <property name="title" translatable="yes">Select the default template for image page</property>
                       </widget>
                       <packing>
                         <property name="left_attach">1</property>
@@ -2217,9 +2217,9 @@ You should have received a copy of the GNU General Public License along with thi
                     <child>
                       <widget class="GtkFileChooserButton" id="filechooserbutton_pref_templ_indeximg">
                         <property name="visible">True</property>
-                        <property name="show_hidden">True</property>
                         <property name="local_only">False</property>
-                        <property name="title" translatable="yes">Select default template for index page per image</property>
+                        <property name="show_hidden">True</property>
+                        <property name="title" translatable="yes">Select default template for image node in the index page</property>
                       </widget>
                       <packing>
                         <property name="left_attach">1</property>
@@ -2232,9 +2232,9 @@ You should have received a copy of the GNU General Public License along with thi
                     <child>
                       <widget class="GtkFileChooserButton" id="filechooserbutton_pref_templ_index">
                         <property name="visible">True</property>
-                        <property name="show_hidden">True</property>
                         <property name="local_only">False</property>
-                        <property name="title" translatable="yes">Select the default template for image page</property>
+                        <property name="show_hidden">True</property>
+                        <property name="title" translatable="yes">Select the default template for index page</property>
                       </widget>
                       <packing>
                         <property name="left_attach">1</property>
@@ -2247,9 +2247,9 @@ You should have received a copy of the GNU General Public License along with thi
                     <child>
                       <widget class="GtkFileChooserButton" id="filechooserbutton_pref_gal_dir">
                         <property name="visible">True</property>
-                        <property name="show_hidden">True</property>
                         <property name="local_only">False</property>
-                        <property name="action">GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER</property>
+                        <property name="action">select-folder</property>
+                        <property name="show_hidden">True</property>
                         <property name="title" translatable="yes">Select folder for gallery XML files</property>
                       </widget>
                       <packing>
@@ -2263,9 +2263,9 @@ You should have received a copy of the GNU General Public License along with thi
                     <child>
                       <widget class="GtkFileChooserButton" id="filechooserbutton_pref_output_dir">
                         <property name="visible">True</property>
-                        <property name="show_hidden">True</property>
                         <property name="local_only">False</property>
-                        <property name="action">GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER</property>
+                        <property name="action">select-folder</property>
+                        <property name="show_hidden">True</property>
                         <property name="title" translatable="yes">Select the default gallery output directory</property>
                       </widget>
                       <packing>
@@ -2288,6 +2288,9 @@ You should have received a copy of the GNU General Public License along with thi
                             <property name="climb_rate">1</property>
                             <property name="numeric">True</property>
                           </widget>
+                          <packing>
+                            <property name="position">0</property>
+                          </packing>
                         </child>
                         <child>
                           <widget class="GtkSpinButton" id="spinbutton_pref_image_h2">
@@ -2497,9 +2500,9 @@ You should have received a copy of the GNU General Public License along with thi
                     <child>
                       <widget class="GtkFileChooserButton" id="filechooserbutton_pref_img_dir">
                         <property name="visible">True</property>
-                        <property name="show_hidden">True</property>
                         <property name="local_only">False</property>
-                        <property name="action">GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER</property>
+                        <property name="action">select-folder</property>
+                        <property name="show_hidden">True</property>
                         <property name="title" translatable="yes">Select the default image root directory</property>
                       </widget>
                       <packing>
@@ -2531,47 +2534,60 @@ You should have received a copy of the GNU General Public License along with thi
         <child internal-child="action_area">
           <widget class="GtkHButtonBox" id="dialog-action_area4">
             <property name="visible">True</property>
-            <property name="layout_style">GTK_BUTTONBOX_END</property>
+            <property name="layout_style">end</property>
             <child>
               <widget class="GtkButton" id="helpbutton2">
+                <property name="label">gtk-help</property>
+                <property name="response_id">-11</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
-                <property name="label">gtk-help</property>
+                <property name="receives_default">False</property>
                 <property name="use_stock">True</property>
-                <property name="response_id">-11</property>
               </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
             </child>
             <child>
               <widget class="GtkButton" id="cancelbutton2">
+                <property name="label">gtk-cancel</property>
+                <property name="response_id">-6</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
-                <property name="label">gtk-cancel</property>
+                <property name="receives_default">False</property>
                 <property name="use_stock">True</property>
-                <property name="response_id">-6</property>
               </widget>
               <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
                 <property name="position">1</property>
               </packing>
             </child>
             <child>
               <widget class="GtkButton" id="okbutton2">
+                <property name="label">gtk-save</property>
+                <property name="response_id">-5</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
-                <property name="label">gtk-save</property>
+                <property name="receives_default">False</property>
                 <property name="use_stock">True</property>
-                <property name="response_id">-5</property>
               </widget>
               <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
                 <property name="position">2</property>
               </packing>
             </child>
           </widget>
           <packing>
             <property name="expand">False</property>
-            <property name="pack_type">GTK_PACK_END</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
           </packing>
         </child>
       </widget>
@@ -2580,7 +2596,7 @@ You should have received a copy of the GNU General Public License along with thi
   <widget class="GtkDialog" id="dialog_help">
     <property name="title" translatable="yes">Help</property>
     <property name="modal">True</property>
-    <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
+    <property name="type_hint">dialog</property>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox5">
         <property name="visible">True</property>
@@ -2588,8 +2604,8 @@ You should have received a copy of the GNU General Public License along with thi
           <widget class="GtkScrolledWindow" id="scrolledwindow8">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
-            <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-            <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+            <property name="hscrollbar_policy">automatic</property>
+            <property name="vscrollbar_policy">automatic</property>
             <child>
               <widget class="GtkTextView" id="textview_help">
                 <property name="width_request">300</property>
@@ -2597,7 +2613,7 @@ You should have received a copy of the GNU General Public License along with thi
                 <property name="visible">True</property>
                 <property name="pixels_below_lines">5</property>
                 <property name="editable">False</property>
-                <property name="wrap_mode">GTK_WRAP_WORD</property>
+                <property name="wrap_mode">word</property>
                 <property name="cursor_visible">False</property>
               </widget>
             </child>
@@ -2609,21 +2625,28 @@ You should have received a copy of the GNU General Public License along with thi
         <child internal-child="action_area">
           <widget class="GtkHButtonBox" id="dialog-action_area5">
             <property name="visible">True</property>
-            <property name="layout_style">GTK_BUTTONBOX_END</property>
+            <property name="layout_style">end</property>
             <child>
               <widget class="GtkButton" id="okbutton3">
+                <property name="label">gtk-ok</property>
+                <property name="response_id">-5</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
-                <property name="label">gtk-ok</property>
+                <property name="receives_default">False</property>
                 <property name="use_stock">True</property>
-                <property name="response_id">-5</property>
               </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
             </child>
           </widget>
           <packing>
             <property name="expand">False</property>
-            <property name="pack_type">GTK_PACK_END</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
           </packing>
         </child>
       </widget>
