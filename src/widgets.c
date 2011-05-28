@@ -239,32 +239,53 @@ widgets_prefs_show(struct data *data)
     dialog = glade_xml_get_widget( data->glade, "dialog_pref");
     filechooserbutton_pref_img_dir = 
         glade_xml_get_widget(data->glade, "filechooserbutton_pref_img_dir");
+    gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_pref_img_dir), FALSE);
+
     filechooserbutton_pref_output_dir = 
         glade_xml_get_widget(data->glade, "filechooserbutton_pref_output_dir");
+    gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_pref_output_dir), FALSE);
+
     filechooserbutton_pref_gal_dir = 
         glade_xml_get_widget(data->glade,
                              "filechooserbutton_pref_gal_dir");
+    gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_pref_gal_dir), FALSE);
+
     filechooserbutton_pref_templ_dir =
         glade_xml_get_widget(data->glade,
                              "filechooserbutton_pref_templ_dir");
+    gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_pref_templ_dir), FALSE);
+
     filechooserbutton_pref_templ_image =
         glade_xml_get_widget(data->glade,
                              "filechooserbutton_pref_templ_image");
+    gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_pref_templ_image), FALSE);
+
     filechooserbutton_pref_templ_indeximg = 
         glade_xml_get_widget(data->glade,
                              "filechooserbutton_pref_templ_indeximg");
+    gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_pref_templ_indeximg), FALSE);
+
     filechooserbutton_pref_templ_indexgen = 
         glade_xml_get_widget(data->glade,
                              "filechooserbutton_pref_templ_indexgen");
+    gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_pref_templ_indexgen), FALSE);
+
     filechooserbutton_pref_templ_index =
         glade_xml_get_widget(data->glade,
                              "filechooserbutton_pref_templ_index");
+    gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_pref_templ_index), FALSE);
+
     filechooserbutton_pref_templ_gen =
         glade_xml_get_widget(data->glade,
                              "filechooserbutton_pref_templ_gen");
+    gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_pref_templ_gen), FALSE);
+
     filechooserbutton_pref_page_gen_prog =
         glade_xml_get_widget(data->glade,
                              "filechooserbutton_pref_page_gen_prog");
+    gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_pref_page_gen_prog), FALSE);
+
+
     spinbutton_pref_thumb_w = 
         glade_xml_get_widget(data->glade, "spinbutton_pref_thumb_w");
     spinbutton_pref_image_h = 
@@ -377,7 +398,7 @@ widgets_prefs_show(struct data *data)
     data->templ_index = gtk_file_chooser_get_uri(
         GTK_FILE_CHOOSER(filechooserbutton_pref_templ_index));
     g_assert(data->templ_index != NULL);
-    
+
     g_free(data->templ_indeximg);
     data->templ_indeximg = gtk_file_chooser_get_uri(
         GTK_FILE_CHOOSER(filechooserbutton_pref_templ_indeximg));
@@ -478,6 +499,8 @@ widgets_gal_settings_show(struct data *data)
         glade_xml_get_widget(data->glade, "textview_gal_desc");
     filechooserbutton_gal_dest_dir = 
         glade_xml_get_widget(data->glade, "filechooserbutton_gal_dest_dir");
+    gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_gal_dest_dir), FALSE);
+
     spinbutton_gal_thumb_w = 
         glade_xml_get_widget(data->glade, "spinbutton_gal_thumb_w");
     spinbutton_gal_image_h = 
@@ -495,18 +518,30 @@ widgets_gal_settings_show(struct data *data)
     filechooserbutton_gal_page_gen_prog = 
         glade_xml_get_widget( 
             data->glade, "filechooserbutton_gal_page_gen_prog");
+    gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_gal_page_gen_prog), FALSE);
+
     filechooserbutton_gal_templ_index = 
         glade_xml_get_widget(data->glade, "filechooserbutton_gal_templ_index");
+    gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_gal_templ_index), FALSE);
+
     filechooserbutton_gal_templ_indeximg = 
         glade_xml_get_widget( 
             data->glade, "filechooserbutton_gal_templ_indeximg");
+    gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_gal_templ_indeximg), FALSE);
+
     filechooserbutton_gal_templ_indexgen = 
         glade_xml_get_widget( 
             data->glade, "filechooserbutton_gal_templ_indexgen");
+    gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_gal_templ_indexgen), FALSE);
+
     filechooserbutton_gal_templ_image = 
         glade_xml_get_widget(data->glade, "filechooserbutton_gal_templ_image");
+    gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_gal_templ_image), FALSE);
+
     filechooserbutton_gal_templ_gen = 
         glade_xml_get_widget(data->glade, "filechooserbutton_gal_templ_gen");
+    gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_gal_templ_gen), FALSE);
+
     togglebutton_gal_hideexif = 
         glade_xml_get_widget(data->glade, "togglebutton_gal_hideexif");
     togglebutton_gal_rename = 
