@@ -84,6 +84,12 @@ exif_data_get(struct data *data, struct image *img)
     edata = exif_data_new_from_file(filename);
     g_free(filename);
 
+    if (!edata)
+    {
+        g_debug("No EXIF data");
+        return FALSE;
+    }
+
     eifd = edata->ifd[EXIF_IFD_0];
     eentry = exif_content_get_entry(eifd, EXIF_TAG_ORIENTATION);
     eorder = exif_data_get_byte_order(edata);
