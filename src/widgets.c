@@ -216,7 +216,6 @@ widgets_prefs_show(struct data *data)
     GtkWidget *filechooserbutton_pref_output_dir = NULL;
     GtkWidget *filechooserbutton_pref_gal_dir = NULL;
     GtkWidget *radiobutton_pref_gen_templ = NULL;
-    GtkWidget *radiobutton_pref_gen_prog = NULL;
     GtkWidget *filechooserbutton_pref_page_gen_prog = NULL;
     GtkWidget *filechooserbutton_pref_templ_dir = NULL;
     GtkWidget *filechooserbutton_pref_templ_index = NULL;
@@ -298,8 +297,6 @@ widgets_prefs_show(struct data *data)
         glade_xml_get_widget(data->glade, "spinbutton_pref_image_h4");
     radiobutton_pref_gen_templ = 
         glade_xml_get_widget(data->glade, "radiobutton_pref_gen_templ");
-    radiobutton_pref_gen_prog = 
-        glade_xml_get_widget(data->glade, "radiobutton_pref_gen_prog");
     togglebutton_pref_hideexif = 
         glade_xml_get_widget(data->glade, "togglebutton_pref_hideexif");
     togglebutton_pref_rename = 
@@ -345,8 +342,6 @@ widgets_prefs_show(struct data *data)
                               (gdouble)data->image_h4);
      radiobutton_pref_gen_templ = 
         glade_xml_get_widget(data->glade, "radiobutton_pref_gen_templ");
-    radiobutton_pref_gen_prog = 
-        glade_xml_get_widget(data->glade, "radiobutton_pref_gen_prog");
 
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(togglebutton_pref_hideexif),
                                  data->remove_exif);
@@ -723,7 +718,6 @@ widgets_help_show(struct data *data, const gchar *helptext)
 	GtkWidget     *dialog;
     GtkWidget     *textview;
     GtkTextBuffer *buffer;
-    gint          result;
 
 	g_assert(data != NULL);
 	g_assert(helptext != NULL);
@@ -737,7 +731,7 @@ widgets_help_show(struct data *data, const gchar *helptext)
     gtk_text_buffer_set_text(buffer, helptext, -1);
 
     /* show help dialog */
-    result = gtk_dialog_run(GTK_DIALOG(dialog));    
+    gtk_dialog_run(GTK_DIALOG(dialog));    
     gtk_widget_hide(dialog);
 }
 
@@ -756,8 +750,6 @@ widgets_set_image_information(struct data *data, struct image *img)
 	GtkWidget     *radiobutton_rotate_180 = NULL;
 	GtkWidget     *radiobutton_rotate_270 = NULL;
 	GtkWidget     *radiobutton_rotate_other = NULL;
-	GtkWidget     *radiobutton_gal_img_image = NULL;
-	GtkWidget     *radiobutton_gal_img_generic = NULL;
     GtkTextBuffer *buffer;
 
 	g_assert(data != NULL);
@@ -787,10 +779,6 @@ widgets_set_image_information(struct data *data, struct image *img)
         glade_xml_get_widget( data->glade, "radiobutton_rotate_270");
     radiobutton_rotate_other = 
         glade_xml_get_widget( data->glade, "radiobutton_rotate_other");
-    radiobutton_gal_img_image = 
-        glade_xml_get_widget( data->glade, "radiobutton_gal_img_image");
-    radiobutton_gal_img_generic = 
-        glade_xml_get_widget( data->glade, "radiobutton_gal_img_generic");
 
     if (img != NULL)
     {

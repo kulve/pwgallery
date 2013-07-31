@@ -472,7 +472,7 @@ action_show_preferences(gpointer user_data)
 
     data = user_data;
 
-    widgets_prefs_show(user_data);
+    widgets_prefs_show(data);
 }
 
 
@@ -491,7 +491,7 @@ action_gal_show_settings(gpointer user_data)
 
     data = user_data;
 
-    widgets_gal_settings_show(user_data);
+    widgets_gal_settings_show(data);
 }
 
 
@@ -744,7 +744,7 @@ static void update_preview_cb(GtkFileChooser *file_chooser, gpointer data)
     
     gtk_image_set_from_pixbuf(GTK_IMAGE(preview), pixbuf);
     if (pixbuf)
-        gdk_pixbuf_unref(pixbuf);
+        g_object_unref(pixbuf);
     
     gtk_file_chooser_set_preview_widget_active (file_chooser, have_preview);
 }

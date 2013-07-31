@@ -583,7 +583,6 @@ gallery_slide_show(struct data *data)
         /* No images, notify the user */
         GtkWidget *label;
         GtkWidget *dialog;
-        int result;
         dialog = gtk_dialog_new_with_buttons(_("No images to show!"),
                                              GTK_WINDOW(data->top_window),
                                              GTK_DIALOG_MODAL | 
@@ -600,7 +599,7 @@ gallery_slide_show(struct data *data)
                            label);
         gtk_widget_show(label);
         
-        result = gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_dialog_run(GTK_DIALOG(dialog));
         gtk_widget_destroy (dialog);
         return;
     }
