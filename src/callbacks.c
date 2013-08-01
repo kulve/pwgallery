@@ -30,7 +30,6 @@
 
 #include <glib.h>
 #include <gtk/gtk.h>
-#include <glade/glade-xml.h>
 #include <libgnomevfs/gnome-vfs.h>
 
 #define PWGALLERY_IMAGE_MOVE_TOP      1

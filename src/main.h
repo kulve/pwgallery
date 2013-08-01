@@ -25,9 +25,8 @@
 #endif
 
 
-/* Glade XML file (a local file, not a file:// uri because of glade) */
-#define PWGALLERY_GLADE_FILE               PACKAGE_DATA_DIR "/" \
-                                           "pwgallery.glade"   
+/* GtkBuilder XML file (a local file, not a file:// uri because of builder) */
+#define PWGALLERY_BUILDER_FILE             PACKAGE_DATA_DIR "/pwgallery.ui"
 /* Template directory for copying templates per user*/
 #define PWGALLERY_SYSTEM_TEMPLATE_DIR      "file://" PACKAGE_DATA_DIR "/" \
                                            "templates"
@@ -140,12 +139,11 @@
 
 #include <glib.h>
 #include <gtk/gtk.h>
-#include <glade/glade-xml.h>
 
 
 struct data
 {
-    GladeXML       *glade;             /* Glade XML */
+    GtkBuilder     *builder;           /* GtkBuilder */
     GtkWidget      *top_window;        /* pointer to top level window */
     GtkWidget      *ss_window;         /* pointer to slide show window */
     struct gallery *gal;               /* pointer to current gallery */

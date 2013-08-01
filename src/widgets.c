@@ -49,7 +49,7 @@ widgets_update_table(struct data *data)
 
     g_assert(data);
     
-    table = glade_xml_get_widget( data->glade, "table_thumb");
+    table = GTK_WIDGET(gtk_builder_get_object(data->builder, "table_thumb"));
 	g_assert(table != NULL);
 
     listlen = g_slist_length(data->gal->images);
@@ -88,7 +88,7 @@ widgets_update_table(struct data *data)
     }
     /* get adjustment */
     scrolledwindow = 
-        glade_xml_get_widget( data->glade, "scrolledwindow_thumbnails");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "scrolledwindow_thumbnails"));
 	g_assert(scrolledwindow != NULL);
     
     adjust = gtk_scrolled_window_get_vadjustment(
@@ -148,7 +148,7 @@ widgets_set_progress(struct data *data, gfloat fraction, const gchar *text)
     }
 
 	if (pbar == NULL)
-		pbar = glade_xml_get_widget( data->glade, "progressbar_status");
+		pbar = GTK_WIDGET(gtk_builder_get_object(data->builder, "progressbar_status"));
 	g_assert(pbar != NULL);
 
 	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pbar), fraction);
@@ -172,7 +172,7 @@ widgets_set_status(struct data *data, const gchar *text)
     }
 
 	if (label == NULL)
-		label = glade_xml_get_widget( data->glade, "label_pwg_status");
+		label = GTK_WIDGET(gtk_builder_get_object(data->builder, "label_pwg_status"));
 	g_assert(label != NULL);
 
 	gtk_label_set_text(GTK_LABEL(label), text);
@@ -193,7 +193,7 @@ widgets_image_get_text(struct data *data)
     g_assert(data != NULL);
     g_assert(data->current_img != NULL);
 
-    textview = glade_xml_get_widget(data->glade, "textview_image_desc");
+    textview = GTK_WIDGET(gtk_builder_get_object(data->builder, "textview_image_desc"));
     g_assert(textview);
 
     buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview));
@@ -235,72 +235,72 @@ widgets_prefs_show(struct data *data)
 	g_assert(data != NULL);
 
     /* Get widgets */
-    dialog = glade_xml_get_widget( data->glade, "dialog_pref");
+    dialog = GTK_WIDGET(gtk_builder_get_object(data->builder, "dialog_pref"));
     filechooserbutton_pref_img_dir = 
-        glade_xml_get_widget(data->glade, "filechooserbutton_pref_img_dir");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "filechooserbutton_pref_img_dir"));
     gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_pref_img_dir), FALSE);
 
     filechooserbutton_pref_output_dir = 
-        glade_xml_get_widget(data->glade, "filechooserbutton_pref_output_dir");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "filechooserbutton_pref_output_dir"));
     gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_pref_output_dir), FALSE);
 
     filechooserbutton_pref_gal_dir = 
-        glade_xml_get_widget(data->glade,
-                             "filechooserbutton_pref_gal_dir");
+        GTK_WIDGET(gtk_builder_get_object(data->builder,
+                                          "filechooserbutton_pref_gal_dir"));
     gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_pref_gal_dir), FALSE);
 
     filechooserbutton_pref_templ_dir =
-        glade_xml_get_widget(data->glade,
-                             "filechooserbutton_pref_templ_dir");
+        GTK_WIDGET(gtk_builder_get_object(data->builder,
+                                          "filechooserbutton_pref_templ_dir"));
     gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_pref_templ_dir), FALSE);
 
     filechooserbutton_pref_templ_image =
-        glade_xml_get_widget(data->glade,
-                             "filechooserbutton_pref_templ_image");
+        GTK_WIDGET(gtk_builder_get_object(data->builder,
+                                          "filechooserbutton_pref_templ_image"));
     gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_pref_templ_image), FALSE);
 
     filechooserbutton_pref_templ_indeximg = 
-        glade_xml_get_widget(data->glade,
-                             "filechooserbutton_pref_templ_indeximg");
+        GTK_WIDGET(gtk_builder_get_object(data->builder,
+                                          "filechooserbutton_pref_templ_indeximg"));
     gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_pref_templ_indeximg), FALSE);
 
     filechooserbutton_pref_templ_indexgen = 
-        glade_xml_get_widget(data->glade,
-                             "filechooserbutton_pref_templ_indexgen");
+        GTK_WIDGET(gtk_builder_get_object(data->builder,
+                                          "filechooserbutton_pref_templ_indexgen"));
     gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_pref_templ_indexgen), FALSE);
 
     filechooserbutton_pref_templ_index =
-        glade_xml_get_widget(data->glade,
-                             "filechooserbutton_pref_templ_index");
+        GTK_WIDGET(gtk_builder_get_object(data->builder,
+                                          "filechooserbutton_pref_templ_index"));
     gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_pref_templ_index), FALSE);
 
     filechooserbutton_pref_templ_gen =
-        glade_xml_get_widget(data->glade,
-                             "filechooserbutton_pref_templ_gen");
+        GTK_WIDGET(gtk_builder_get_object(data->builder,
+                                          "filechooserbutton_pref_templ_gen"));
     gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_pref_templ_gen), FALSE);
 
     filechooserbutton_pref_page_gen_prog =
-        glade_xml_get_widget(data->glade,
-                             "filechooserbutton_pref_page_gen_prog");
+        GTK_WIDGET(gtk_builder_get_object(data->builder,
+                                          "filechooserbutton_pref_page_gen_prog"));
     gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_pref_page_gen_prog), FALSE);
 
 
     spinbutton_pref_thumb_w = 
-        glade_xml_get_widget(data->glade, "spinbutton_pref_thumb_w");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "spinbutton_pref_thumb_w"));
     spinbutton_pref_image_h = 
-        glade_xml_get_widget(data->glade, "spinbutton_pref_image_h");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "spinbutton_pref_image_h"));
     spinbutton_pref_image_h2 = 
-        glade_xml_get_widget(data->glade, "spinbutton_pref_image_h2");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "spinbutton_pref_image_h2"));
     spinbutton_pref_image_h3 = 
-        glade_xml_get_widget(data->glade, "spinbutton_pref_image_h3");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "spinbutton_pref_image_h3"));
     spinbutton_pref_image_h4 = 
-        glade_xml_get_widget(data->glade, "spinbutton_pref_image_h4");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "spinbutton_pref_image_h4"));
     radiobutton_pref_gen_templ = 
-        glade_xml_get_widget(data->glade, "radiobutton_pref_gen_templ");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "radiobutton_pref_gen_templ"));
     togglebutton_pref_hideexif = 
-        glade_xml_get_widget(data->glade, "togglebutton_pref_hideexif");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "togglebutton_pref_hideexif"));
     togglebutton_pref_rename = 
-        glade_xml_get_widget(data->glade, "togglebutton_pref_rename");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "togglebutton_pref_rename"));
 
     /* Set values */
     gtk_file_chooser_set_uri(
@@ -341,7 +341,7 @@ widgets_prefs_show(struct data *data)
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton_pref_image_h4),
                               (gdouble)data->image_h4);
      radiobutton_pref_gen_templ = 
-        glade_xml_get_widget(data->glade, "radiobutton_pref_gen_templ");
+         GTK_WIDGET(gtk_builder_get_object(data->builder, "radiobutton_pref_gen_templ"));
 
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(togglebutton_pref_hideexif),
                                  data->remove_exif);
@@ -485,62 +485,59 @@ widgets_gal_settings_show(struct data *data)
 	g_assert(data != NULL);
 
     /* Get widgets */
-    dialog = glade_xml_get_widget(data->glade, "dialog_gal");
+    dialog = GTK_WIDGET(gtk_builder_get_object(data->builder, "dialog_gal"));
     entry_gal_name = 
-        glade_xml_get_widget(data->glade, "entry_gal_name");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "entry_gal_name"));
     entry_gal_dir_name = 
-        glade_xml_get_widget(data->glade, "entry_gal_dir_name");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "entry_gal_dir_name"));
     textview_gal_desc = 
-        glade_xml_get_widget(data->glade, "textview_gal_desc");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "textview_gal_desc"));
     filechooserbutton_gal_dest_dir = 
-        glade_xml_get_widget(data->glade, "filechooserbutton_gal_dest_dir");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "filechooserbutton_gal_dest_dir"));
     gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_gal_dest_dir), FALSE);
 
     spinbutton_gal_thumb_w = 
-        glade_xml_get_widget(data->glade, "spinbutton_gal_thumb_w");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "spinbutton_gal_thumb_w"));
     spinbutton_gal_image_h = 
-        glade_xml_get_widget(data->glade, "spinbutton_gal_image_h");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "spinbutton_gal_image_h"));
     spinbutton_gal_image_h2 = 
-        glade_xml_get_widget(data->glade, "spinbutton_gal_image_h2");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "spinbutton_gal_image_h2"));
     spinbutton_gal_image_h3 = 
-        glade_xml_get_widget(data->glade, "spinbutton_gal_image_h3");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "spinbutton_gal_image_h3"));
     spinbutton_gal_image_h4 = 
-        glade_xml_get_widget(data->glade, "spinbutton_gal_image_h4");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "spinbutton_gal_image_h4"));
     radiobutton_gal_gen_templ = 
-        glade_xml_get_widget(data->glade, "radiobutton_gal_gen_templ");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "radiobutton_gal_gen_templ"));
     radiobutton_gal_gen_prog = 
-        glade_xml_get_widget(data->glade, "radiobutton_gal_gen_prog");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "radiobutton_gal_gen_prog"));
     filechooserbutton_gal_page_gen_prog = 
-        glade_xml_get_widget( 
-            data->glade, "filechooserbutton_gal_page_gen_prog");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "filechooserbutton_gal_page_gen_prog"));
     gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_gal_page_gen_prog), FALSE);
 
     filechooserbutton_gal_templ_index = 
-        glade_xml_get_widget(data->glade, "filechooserbutton_gal_templ_index");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "filechooserbutton_gal_templ_index"));
     gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_gal_templ_index), FALSE);
 
     filechooserbutton_gal_templ_indeximg = 
-        glade_xml_get_widget( 
-            data->glade, "filechooserbutton_gal_templ_indeximg");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "filechooserbutton_gal_templ_indeximg"));
     gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_gal_templ_indeximg), FALSE);
 
     filechooserbutton_gal_templ_indexgen = 
-        glade_xml_get_widget( 
-            data->glade, "filechooserbutton_gal_templ_indexgen");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "filechooserbutton_gal_templ_indexgen"));
     gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_gal_templ_indexgen), FALSE);
 
     filechooserbutton_gal_templ_image = 
-        glade_xml_get_widget(data->glade, "filechooserbutton_gal_templ_image");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "filechooserbutton_gal_templ_image"));
     gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_gal_templ_image), FALSE);
 
     filechooserbutton_gal_templ_gen = 
-        glade_xml_get_widget(data->glade, "filechooserbutton_gal_templ_gen");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "filechooserbutton_gal_templ_gen"));
     gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(filechooserbutton_gal_templ_gen), FALSE);
 
     togglebutton_gal_hideexif = 
-        glade_xml_get_widget(data->glade, "togglebutton_gal_hideexif");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "togglebutton_gal_hideexif"));
     togglebutton_gal_rename = 
-        glade_xml_get_widget(data->glade, "togglebutton_gal_rename");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "togglebutton_gal_rename"));
 
 
     /* Set values */
@@ -703,7 +700,7 @@ void widgets_about_show(struct data *data)
 
     g_assert(data != NULL);
 
-    dialog = glade_xml_get_widget( data->glade, "aboutdialog");
+    dialog = GTK_WIDGET(gtk_builder_get_object(data->builder, "aboutdialog"));
 	g_assert(dialog != NULL);
 
     gtk_dialog_run(GTK_DIALOG(dialog));
@@ -723,8 +720,8 @@ widgets_help_show(struct data *data, const gchar *helptext)
 	g_assert(helptext != NULL);
 
     /* Get widgets */
-    dialog = glade_xml_get_widget( data->glade, "dialog_help");
-    textview = glade_xml_get_widget( data->glade, "textview_help");
+    dialog = GTK_WIDGET(gtk_builder_get_object(data->builder, "dialog_help"));
+    textview = GTK_WIDGET(gtk_builder_get_object(data->builder, "textview_help"));
 
     /* Set values */
     buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview));
@@ -762,23 +759,23 @@ widgets_set_image_information(struct data *data, struct image *img)
 
     /* Get widgets */
     label_filename = 
-        glade_xml_get_widget( data->glade, "label_filename");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "label_filename"));
     entry_gal_img_rename = 
-        glade_xml_get_widget( data->glade, "entry_gal_img_rename");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "entry_gal_img_rename"));
     textview_image_desc = 
-        glade_xml_get_widget( data->glade, "textview_image_desc");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "textview_image_desc"));
     check_settings_nomodify = 
-        glade_xml_get_widget( data->glade, "check_settings_nomodify");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "check_settings_nomodify"));
     radiobutton_rotate_0 = 
-        glade_xml_get_widget( data->glade, "radiobutton_rotate_0");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "radiobutton_rotate_0"));
     radiobutton_rotate_90 = 
-        glade_xml_get_widget( data->glade, "radiobutton_rotate_90");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "radiobutton_rotate_90"));
     radiobutton_rotate_180 = 
-        glade_xml_get_widget( data->glade, "radiobutton_rotate_180");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "radiobutton_rotate_180"));
     radiobutton_rotate_270 = 
-        glade_xml_get_widget( data->glade, "radiobutton_rotate_270");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "radiobutton_rotate_270"));
     radiobutton_rotate_other = 
-        glade_xml_get_widget( data->glade, "radiobutton_rotate_other");
+        GTK_WIDGET(gtk_builder_get_object(data->builder, "radiobutton_rotate_other"));
 
     if (img != NULL)
     {

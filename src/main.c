@@ -34,16 +34,7 @@
 
 #include <glib.h>
 #include <gtk/gtk.h>
-#include <glade/glade-xml.h>
 #include <libgnomevfs/gnome-vfs.h>
-
-static void glade_xml_connect_func(const gchar *handler_name,
-                                   GObject *object,
-                                   const gchar *signal_name,
-                                   const gchar *signal_data,
-                                   GObject *connect_object,
-                                   gboolean after,
-                                   gpointer user_data);
 
 static struct data *init_data(void);
 static void init_pwgallery(struct data *data);
@@ -109,8 +100,7 @@ main(int argc, char *argv[])
         /* Start GUI */
 
         /* connect signals */
-        glade_xml_signal_autoconnect_full(data->glade, glade_xml_connect_func,
-                                          data);
+        gtk_builder_connect_signals(data->builder, data);
         
         /* show main window */
         gtk_widget_show_all(data->top_window);
@@ -121,49 +111,6 @@ main(int argc, char *argv[])
     free_data(data);
 
     exit(EXIT_SUCCESS);
-}
-
-/*
- * Connect signals. 
- *
- * This is mainly copy paste from GnuCash.
- */
-static void
-glade_xml_connect_func(const gchar *handler_name,
-                       GObject *object,
-                       const gchar *signal_name,
-                       const gchar *signal_data,
-                       GObject *connect_object,
-                       gboolean after,
-                       gpointer user_data)
-{
-    static GModule *allsymbols = NULL;
-    GtkSignalFunc func;
-    GtkSignalFunc *p_func = &func;
-
-    if (allsymbols == NULL) {
-        /* get a handle on the main executable -- use this to find symbols */
-        allsymbols = g_module_open(NULL, 0);
-    }
-    
-    if (!g_module_symbol(allsymbols, handler_name, (gpointer *)p_func)) {
-        g_warning("could not find signal handler '%s'.", handler_name);
-        return;
-    }
-    
-    if (connect_object) {
-        if (after)
-            g_signal_connect_after(object, signal_name, func, connect_object);
-        else
-            g_signal_connect(object, signal_name, func, connect_object);
-    } else {
-
-        if (after)
-            g_signal_connect_after(object, signal_name, func, user_data);
-        else
-            g_signal_connect(object, signal_name, func, user_data);
-    }
-
 }
 
 
@@ -200,27 +147,31 @@ init_pwgallery(struct data *data)
     if (data->use_gui) { 
         gchar gladefile[PATH_MAX];
         gchar *dir;
+        gchar *filep;
+        GError* error = NULL;
 
         dir = g_get_current_dir();
 
         g_snprintf(gladefile, PATH_MAX, "%s/%s", 
-                   dir, "src/glade/pwgallery.glade");
+                   dir, "src/glade/pwgallery.ui");
         g_free(dir);
 
         if (vfs_is_file(data, gladefile)) {
             g_debug("Loading glade file from source tree.");
-            data->glade = glade_xml_new(gladefile, NULL, NULL);
+            filep = gladefile;
         } else {
-            data->glade = glade_xml_new(PWGALLERY_GLADE_FILE, NULL, NULL);
+            filep = PWGALLERY_BUILDER_FILE;
         }
 
-        if (data->glade == NULL) {
-            g_warning("Error reading glade file: %s\n", PWGALLERY_GLADE_FILE);
+        data->builder = gtk_builder_new();
+        if (!gtk_builder_add_from_file(data->builder, filep, &error))  {
+            g_warning ("Couldn't load builder file: %s", error->message);
+            g_error_free(error);
             exit(1);
         }
-        
+
         /* find top level window */
-        data->top_window = glade_xml_get_widget(data->glade, "mainwindow");
+        data->top_window = GTK_WIDGET(gtk_builder_get_object(data->builder, "mainwindow"));
         g_assert(data->top_window);
     }
 }
@@ -253,8 +204,8 @@ free_data(struct data *data)
         gallery_free(data);
     }
 
-    if (data->glade) {
-        g_object_unref(data->glade);
+    if (data->builder) {
+        g_object_unref(data->builder);
     }
     g_free(data->img_dir);
     g_free(data->output_dir);

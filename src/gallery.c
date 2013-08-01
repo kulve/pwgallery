@@ -733,7 +733,7 @@ gallery_open_images(struct data *data, GSList *imgs)
 	tot_files = g_slist_length(imgs); /* number of images to open */
 	file_counter = 0;
 	
-	pbar = glade_xml_get_widget( data->glade, "progressbar_status");
+	pbar = GTK_WIDGET(gtk_builder_get_object(data->builder, "progressbar_status"));
 	g_assert(pbar != NULL);
 
 	widgets_set_status(data, _("Opening images"));
