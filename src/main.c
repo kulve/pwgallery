@@ -54,8 +54,6 @@ main(int argc, char *argv[])
     struct data *data;
     int r;
  
-    g_type_init(); /* Initialize glib type system before using anything */
-
 #ifdef ENABLE_NLS
     bindtextdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
     bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
@@ -78,9 +76,6 @@ main(int argc, char *argv[])
 
     if (data->use_gui) {
         gtk_init(&argc, &argv);
-        if (!g_thread_supported ()){
-            g_thread_init (NULL);
-        }
     }
 
     /* set critical to be always fatal */
