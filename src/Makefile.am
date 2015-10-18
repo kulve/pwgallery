@@ -6,6 +6,7 @@ bin_PROGRAMS = pwgallery
 pwgallery_LDADD = $(GTK_LIBS) $(IMAGEMAGICK_LIBS) $(WAND_LIBS) $(GLADE_LIBS) \
 	$(GNOMEVFS_LIBS) $(GMODULE_LIBS) $(XML_LIBS) $(EXIF_LIBS)
 pwgallery_LDFLAGS = -export-dynamic
+pwgallery_CFLAGS = -DGLIB_DISABLE_DEPRECATION_WARNINGS
 pwgallery_SOURCES = main.c main.h \
 	callbacks.c callbacks.h \
 	image.c image.h \
