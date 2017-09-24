@@ -27,6 +27,7 @@
 #include "gallery.h"
 
 #include <glib.h>
+#include <string.h> // strlen
 
 #include <libxml/parser.h>
 
@@ -107,8 +108,8 @@ xml_gal_write(struct data *data, gsize *len)
     g_snprintf(tmp_setting, 256, "%d", data->gal->image_h4);
     xmlNewChild(settings, NULL, BAD_CAST "image_h4", BAD_CAST tmp_setting);
 
-    xmlNewChild(settings, NULL, BAD_CAST "edited", 
-                BAD_CAST (data->gal->edited ? "true" : "false"));
+    /* Write edited always as false */
+    xmlNewChild(settings, NULL, BAD_CAST "edited", BAD_CAST "false");
 
     xmlNewChild(settings, NULL, BAD_CAST "remove_exif", 
                 BAD_CAST (data->gal->remove_exif ? "true" : "false"));
@@ -382,10 +383,8 @@ parse_gal_settings(struct data *data, xmlNodePtr node)
         else if ((!xmlStrcmp(node->name, (const xmlChar *) "edited")))
         {
             xmlChar *str = xmlNodeGetContent(node);
-            if ((!xmlStrcmp(str, (const xmlChar *) "true")))
-                data->gal->edited = 1;
-            else
-                data->gal->edited = 0;
+            // Parse edited always as false
+            data->gal->edited = 0;
             xmlFree(str);
         }
         else if ((!xmlStrcmp(node->name, (const xmlChar *) "remove_exif")))
@@ -465,7 +464,11 @@ parse_image_settings(struct data *data, xmlNodePtr node)
         else if ((!xmlStrcmp(node->name, (const xmlChar *) "gamma")))
         {
             gchar *tmpstr = (gchar *)xmlNodeGetContent(node);
-            img->gamma = (gfloat)g_ascii_strtod(tmpstr, NULL);
+            if (strlen(tmpstr) == 0) {
+                img->gamma = 1;
+            } else {
+                img->gamma = (gfloat)g_ascii_strtod(tmpstr, NULL);
+            }
             xmlFree((xmlChar*)tmpstr);
         }
         else if ((!xmlStrcmp(node->name, (const xmlChar *) "rotate")))
