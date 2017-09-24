@@ -438,6 +438,33 @@ gallery_make(struct data *data)
 
     g_debug("in gallery_make");
 
+    /* Verify that the template files exists */
+    if (!vfs_is_file(data, data->gal->templ_index) ||
+        !vfs_is_file(data, data->gal->templ_indeximg) ||
+        !vfs_is_file(data, data->gal->templ_image)) {
+        GtkWidget *label;
+        dialog = gtk_dialog_new_with_buttons(_("One of the templates not found!"),
+                                             GTK_WINDOW(data->top_window),
+                                             GTK_DIALOG_MODAL |
+                                             GTK_DIALOG_DESTROY_WITH_PARENT,
+                                             GTK_STOCK_OK,
+                                             GTK_RESPONSE_OK,
+                                             NULL);
+
+
+        label = gtk_label_new(_("Check that all template files exists \n"
+                                "Check from menu: Gallery -> Settings.\n"));
+
+        gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox),
+                           label);
+        gtk_widget_show(label);
+
+        result = gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy (dialog);
+
+        return;
+    }
+
     /* Make sure that dir_name is non-empty (to avoid e.g. trying to
        rename file://tmp */
     if (data->gal->dir_name[0] == '\0') {
