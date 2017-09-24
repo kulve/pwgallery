@@ -173,7 +173,20 @@ html_make_index_page(struct data *data)
         /* thumb_h */
         g_snprintf(tmpbuf, 1024, "%d", image->thumb_h);
         _tag_replace(&tmp, TAG_INDEX_THUMB_H, tmpbuf);
-        
+
+        /* image width */
+        g_snprintf(tmpbuf, 1024, "%d", size->width);
+        _tag_replace(&tmp, TAG_IMAGE_W, tmpbuf);
+
+        /* image height */
+        g_snprintf(tmpbuf, 1024, "%d", size->height);
+        _tag_replace(&tmp, TAG_IMAGE_H, tmpbuf);
+
+        /* image link */
+        g_snprintf(tmpbuf, 1024, "images/%s.%s",
+                   image->basefilename, image->ext);
+        _tag_replace(&tmp, TAG_IMAGE_LINK, tmpbuf);
+
         /* thumb_alt */
         g_snprintf(tmpbuf, 1024, "%dKb", size->size);
         _tag_replace(&tmp, TAG_INDEX_THUMB_ALT, tmpbuf);
