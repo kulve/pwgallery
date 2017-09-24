@@ -150,8 +150,8 @@ struct data
     struct image   *current_img;       /* Currently selected image */
     struct image   *current_ss_img;    /* Currently slideshowed image */
     struct image   *ss_resize_img;     /* Currently resized ss image */
-    GCond          *ss_data_cond;      /* Slideshow "new data" condition */
-    GMutex         *ss_data_mutex;     /* Slideshow "new data" mutex */
+    GCond          ss_data_cond;      /* Slideshow "new data" condition */
+    GMutex         ss_data_mutex;     /* Slideshow "new data" mutex */
     gboolean       ss_show_text;       /* Show description in slide show */
     gboolean       *text_edited;       /* Content of textview is changed*/
 

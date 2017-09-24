@@ -629,8 +629,8 @@ gallery_slide_show(struct data *data)
 
     gtk_widget_show_all(data->ss_window);
 
-    data->ss_data_cond = g_cond_new();
-    data->ss_data_mutex = g_mutex_new();
+    g_cond_init(&data->ss_data_cond);
+    g_mutex_init(&data->ss_data_mutex);
 
     data->ss_stop = FALSE;
     data->ss_show_text = TRUE;
@@ -988,10 +988,9 @@ _make_thumbnails(struct data *data)
             td->image = image;
             td->thumb_uri = g_strdup(thumb_uri);
             
-            threads[cpu_index] = g_thread_create(_thread_make_thumb,
-                                                 (void*)td,
-                                                 TRUE,
-                                                 NULL);
+            threads[cpu_index] = g_thread_new("make_thumb",
+                                              _thread_make_thumb,
+                                              (void*)td);
             g_free(thumb_uri);
             
             images = images->next;
@@ -1179,10 +1178,9 @@ _make_webimages(struct data *data)
                 td->img_uri = g_strdup(img_uri);
 
 
-                threads[cpu_index] = g_thread_create(_thread_make_image,
-                                                     (void*)td,
-                                                     TRUE,
-                                                     NULL);
+                threads[cpu_index] = g_thread_new("make_image",
+                                                  _thread_make_image,
+                                                  (void*)td);
 
                 g_free(img_uri);
                 
@@ -1359,10 +1357,9 @@ ss_load_next(gpointer user_data)
         data->current_ss_img = data->gal->images->data;
 
         /* Start a thread loading images */
-        data->ss_thread = g_thread_create(ss_loading_thread,
-                                          data,
-                                          FALSE,
-                                          NULL);
+        data->ss_thread = g_thread_new("load",
+                                       ss_loading_thread,
+                                       data);
 
     } else {
         current_image = g_slist_find(data->gal->images, data->current_ss_img);
@@ -1401,15 +1398,8 @@ ss_stop(struct data *data)
 
     data->ss_stop = TRUE;
 
-    if (data->ss_data_mutex != NULL) {
-        g_mutex_free(data->ss_data_mutex);
-        data->ss_data_mutex = NULL;
-    }
-        
-    if (data->ss_data_cond != NULL) {
-        g_cond_free(data->ss_data_cond);
-        data->ss_data_cond = NULL;
-    }
+    g_mutex_clear(&data->ss_data_mutex);
+    g_cond_clear(&data->ss_data_cond);
 
     if (data->ss_window != NULL) {
         gtk_widget_destroy(data->ss_window);
@@ -1609,7 +1599,7 @@ ss_loading_thread(gpointer user_data)
                 /* Signal viewer thread about new image data */
                 g_debug("%s: Signalling viewer thread about new data",
                         __func__);
-                g_cond_signal(data->ss_data_cond);
+                g_cond_signal(&data->ss_data_cond);
             }
 
             /* Clean up old image data */
@@ -1668,11 +1658,11 @@ ss_show_image(struct data *data)
 
     /* Wait for pixbuf data, if not exist yet */
     g_debug("%s: waiting for data", __func__);
-    g_mutex_lock(data->ss_data_mutex);
+    g_mutex_lock(&data->ss_data_mutex);
     while (!data->current_ss_img->ss_pixbuf) {
-        g_cond_wait(data->ss_data_cond, data->ss_data_mutex);
+        g_cond_wait(&data->ss_data_cond, &data->ss_data_mutex);
     }
-    g_mutex_unlock(data->ss_data_mutex);
+    g_mutex_unlock(&data->ss_data_mutex);
     g_debug("%s: got data", __func__);
 
 
