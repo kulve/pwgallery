@@ -150,8 +150,8 @@ struct data
     struct image   *current_img;       /* Currently selected image */
     struct image   *current_ss_img;    /* Currently slideshowed image */
     struct image   *ss_resize_img;     /* Currently resized ss image */
-    GCond          ss_data_cond;      /* Slideshow "new data" condition */
-    GMutex         ss_data_mutex;     /* Slideshow "new data" mutex */
+    GCond          ss_data_cond;       /* Slideshow "new data" condition */
+    GMutex         ss_data_mutex;      /* Slideshow "new data" mutex */
     gboolean       ss_show_text;       /* Show description in slide show */
     gboolean       *text_edited;       /* Content of textview is changed*/
 
@@ -161,8 +161,9 @@ struct data
     gboolean       ss_stop;            /* Flag for loading thread to exit */
 
     gboolean       use_gui;            /* do we want to show GUI */
+    gboolean       arg_regen;          /* regen list of galleries (cmdline) */
     gchar          *arg_new;           /* create new gallery (cmdline) */
-    GSList         *arg_new_imgs;      /* List of images for the new gallery */
+    GSList         *arg_files;         /* List of files */
 
     gchar          *img_dir;           /* image directory */
     gchar          *output_dir;        /* Default gallery's output dir */

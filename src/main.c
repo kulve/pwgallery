@@ -45,8 +45,10 @@ static void print_usage(const char *self);
 static void print_version(const char *self);
 
 static void new_gallery(struct data *data);
+static void regen_galleries(struct data *data);
+static void regen_gallery(struct data *data, gchar *uri);
 
-static void generate_img_gslist(struct data *data, int argc, char *argv[]);
+static void generate_file_gslist(struct data *data, int argc, char *argv[]);
 
 int
 main(int argc, char *argv[])
@@ -91,6 +93,8 @@ main(int argc, char *argv[])
         /* Create new gallery without GUI */
         new_gallery(data);
         gallery_save(data);
+    } else if (data->arg_regen) {
+        regen_galleries(data);
     } else {
         /* Start GUI */
 
@@ -181,17 +185,16 @@ free_data(struct data *data)
 {
     g_assert(data);
 
-
     /* Free image list for create new gallery cmdline argument */
-    if (data->arg_new_imgs != NULL) {
+    if (data->arg_files != NULL) {
         GSList *list;
-        list = data->arg_new_imgs;
+        list = data->arg_files;
         while(list) {
             g_free(list->data);
             list->data = NULL;
             list = list->next;
         }
-        g_slist_free(data->arg_new_imgs);
+        g_slist_free(data->arg_files);
     }
 
 
@@ -236,9 +239,10 @@ parse_args(struct data *data, int argc, char *argv[])
 			{"help",	0, 0, 'h'},
 			{"version",	0, 0, 'v'},
 			{"new",	1, 0, 'n'},
+			{"regen",	0, 0, 'r'},
 			{0,		0, 0, 0}
 		};
-		c = getopt_long(argc, argv, "hvn:", 
+		c = getopt_long(argc, argv, "hvn:r",
 				long_options, &option_index);
 		if (c == -1) {
 			break;
@@ -255,6 +259,10 @@ parse_args(struct data *data, int argc, char *argv[])
             data->arg_new = g_strdup(optarg);
             data->use_gui = FALSE;
             break;
+		case 'r':
+            data->use_gui = FALSE;
+            data->arg_regen = TRUE;
+            break;
 		case '?':
 			g_warning("Unknown option");
 			print_usage(argv[0]);
@@ -269,9 +277,9 @@ parse_args(struct data *data, int argc, char *argv[])
 
 	if (optind < argc) {
 
-        /* Add the rest of the arguments as images to be added to gallery */
-        if (data->arg_new != NULL) {
-            generate_img_gslist(data, argc, argv);
+        if (data->arg_regen || data->arg_new != NULL) {
+            /* Add the rest of the arguments as files */
+            generate_file_gslist(data, argc, argv);
         } else {
             g_warning("Invalid parameters: ");
 
@@ -297,13 +305,15 @@ print_usage(const char *self)
 {
     g_print("\
 Usage: %s [options] [image ...]\n\
+Usage: %s -r [gallery ...]\n\
 \n\
 Options\n\
   -h  --help               Show this usage\n\
   -v  --version            Show version\n\
   -n  --new gallery_name   Create new gallery\n\
+  -r  --regen              Regenerate galleries\n\
 ",
-            self);
+            self, self);
 }
 
 
@@ -320,27 +330,28 @@ print_version(const char *self)
 
 
 /*
- * Add arguments to images list 
+ * Add arguments to file list
  */
 static void
-generate_img_gslist(struct data *data, int argc, char *argv[])
+generate_file_gslist(struct data *data, int argc, char *argv[])
 {
     gchar *pwd;
 
-    /* get our current dir to form proper uris for images */
+    g_debug("Generating file list");
+    /* get our current dir to form proper uris for files */
     pwd = g_strdup_printf("file://%s", g_get_current_dir());
 
     while (optind < argc) {
-        gchar *img;
-        
+        gchar *file;
+
         if (g_path_is_absolute(argv[optind])) {
-            img = g_strdup_printf("file://%s", argv[optind]);
+            file = g_strdup_printf("file://%s", argv[optind]);
         } else {
-            img = g_strdup_printf("%s/%s", pwd, argv[optind]);
+            file = g_strdup_printf("%s/%s", pwd, argv[optind]);
         }
         optind++;
-
-        data->arg_new_imgs = g_slist_append(data->arg_new_imgs, img);
+        g_debug("file: %s", file);
+        data->arg_files = g_slist_append(data->arg_files, file);
     }
 }
 
@@ -357,11 +368,53 @@ new_gallery(struct data *data)
     data->gal->uri = g_strdup_printf("%s/%s.xml", data->gal_dir, data->arg_new);
     g_free(data->arg_new);
 
-    gallery_add_new_images(data, data->arg_new_imgs);
+    gallery_add_new_images(data, data->arg_files);
 }
         
 
 
+
+/*
+ * Regenerate galleries without GUI.
+ */
+static void
+regen_galleries(struct data *data)
+{
+    GSList *uri;
+
+    g_assert(data != NULL);
+
+    g_debug("Generating galleries");
+
+    uri = data->arg_files;
+    while (uri) {
+        regen_gallery(data, uri->data);
+        uri = uri->next;
+    }
+}
+
+
+
+/*
+ * Regenerate a gallery without GUI.
+ */
+static void
+regen_gallery(struct data *data, gchar *uri)
+{
+	g_assert(data != NULL);
+	g_assert(uri != NULL);
+
+    g_debug("Generating1 %s", uri);
+
+    gallery_free(data);
+    g_debug("Generating2 %s", uri);
+    gallery_init(data);
+    g_debug("Generating3 %s", uri);
+    gallery_open_uri(data, uri);
+    g_debug("Generating4 %s", uri);
+    gallery_make(data);
+    g_debug("Generating5 %s", uri);
+}
 
 /* Emacs indentatation information
    Local Variables:

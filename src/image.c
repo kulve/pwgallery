@@ -162,10 +162,8 @@ image_open(struct data *data, gchar *uri, gint rotate)
         img->rotate = rotate;
     }
 
-    if (data->use_gui) {
-        loader = gdk_pixbuf_loader_new();
-        g_signal_connect(loader, "size-prepared", G_CALLBACK(set_size), img);
-    }
+    loader = gdk_pixbuf_loader_new();
+    g_signal_connect(loader, "size-prepared", G_CALLBACK(set_size), img);
 
 	/* read image from the file */
 	while (TRUE)
@@ -184,15 +182,12 @@ image_open(struct data *data, gchar *uri, gint rotate)
 			g_warning("Skipping image because of read error '%s': %s", uri, 
 					  gnome_vfs_result_to_string(result));
 			image_free(img);
-            if (data->use_gui) {
-                gdk_pixbuf_loader_close (loader, NULL);
-            }
+            gdk_pixbuf_loader_close (loader, NULL);
 			return NULL;
 		}
 
 		/* error parsing image data */
-		if (data->use_gui && 
-            gdk_pixbuf_loader_write(loader, buf, bytes, &error) == FALSE)
+		if (gdk_pixbuf_loader_write(loader, buf, bytes, &error) == FALSE)
 		{
 			gdk_pixbuf_loader_close (loader, NULL);
 			/* FIXME: popup */
@@ -207,8 +202,9 @@ image_open(struct data *data, gchar *uri, gint rotate)
     
 	gnome_vfs_close(handle); /* ignore result */
 
+    gdk_pixbuf_loader_close(loader, NULL); /* no more writes */
+
     if (data->use_gui) {
-        gdk_pixbuf_loader_close(loader, NULL); /* no more writes */	
 
         /* create button and set colors */
         img->button = gtk_button_new();
@@ -274,6 +270,7 @@ image_open(struct data *data, gchar *uri, gint rotate)
         img->ext = g_strdup("jpg");
     }
 
+    g_debug("img: %dx%d", img->width, img->height);
     return img;	
 }
 
@@ -365,7 +362,7 @@ image_load_ss_pixbuf(struct data *data, struct image *img)
     
 	gnome_vfs_close(handle); /* ignore result */
 
-    gdk_pixbuf_loader_close(loader, NULL); /* no more writes */	
+    gdk_pixbuf_loader_close(loader, NULL); /* no more writes */
 
     img->ss_pixbuf = gdk_pixbuf_loader_get_pixbuf(loader);
     if (img->ss_pixbuf == NULL) {

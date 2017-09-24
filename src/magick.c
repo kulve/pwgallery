@@ -99,7 +99,8 @@ gboolean magick_make_thumbnail(struct data *data,
         break;
     }
     image->thumb_h = (gint)(image->thumb_w * scale);
-
+    g_debug("%d x %d", image->width, image->height);
+    g_debug("%d x %d, rotate: %d, scale: %f", image->thumb_w, image->thumb_h, image->rotate, scale);
     /* resize the thumbnail */
     if (!_resize(data, wand, image, image->thumb_w, image->thumb_h)) {
         DestroyMagickWand(wand);
@@ -378,7 +379,7 @@ static gboolean _resize(struct data *data,
     gchar *desc;
     ExceptionType severity;
 
-    g_debug("in _resize");
+    g_debug("in _resize, %dx%d", width, height);
 
     g_assert(data != NULL);
     g_assert(wand != NULL);

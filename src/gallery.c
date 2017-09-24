@@ -253,8 +253,6 @@ gallery_open(struct data *data)
     GtkWidget *dialog;
     int result;
     gchar *uri;
-    guchar *xml_content;
-    gsize xml_content_len;
 
     g_assert(data != NULL );
 
@@ -327,8 +325,22 @@ gallery_open(struct data *data)
 
     gtk_widget_destroy (dialog);
 
+    gallery_open_uri(data, uri);
+    g_free(uri);
+}
+
+
+
+void gallery_open_uri(struct data *data, gchar *uri)
+{
+    guchar *xml_content;
+    gsize xml_content_len;
+
+    g_assert(data != NULL );
+    g_assert(uri != NULL );
+
     g_free(data->gal->uri);
-    data->gal->uri = uri;
+    data->gal->uri = g_strdup(uri);
 
     /* read the gallery to memory */
     vfs_read_file(data, data->gal->uri, &xml_content, &xml_content_len);
@@ -442,6 +454,10 @@ gallery_make(struct data *data)
     if (!vfs_is_file(data, data->gal->templ_index) ||
         !vfs_is_file(data, data->gal->templ_indeximg) ||
         !vfs_is_file(data, data->gal->templ_image)) {
+        if (!data->use_gui) {
+            g_error("One of the templates not found!");
+            return;
+        }
         GtkWidget *label;
         dialog = gtk_dialog_new_with_buttons(_("One of the templates not found!"),
                                              GTK_WINDOW(data->top_window),
@@ -469,6 +485,10 @@ gallery_make(struct data *data)
        rename file://tmp */
     if (data->gal->dir_name[0] == '\0') {
         GtkWidget *label;
+        if (!data->use_gui) {
+            g_error("Gallery directory not specified!");
+            return;
+        }
         dialog = gtk_dialog_new_with_buttons(_("Specify directory name!"),
                                              GTK_WINDOW(data->top_window),
                                              GTK_DIALOG_MODAL | 
@@ -494,7 +514,7 @@ gallery_make(struct data *data)
 
     /* if gallery is modified, ask if it should be saved before making
      * it or cancel the making. */
-    if (data->gal->edited == TRUE) {
+    if (data->use_gui && data->gal->edited == TRUE) {
         GtkWidget *label;
         dialog = gtk_dialog_new_with_buttons(_("Save changes?"),
                                              GTK_WINDOW(data->top_window),
@@ -524,7 +544,7 @@ gallery_make(struct data *data)
             gallery_save(data);
             break;
         default: /* There are only cancel and yes responses.. */
-            g_assert(421 == 0);
+            g_assert(0);
         }
     }
 
@@ -745,7 +765,6 @@ gallery_add_new_images(struct data *data, GSList *uris)
 void
 gallery_open_images(struct data *data, GSList *imgs)
 {
-	GtkWidget    *pbar;
 	struct image *img, *tmpimg;
 	GSList       *first;
 	gint         tot_files, file_counter;
@@ -759,9 +778,6 @@ gallery_open_images(struct data *data, GSList *imgs)
 	first = imgs;
 	tot_files = g_slist_length(imgs); /* number of images to open */
 	file_counter = 0;
-	
-	pbar = GTK_WIDGET(gtk_builder_get_object(data->builder, "progressbar_status"));
-	g_assert(pbar != NULL);
 
 	widgets_set_status(data, _("Opening images"));
 
@@ -779,8 +795,10 @@ gallery_open_images(struct data *data, GSList *imgs)
 								 p_text);
 			data->gal->images = g_slist_append(data->gal->images, img);
 
-			gtk_widget_show( img->image );
-			gtk_widget_show( img->button );
+            if (data->use_gui) {
+                gtk_widget_show(img->image);
+                gtk_widget_show(img->button);
+            }
 
             /* set image values from */
             g_free(img->text);
@@ -1099,7 +1117,7 @@ _thread_make_thumb(gpointer data)
     g_assert(data != NULL);
     td = data;
 
-    g_debug("FOO: %s\n", td->thumb_uri);
+    g_debug("make_thumb: %s\n", td->thumb_uri);
     /* make the thumbnail and save it to a file */
     retval = magick_make_thumbnail(td->data, td->image, td->thumb_uri);
  

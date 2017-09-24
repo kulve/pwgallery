@@ -40,11 +40,16 @@ void gallery_init(struct data *data);
 void gallery_new(struct data *data);
 
 /* 
- * Open gallery
+ * Open gallery using a GUI dialog
  */
 void gallery_open(struct data *data);
 
 /* 
+ * Open gallery specified by the uri
+ */
+void gallery_open_uri(struct data *data, gchar *uri);
+
+/*
  * Save gallery
  */
 void gallery_save(struct data *data);

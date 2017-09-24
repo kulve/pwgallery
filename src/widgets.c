@@ -140,6 +140,10 @@ widgets_set_progress(struct data *data, gfloat fraction, const gchar *text)
     /* FIXME: to use static or to not to use? */
 	static GtkWidget *pbar = NULL;
 
+    if (!data->use_gui) {
+        return;
+    }
+
 	g_assert(data != NULL);
 	g_assert(text != NULL);
 
@@ -163,6 +167,10 @@ widgets_set_status(struct data *data, const gchar *text)
 {
     /* FIXME: to use static or to not to use? */
 	static GtkWidget *label = NULL;
+
+    if (!data->use_gui) {
+        return;
+    }
 
 	g_assert(data != NULL);
 	g_assert(text != NULL);
@@ -189,6 +197,10 @@ widgets_image_get_text(struct data *data)
     GtkTextIter   end_iter;
     GtkTextIter   start_iter;
     gchar         *text;
+
+    if (!data->use_gui) {
+        return NULL;
+    }
 
     g_assert(data != NULL);
     g_assert(data->current_img != NULL);
@@ -233,6 +245,10 @@ widgets_prefs_show(struct data *data)
     gint result;
 
 	g_assert(data != NULL);
+
+    if (!data->use_gui) {
+        return;
+    }
 
     /* Get widgets */
     dialog = GTK_WIDGET(gtk_builder_get_object(data->builder, "dialog_pref"));
@@ -484,6 +500,10 @@ widgets_gal_settings_show(struct data *data)
 
 	g_assert(data != NULL);
 
+    if (!data->use_gui) {
+        return;
+    }
+
     /* Get widgets */
     dialog = GTK_WIDGET(gtk_builder_get_object(data->builder, "dialog_gal"));
     entry_gal_name = 
@@ -700,6 +720,10 @@ void widgets_about_show(struct data *data)
 
     g_assert(data != NULL);
 
+    if (!data->use_gui) {
+        return;
+    }
+
     dialog = GTK_WIDGET(gtk_builder_get_object(data->builder, "aboutdialog"));
 	g_assert(dialog != NULL);
 
@@ -718,6 +742,10 @@ widgets_help_show(struct data *data, const gchar *helptext)
 
 	g_assert(data != NULL);
 	g_assert(helptext != NULL);
+
+    if (!data->use_gui) {
+        return;
+    }
 
     /* Get widgets */
     dialog = GTK_WIDGET(gtk_builder_get_object(data->builder, "dialog_help"));
