@@ -443,8 +443,7 @@ gallery_make(struct data *data)
 
     /* Verify that the template files exists */
     if (!vfs_is_file(data, data->gal->templ_index) ||
-        !vfs_is_file(data, data->gal->templ_indeximg) ||
-        !vfs_is_file(data, data->gal->templ_image)) {
+        !vfs_is_file(data, data->gal->templ_indeximg)) {
         if (!data->use_gui) {
             g_error("One of the templates not found!");
             return;
@@ -581,7 +580,9 @@ gallery_make(struct data *data)
     }
 
     /* make image pages */
-    if (!html_make_image_pages(data)) {
+    if (!vfs_is_file(data, data->gal->templ_image)) {
+        g_debug("No image template, skipping image html");
+    } else if (!html_make_image_pages(data)) {
         widgets_set_progress(data, 0, _("Failed!"));
         return;
     }

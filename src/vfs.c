@@ -38,6 +38,9 @@ vfs_is_file(struct data *data, const gchar *uri)
     g_assert(data != NULL);
     g_assert(uri != NULL);
 
+    if (strlen(uri) == 0) {
+        return FALSE;
+    }
     guri = gnome_vfs_uri_new(uri);
     /* FIXME: should check that the uri is file */
     found = gnome_vfs_uri_exists(guri);
