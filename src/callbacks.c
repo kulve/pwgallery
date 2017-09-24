@@ -170,7 +170,7 @@ void
 on_menu_slide_show_activate(GtkMenuItem *menuitem,
                             gpointer user_data)
 {
-    g_debug("in %s", __FUNCTION__);
+    g_debug("in %s", __func__);
 
     action_gal_slide_show(user_data);
 }
@@ -618,7 +618,7 @@ action_gal_sort_by_time(gpointer user_data)
 
     g_assert(user_data != NULL );
 
-    g_debug("in %s", __FUNCTION__);
+    g_debug("in %s", __func__);
 
     data = user_data;
 
@@ -642,7 +642,7 @@ action_gal_slide_show(gpointer user_data)
 
     g_assert(user_data != NULL );
 
-    g_debug("in %s", __FUNCTION__);
+    g_debug("in %s", __func__);
 
     data = user_data;
 

@@ -130,7 +130,7 @@ image_open(struct data *data, gchar *uri, gint rotate)
 
     /* check if the file is image */
     if (vfs_is_image(data, uri) == FALSE) {
-        g_warning("%s: not an image: %s", __FUNCTION__, uri);
+        g_warning("%s: not an image: %s", __func__, uri);
         return NULL;
     }
 
@@ -313,7 +313,7 @@ image_load_ss_pixbuf(struct data *data, struct image *img)
 	g_assert(data != NULL);
 	g_assert(img != NULL);
 
-	g_debug("in %s", __FUNCTION__);
+	g_debug("in %s", __func__);
 
 	/* open image */
 	result = gnome_vfs_open_uri(&handle, gnome_vfs_uri_new(img->uri),
@@ -463,7 +463,7 @@ set_ss_size(GdkPixbufLoader *gdkpixbufloader,
 
 	g_assert(user_data != NULL );
 
-    g_debug("in %s", __FUNCTION__ );
+    g_debug("in %s", __func__ );
 
     data = user_data;
     img = data->ss_resize_img;
@@ -476,7 +476,7 @@ set_ss_size(GdkPixbufLoader *gdkpixbufloader,
     fs_scale = (gdouble)fs_w / (gdouble)fs_h;
 
     g_debug("in %s: img: %s, screen: %dx%d, scale: %.2f, rotate: %d",
-            __FUNCTION__,
+            __func__,
             img->basefilename, fs_w, fs_h, fs_scale, img->rotate);
 
     img_scale = (gdouble)arg1 / (gdouble)arg2;
@@ -517,7 +517,7 @@ set_ss_size(GdkPixbufLoader *gdkpixbufloader,
         
     }
     
-    g_debug("in %s: %dx%d -> %dx%d", __FUNCTION__, arg1, arg2, w, h);
+    g_debug("in %s: %dx%d -> %dx%d", __func__, arg1, arg2, w, h);
 
     gdk_pixbuf_loader_set_size(gdkpixbufloader, w, h);
 }

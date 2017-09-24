@@ -556,7 +556,7 @@ gallery_make(struct data *data)
 void
 gallery_sort_by_time(struct data *data)
 {
-    g_debug("in %s", __FUNCTION__);
+    g_debug("in %s", __func__);
 
     if (data && data->gal && data->gal->images) {
 
@@ -577,7 +577,7 @@ gallery_slide_show(struct data *data)
     GtkWidget *ss_image;
     GdkColor color = {0, 0, 0, 0};
 
-    g_debug("in %s", __FUNCTION__);
+    g_debug("in %s", __func__);
 
     if (!data || !data->gal || !data->gal->images) {
         /* No images, notify the user */
@@ -637,7 +637,7 @@ gallery_slide_show(struct data *data)
     data->current_ss_img = NULL;
    
     /* Start slide show */
-    g_debug("%s: Starting slideshow timer", __FUNCTION__);
+    g_debug("%s: Starting slideshow timer", __func__);
     data->ss_timer = g_timeout_add(0, ss_load_next, (gpointer)data);
 }
 
@@ -1270,7 +1270,7 @@ ss_key(GtkWidget *widget, GdkEventKey *event, gpointer user_data)
     g_assert(user_data != NULL);
     data = user_data;
 
-    g_debug("in %s, keyval: %d", __FUNCTION__, event->keyval);
+    g_debug("in %s, keyval: %d", __func__, event->keyval);
   
     if (event->type != GDK_KEY_PRESS) {
         return FALSE;
@@ -1286,14 +1286,14 @@ ss_key(GtkWidget *widget, GdkEventKey *event, gpointer user_data)
     case GDK_KP_Add:
         data->ss_timer_interval += 500;
         g_debug("in %s, new ss timer interval: %d",
-                __FUNCTION__, data->ss_timer_interval);
+                __func__, data->ss_timer_interval);
         ss_restart_timer(data);
         break;
     case GDK_minus:             /* Decrease timer interval */
     case GDK_KP_Subtract:
         data->ss_timer_interval -= 500;
         g_debug("in %s, new ss timer interval: %d",
-                __FUNCTION__, data->ss_timer_interval);
+                __func__, data->ss_timer_interval);
         ss_restart_timer(data);
         break;
     case GDK_Left:              /* Select previous image */
@@ -1326,7 +1326,7 @@ ss_motion(GtkWidget *widget, GdkEventMotion *event, gpointer user_data)
     g_assert(user_data != NULL);
     data = user_data;
 
-    g_debug("in %s", __FUNCTION__);
+    g_debug("in %s", __func__);
 
     if (event->type != GDK_MOTION_NOTIFY) {
         return FALSE;
@@ -1350,7 +1350,7 @@ ss_load_next(gpointer user_data)
     g_assert(user_data != NULL);
     data = user_data;
 
-    g_debug("in %s", __FUNCTION__);
+    g_debug("in %s", __func__);
 
     ss_stop_timer(data);
 
@@ -1397,7 +1397,7 @@ ss_stop(struct data *data)
 {
     g_assert(data != NULL);
 
-    g_debug("in %s", __FUNCTION__);
+    g_debug("in %s", __func__);
 
     data->ss_stop = TRUE;
 
@@ -1443,13 +1443,13 @@ ss_stop_timer(struct data *data)
 {
     g_assert(data != NULL);
 
-    g_debug("in %s", __FUNCTION__);
+    g_debug("in %s", __func__);
 
     if (data->ss_timer != 0) {
         g_source_remove(data->ss_timer);
         data->ss_timer = 0;
     } else {
-        g_warning("%s: timer not active", __FUNCTION__);
+        g_warning("%s: timer not active", __func__);
     }
 }
 
@@ -1462,7 +1462,7 @@ ss_start_timer(struct data *data)
 {
     g_assert(data != NULL);
 
-    g_debug("in %s", __FUNCTION__);
+    g_debug("in %s", __func__);
 
     /* Remove old timer, if one exists */
     if (data->ss_timer != 0) {
@@ -1485,7 +1485,7 @@ ss_skip_forward(struct data *data)
 
     g_assert(data != NULL);
 
-    g_debug("in %s", __FUNCTION__);
+    g_debug("in %s", __func__);
 
     ss_stop_timer(data);
   
@@ -1522,7 +1522,7 @@ ss_skip_backward(struct data *data)
 
     g_assert(data != NULL);
 
-    g_debug("in %s", __FUNCTION__);
+    g_debug("in %s", __func__);
 
     ss_stop_timer(data);
   
@@ -1562,7 +1562,7 @@ ss_loading_thread(gpointer user_data)
     g_assert(user_data != NULL);
     data = user_data;
     
-    g_debug("in %s", __FUNCTION__);
+    g_debug("in %s", __func__);
     
     while(TRUE) {
         GSList         *current_image;
@@ -1576,7 +1576,7 @@ ss_loading_thread(gpointer user_data)
         
         if (current_image == NULL) {
             /* FIXME: signal main thread */
-            g_error("%s: Failed to find current image", __FUNCTION__);
+            g_error("%s: Failed to find current image", __func__);
             g_thread_exit(FALSE);
         }
         
@@ -1598,17 +1598,17 @@ ss_loading_thread(gpointer user_data)
             /* Load the pixbuf, if not loaded yet */
             if (img->ss_pixbuf == NULL) {
                 g_debug("%s: loading pixbuf for %s",
-                        __FUNCTION__, img->basefilename);
+                        __func__, img->basefilename);
                 if (!image_load_ss_pixbuf(data, img)) {
                     /* FIXME: signal main thread */
                     g_error("%s: Failed to load image pixbuf data",
-                            __FUNCTION__);
+                            __func__);
                     g_thread_exit(FALSE);
                 }
                 
                 /* Signal viewer thread about new image data */
                 g_debug("%s: Signalling viewer thread about new data",
-                        __FUNCTION__);
+                        __func__);
                 g_cond_signal(data->ss_data_cond);
             }
 
@@ -1625,7 +1625,7 @@ ss_loading_thread(gpointer user_data)
                 image = list->data;
                 if (image->ss_pixbuf) {
                     g_debug("%s: free pixbuf for %s",
-                            __FUNCTION__, image->basefilename);
+                            __func__, image->basefilename);
                     g_object_unref(image->ss_pixbuf);
                     image->ss_pixbuf = NULL;
                 }
@@ -1638,7 +1638,7 @@ ss_loading_thread(gpointer user_data)
             }
    
             if (data->ss_stop == TRUE) {
-                g_debug("%s: Stop flag true, exiting", __FUNCTION__);
+                g_debug("%s: Stop flag true, exiting", __func__);
                 g_thread_exit(FALSE);
             }
         }
@@ -1667,13 +1667,13 @@ ss_show_image(struct data *data)
     ss_image = gtk_bin_get_child(GTK_BIN(data->ss_window));
 
     /* Wait for pixbuf data, if not exist yet */
-    g_debug("%s: waiting for data", __FUNCTION__);
+    g_debug("%s: waiting for data", __func__);
     g_mutex_lock(data->ss_data_mutex);
     while (!data->current_ss_img->ss_pixbuf) {
         g_cond_wait(data->ss_data_cond, data->ss_data_mutex);
     }
     g_mutex_unlock(data->ss_data_mutex);
-    g_debug("%s: got data", __FUNCTION__);
+    g_debug("%s: got data", __func__);
 
 
     /* Create a drawable for optional text rendering */
@@ -1753,11 +1753,11 @@ ss_show_image(struct data *data)
                                 ss_image->allocation.height);
     gtk_image_set_from_pixmap(GTK_IMAGE(ss_image),  pixmap, NULL);
 
-    g_debug("%s: %s ss_image allocation: %dx%d+%d+%d", __FUNCTION__,
+    g_debug("%s: %s ss_image allocation: %dx%d+%d+%d", __func__,
             data->current_ss_img->basefilename,
             ss_image->allocation.width, ss_image->allocation.height,
             ss_image->allocation.x, ss_image->allocation.y);
-    g_debug("%s: pixbuf: %dx%d", __FUNCTION__,
+    g_debug("%s: pixbuf: %dx%d", __func__,
             gdk_pixbuf_get_width(pixbuf),
             gdk_pixbuf_get_height(pixbuf));
 
