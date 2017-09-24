@@ -55,7 +55,7 @@ xml_gal_write(struct data *data, gsize *len)
     g_debug("in xml_gal_write");
 
     /* CHECKME: extra block to help emacs with indenting.. */
-    { LIBXML_TEST_VERSION }
+    { LIBXML_TEST_VERSION };
 
     /* create new xml with pwgallery as the root element */
     doc = xmlNewDoc(BAD_CAST "1.0");
@@ -70,11 +70,11 @@ xml_gal_write(struct data *data, gsize *len)
     xmlNewChild(settings, NULL, BAD_CAST "version",
                 BAD_CAST VERSION);
     xmlNewTextChild(settings, NULL, BAD_CAST "name",
-                BAD_CAST data->gal->name);
+                    BAD_CAST data->gal->name);
     xmlNewTextChild(settings, NULL, BAD_CAST "dir_name",
-                BAD_CAST data->gal->dir_name);
+                    BAD_CAST data->gal->dir_name);
     xmlNewTextChild(settings, NULL, BAD_CAST "desc",
-                BAD_CAST data->gal->desc);
+                    BAD_CAST data->gal->desc);
     xmlNewChild(settings, NULL, BAD_CAST "output_dir",
                 BAD_CAST data->gal->base_dir);
     xmlNewChild(settings, NULL, BAD_CAST "page_gen_prog",
@@ -89,6 +89,7 @@ xml_gal_write(struct data *data, gsize *len)
                 BAD_CAST data->gal->templ_image);
     xmlNewChild(settings, NULL, BAD_CAST "templ_gen",
                 BAD_CAST data->gal->templ_gen);
+    
     
     g_snprintf(tmp_setting, 256, "%d", data->gal->page_gen);
     xmlNewChild(settings, NULL, BAD_CAST "page_gen", BAD_CAST tmp_setting);
@@ -117,16 +118,13 @@ xml_gal_write(struct data *data, gsize *len)
     xmlNewChild(settings, NULL, BAD_CAST "rename", 
                 BAD_CAST (data->gal->rename ? "true" : "false"));
 
-
-    
     /* add pages node under pwgallery node */
     pages = xmlNewNode(NULL, BAD_CAST "pages");
     xmlAddChild(gallery, pages);
 
     /* add pages (images/generic) under the pages node */
     list = data->gal->images;
-    while(list != NULL)
-    {
+    while(list != NULL) {
         struct image *img = list->data;
 
         /* FIXME: how to support generic pages here? */
@@ -198,8 +196,7 @@ xml_gal_parse(struct data *data, guchar *content, gsize len)
     
     /* FIXME: XML_PARSE_NONET? XML_PARSE_NOENT? */
     doc = xmlReadMemory((gchar*)content, len, "gallery.xml", NULL, 0);
-    if (doc == NULL)
-    {
+    if (doc == NULL) {
         /* FIXME: popup */
         g_warning("xml_gal_parse: Failed to parse document\n");
         return;
@@ -210,18 +207,16 @@ xml_gal_parse(struct data *data, guchar *content, gsize len)
 
     if (xmlStrcmp(gallery->name, (const xmlChar *) "pwgallery")) {
         /* FIXME: popup */
-		g_warning("xml_gal_parse: Document of the wrong type");
-		xmlFreeDoc(doc);
+        g_warning("xml_gal_parse: Document of the wrong type");
+        xmlFreeDoc(doc);
         xmlCleanupParser();
-		return;
-	}
+        return;
+    }
     
     /* find <settings> */
     current = gallery->xmlChildrenNode;
-    while (current != NULL)
-    {
-        if ((!xmlStrcmp(current->name, (const xmlChar *) "settings")))
-        {
+    while (current != NULL) {
+        if ((!xmlStrcmp(current->name, (const xmlChar *) "settings"))) {
             parse_gal_settings(data, current->xmlChildrenNode);
             break;
         }
@@ -232,10 +227,8 @@ xml_gal_parse(struct data *data, guchar *content, gsize len)
     g_assert(current != NULL);
 
     /* find subelements of <pages> */
-    while (current != NULL)
-    {
-        if ((!xmlStrcmp(current->name, (const xmlChar *) "pages")))
-        {
+    while (current != NULL) {
+        if ((!xmlStrcmp(current->name, (const xmlChar *) "pages"))) {
             pages = current->xmlChildrenNode;
             break;
         }
@@ -243,8 +236,7 @@ xml_gal_parse(struct data *data, guchar *content, gsize len)
     }
 
     /* find <image> or <generic> page under <pages> */
-    while (pages != NULL)
-    {
+    while (pages != NULL) {
         struct image *img = NULL;
         if ((!xmlStrcmp(pages->name, (const xmlChar *) "image")))
             img = parse_image_settings(data, pages->xmlChildrenNode);
@@ -287,108 +279,88 @@ parse_gal_settings(struct data *data, xmlNodePtr node)
 
     /* find separate settings */
     /* FIXME: isn't this long and ugly.. */
-    while (node != NULL)
-    {
-        if (node->type != XML_ELEMENT_NODE)
-        {
+    while (node != NULL) {
+        if (node->type != XML_ELEMENT_NODE) {
             node = node->next;
             continue;
         }
-        if ((!xmlStrcmp(node->name, (const xmlChar *) "name")))
-        {
+        if ((!xmlStrcmp(node->name, (const xmlChar *) "name"))) {
             g_free(data->gal->name);
             data->gal->name = (gchar *)xmlNodeGetContent(node);
         }
-        if ((!xmlStrcmp(node->name, (const xmlChar *) "dir_name")))
-        {
+        if ((!xmlStrcmp(node->name, (const xmlChar *) "dir_name"))) {
             g_free(data->gal->dir_name);
             data->gal->dir_name = (gchar *)xmlNodeGetContent(node);
         }
-        else if ((!xmlStrcmp(node->name, (const xmlChar *) "desc")))
-        {
+        else if ((!xmlStrcmp(node->name, (const xmlChar *) "desc"))) {
             g_free(data->gal->desc);
             data->gal->desc = (gchar *)xmlNodeGetContent(node);
         }
-        else if ((!xmlStrcmp(node->name, (const xmlChar *) "output_dir")))
-        {
+        else if ((!xmlStrcmp(node->name, (const xmlChar *) "output_dir"))) {
             g_free(data->gal->base_dir);
             data->gal->base_dir = (gchar *)xmlNodeGetContent(node);
         }
-        else if ((!xmlStrcmp(node->name, (const xmlChar *) "page_gen_prog")))
-        {
+        else if ((!xmlStrcmp(node->name, (const xmlChar *) "page_gen_prog"))) {
             g_free(data->gal->page_gen_prog);
             data->gal->page_gen_prog = (gchar *)xmlNodeGetContent(node);
         }
-        else if ((!xmlStrcmp(node->name, (const xmlChar *) "templ_index")))
-        {
+        else if ((!xmlStrcmp(node->name, (const xmlChar *) "templ_index"))) {
             g_free(data->gal->templ_index);
             data->gal->templ_index = (gchar *)xmlNodeGetContent(node);
         }
-        else if ((!xmlStrcmp(node->name, (const xmlChar *) "templ_indeximg")))
-        {
+        else if ((!xmlStrcmp(node->name, (const xmlChar *) "templ_indeximg"))) {
             g_free(data->gal->templ_indeximg);
             data->gal->templ_indeximg = (gchar *)xmlNodeGetContent(node);
         }
-        else if ((!xmlStrcmp(node->name, (const xmlChar *) "templ_indexgen")))
-        {
+        else if ((!xmlStrcmp(node->name, (const xmlChar *) "templ_indexgen"))) {
             g_free(data->gal->templ_indexgen);
             data->gal->templ_indexgen = (gchar *)xmlNodeGetContent(node);
         }
-        else if ((!xmlStrcmp(node->name, (const xmlChar *) "templ_image")))
-        {
+        else if ((!xmlStrcmp(node->name, (const xmlChar *) "templ_image"))) {
             g_free(data->gal->templ_image);
             data->gal->templ_image = (gchar *)xmlNodeGetContent(node);
         }
-        else if ((!xmlStrcmp(node->name, (const xmlChar *) "templ_gen")))
-        {
+        else if ((!xmlStrcmp(node->name, (const xmlChar *) "templ_gen"))) {
             g_free(data->gal->templ_gen);
             data->gal->templ_gen = (gchar *)xmlNodeGetContent(node);
         }
-        else if ((!xmlStrcmp(node->name, (const xmlChar *) "page_gen")))
-        {
+        else if ((!xmlStrcmp(node->name, (const xmlChar *) "page_gen"))) {
             gchar *str = (gchar *)xmlNodeGetContent(node);
             data->gal->page_gen = (gint) g_ascii_strtoull(str, NULL, 0);
             xmlFree((xmlChar*)str);
         }
-        else if ((!xmlStrcmp(node->name, (const xmlChar *) "thumb_w")))
-        {
+        else if ((!xmlStrcmp(node->name, (const xmlChar *) "thumb_w"))) {
             gchar *str = (gchar *)xmlNodeGetContent(node);
             data->gal->thumb_w = (gint) g_ascii_strtoull(str, NULL, 0);
             xmlFree((xmlChar*)str);
         }
-        else if ((!xmlStrcmp(node->name, (const xmlChar *) "image_h")))
-        {
+        else if ((!xmlStrcmp(node->name, (const xmlChar *) "image_h"))) {
             gchar *str = (gchar *)xmlNodeGetContent(node);
             data->gal->image_h = (gint) g_ascii_strtoull(str, NULL, 0);
             xmlFree((xmlChar*)str);
         }
-        else if ((!xmlStrcmp(node->name, (const xmlChar *) "image_h2")))
-        {
+        else if ((!xmlStrcmp(node->name, (const xmlChar *) "image_h2"))) {
             gchar *str = (gchar *)xmlNodeGetContent(node);
             data->gal->image_h2 = (gint) g_ascii_strtoull(str, NULL, 0);
             xmlFree((xmlChar*)str);
         }
-        else if ((!xmlStrcmp(node->name, (const xmlChar *) "image_h3")))
-        {
+        else if ((!xmlStrcmp(node->name, (const xmlChar *) "image_h3"))) {
             gchar *str = (gchar *)xmlNodeGetContent(node);
             data->gal->image_h3 = (gint) g_ascii_strtoull(str, NULL, 0);
             xmlFree((xmlChar*)str);
         }
-        else if ((!xmlStrcmp(node->name, (const xmlChar *) "image_h4")))
-        {
+        else if ((!xmlStrcmp(node->name, (const xmlChar *) "image_h4"))) {
             gchar *str = (gchar *)xmlNodeGetContent(node);
             data->gal->image_h4 = (gint) g_ascii_strtoull(str, NULL, 0);
             xmlFree((xmlChar*)str);
         }
-        else if ((!xmlStrcmp(node->name, (const xmlChar *) "edited")))
-        {
+        else if ((!xmlStrcmp(node->name, (const xmlChar *) "edited"))) {
             xmlChar *str = xmlNodeGetContent(node);
             // Parse edited always as false
             data->gal->edited = 0;
             xmlFree(str);
         }
-        else if ((!xmlStrcmp(node->name, (const xmlChar *) "remove_exif")))
-        {
+        else if ((!xmlStrcmp(node->name, (const xmlChar *) "remove_exif"))) {
             xmlChar *str = xmlNodeGetContent(node);
             if ((!xmlStrcmp(str, (const xmlChar *) "true")))
                 data->gal->remove_exif = 1;
@@ -396,8 +368,7 @@ parse_gal_settings(struct data *data, xmlNodePtr node)
                 data->gal->remove_exif = 0;
             xmlFree(str);
         }
-        else if ((!xmlStrcmp(node->name, (const xmlChar *) "rename")))
-        {
+        else if ((!xmlStrcmp(node->name, (const xmlChar *) "rename"))) {
             xmlChar *str = xmlNodeGetContent(node);
             if ((!xmlStrcmp(str, (const xmlChar *) "true")))
                 data->gal->rename = 1;
@@ -428,10 +399,8 @@ parse_image_settings(struct data *data, xmlNodePtr node)
     g_debug("in parse_image_settings");
 
     /* find <settings> element's children node */
-    while (node != NULL)
-    {
-        if ((!xmlStrcmp(node->name, (const xmlChar *) "settings")))
-        {
+    while (node != NULL) {
+        if ((!xmlStrcmp(node->name, (const xmlChar *) "settings"))) {
             node = node->xmlChildrenNode;
             break;
         }
@@ -444,25 +413,20 @@ parse_image_settings(struct data *data, xmlNodePtr node)
     img = image_init(data);
 
     /* find values */
-    while (node != NULL) /* uri, text, gamma, rotate, nomod */
-    {
-        if (node->type != XML_ELEMENT_NODE)
-        {
+    while (node != NULL) {/* uri, text, gamma, rotate, nomod */
+        if (node->type != XML_ELEMENT_NODE) {
             node = node->next;
             continue;
         }
-        if ((!xmlStrcmp(node->name, (const xmlChar *) "uri")))
-        {   
+        if ((!xmlStrcmp(node->name, (const xmlChar *) "uri"))) {   
             g_free(img->uri);
             img->uri = (gchar *)xmlNodeGetContent(node);
         }
-        else if ((!xmlStrcmp(node->name, (const xmlChar *) "text")))
-        {
+        else if ((!xmlStrcmp(node->name, (const xmlChar *) "text"))) {
             g_free(img->text);
             img->text = (gchar *)xmlNodeGetContent(node);
         }
-        else if ((!xmlStrcmp(node->name, (const xmlChar *) "gamma")))
-        {
+        else if ((!xmlStrcmp(node->name, (const xmlChar *) "gamma"))) {
             gchar *tmpstr = (gchar *)xmlNodeGetContent(node);
             if (strlen(tmpstr) == 0) {
                 img->gamma = 1;
@@ -471,20 +435,17 @@ parse_image_settings(struct data *data, xmlNodePtr node)
             }
             xmlFree((xmlChar*)tmpstr);
         }
-        else if ((!xmlStrcmp(node->name, (const xmlChar *) "rotate")))
-        {
+        else if ((!xmlStrcmp(node->name, (const xmlChar *) "rotate"))) {
             gchar *tmpstr = (gchar *)xmlNodeGetContent(node);
             img->rotate = (gint)g_ascii_strtoull(tmpstr, NULL, 0);
             xmlFree((xmlChar*)tmpstr);
         }
-        else if ((!xmlStrcmp(node->name, (const xmlChar *) "image_h")))
-        {
+        else if ((!xmlStrcmp(node->name, (const xmlChar *) "image_h"))) {
             gchar *tmpstr = (gchar *)xmlNodeGetContent(node);
             img->image_h = (gint)g_ascii_strtoull(tmpstr, NULL, 0);
             xmlFree((xmlChar*)tmpstr);
         }
-        else if ((!xmlStrcmp(node->name, (const xmlChar *) "nomodify")))
-        {
+        else if ((!xmlStrcmp(node->name, (const xmlChar *) "nomodify"))) {
             xmlChar *tmpstr = xmlNodeGetContent(node);
             if ((!xmlStrcmp(tmpstr, (const xmlChar *) "true")))
                 img->nomodify = TRUE;
@@ -512,15 +473,12 @@ parse_gen_settings(struct data *data, xmlNodePtr node)
     g_debug("in parse_gen_settings");
 
     /* find <settings> element's children node */
-    while (node != NULL)
-    {
-        if (node->type != XML_ELEMENT_NODE)
-        {
+    while (node != NULL) {
+        if (node->type != XML_ELEMENT_NODE) {
             node = node->next;
             continue;
         }
-        if ((!xmlStrcmp(node->name, (const xmlChar *) "settings")))
-        {
+        if ((!xmlStrcmp(node->name, (const xmlChar *) "settings"))) {
             node = node->xmlChildrenNode;
             break;
         }
@@ -531,10 +489,8 @@ parse_gen_settings(struct data *data, xmlNodePtr node)
     g_assert(node != NULL);
 
     /* find settings */
-    while (node != NULL)
-    {
-        if (node->type != XML_ELEMENT_NODE)
-        {
+    while (node != NULL) {
+        if (node->type != XML_ELEMENT_NODE) {
             node = node->next;
             continue;
         }

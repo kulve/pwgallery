@@ -134,11 +134,9 @@ gallery_free(struct data *data)
     g_debug("in gallery_free");
 
 	/* free images */
-    if (data->gal->images != NULL)
-    {
+    if (data->gal->images != NULL) {
         list = data->gal->images;
-        while (list) 
-        {
+        while (list) {
             img = list->data;
             image_free(img);
             list->data = NULL;
@@ -203,8 +201,7 @@ gallery_new(struct data *data)
 
     /* if gallery is modified, ask if it should be saved before
      * creating a new one */
-    if (data->gal->edited == TRUE)
-    {
+    if (data->gal->edited == TRUE) {
         dialog = gtk_dialog_new_with_buttons(_("Save changes?"),
                                              GTK_WINDOW(data->top_window),
                                              GTK_DIALOG_MODAL | 
@@ -229,8 +226,7 @@ gallery_new(struct data *data)
         result = gtk_dialog_run(GTK_DIALOG(dialog));
         gtk_widget_destroy (dialog);
 
-        switch(result)
-        {
+        switch(result) {
         case GTK_RESPONSE_CANCEL:
             return;
         case GTK_RESPONSE_YES:
@@ -260,8 +256,7 @@ gallery_open(struct data *data)
 
     /* if gallery is modified, ask if it should be saved before
      * opening a different one */
-    if (data->gal->edited == TRUE)
-    {
+    if (data->gal->edited == TRUE) {
         GtkWidget *label;
         dialog = gtk_dialog_new_with_buttons(_("Save changes?"),
                                              GTK_WINDOW(data->top_window),
@@ -287,8 +282,7 @@ gallery_open(struct data *data)
         result = gtk_dialog_run(GTK_DIALOG(dialog));
         gtk_widget_destroy (dialog);
 
-        switch(result)
-        {
+        switch(result) {
         case GTK_RESPONSE_CANCEL:
             return;
         case GTK_RESPONSE_YES:
@@ -314,8 +308,7 @@ gallery_open(struct data *data)
     gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), FALSE);
     gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(dialog), TRUE);
     /* cancel pressed, destroy the dialog and return */
-    if (gtk_dialog_run(GTK_DIALOG(dialog)) != GTK_RESPONSE_ACCEPT)
-    {
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) != GTK_RESPONSE_ACCEPT) {
         gtk_widget_destroy (dialog);
         return;
     }
@@ -371,8 +364,7 @@ gallery_save(struct data *data)
 
     /* if uri not set yet, call "save as", and it will call this function
      * again with the uri set.. */
-    if (strlen(data->gal->uri) == 0)
-    {
+    if (strlen(data->gal->uri) == 0) {
         gallery_save_as(data);
         return;
     }
@@ -410,8 +402,7 @@ gallery_save_as(struct data *data)
     gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), FALSE);
 
     /* cancel, destroy dialog and return */
-    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_CANCEL)
-    {
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_CANCEL) {
         gtk_widget_destroy (dialog);
         return;
     }
@@ -782,38 +773,37 @@ gallery_open_images(struct data *data, GSList *imgs)
 	widgets_set_status(data, _("Opening images"));
 
 	/* Open images */
-	while (imgs)
-	{
+	while (imgs) {
         tmpimg = imgs->data;
         /* Always use the rotate from the saved gallery instead of exif */
-		img = image_open(data, g_strdup(tmpimg->uri), tmpimg->rotate);
-		if (img != NULL)
-		{
-			/* update progress */
-			g_snprintf(p_text, 128, "%d/%d", file_counter++, tot_files);
-			widgets_set_progress(data, (gfloat)file_counter/(gfloat)tot_files,
-								 p_text);
-			data->gal->images = g_slist_append(data->gal->images, img);
+        img = image_open(data, g_strdup(tmpimg->uri), tmpimg->rotate);
+        if (img != NULL)
+            {
+                /* update progress */
+                g_snprintf(p_text, 128, "%d/%d", file_counter++, tot_files);
+                widgets_set_progress(data, (gfloat)file_counter/(gfloat)tot_files,
+                                     p_text);
+                data->gal->images = g_slist_append(data->gal->images, img);
 
-            if (data->use_gui) {
-                gtk_widget_show(img->image);
-                gtk_widget_show(img->button);
-            }
+                if (data->use_gui) {
+                    gtk_widget_show(img->image);
+                    gtk_widget_show(img->button);
+                }
 
-            /* set image values from */
-            g_free(img->text);
-            img->text     = g_strdup(tmpimg->text);
-            img->gamma    = tmpimg->gamma;
-            img->rotate   = tmpimg->rotate;
-            img->nomodify = tmpimg->nomodify;
-            img->image_h  = tmpimg->image_h;
+                /* set image values from */
+                g_free(img->text);
+                img->text     = g_strdup(tmpimg->text);
+                img->gamma    = tmpimg->gamma;
+                img->rotate   = tmpimg->rotate;
+                img->nomodify = tmpimg->nomodify;
+                img->image_h  = tmpimg->image_h;
             
-		} else {
+            } else {
             g_warning("Failed to add image");
         }
         image_free(tmpimg);
-		imgs = imgs->next;
-	}
+        imgs = imgs->next;
+    }
 
 	g_slist_free(first);
 
@@ -863,12 +853,10 @@ gallery_remove_image(struct data *data, struct image *img)
     tmplist = g_slist_nth(data->gal->images, current_no);
 
     /* select the last image if deleted one was the last one */
-    if (tmplist != NULL)
-    {
+    if (tmplist != NULL) {
         data->current_img = tmplist->data;
     }
-    else
-    {
+    else {
         tmplist = g_slist_last(data->gal->images);
         if (tmplist != NULL)
             data->current_img = tmplist->data;
@@ -879,7 +867,7 @@ gallery_remove_image(struct data *data, struct image *img)
     /* update the thumbnail list */
 	widgets_update_table(data);
 
-   /* total files now in the gallery */
+    /* total files now in the gallery */
 	tot_files = g_slist_length(data->gal->images);
 
     /* update the image text etc shown in the main window */
@@ -914,8 +902,7 @@ gallery_image_selected(GtkWidget *widget,
 
     /* on doubleclick we already have set everything on first
      * click. Now just show the web image */
-    if (event->type == GDK_2BUTTON_PRESS)
-    {
+    if (event->type == GDK_2BUTTON_PRESS) {
         widgets_set_status(data, "Showing preview..");        
         magick_show_preview(data, data->current_img,  data->gal->image_h);
         widgets_set_status(data, "Idle");
@@ -927,8 +914,7 @@ gallery_image_selected(GtkWidget *widget,
      * CHECKME: This should be probably implemented in some more sane way 
      */
     imgs = data->gal->images;
-    while (imgs)
-    {
+    while (imgs) {
         img = imgs->data;
         if ((GtkWidget*)(img->button) == widget)
             break;
@@ -966,8 +952,7 @@ gallery_image_save_text(struct data *data)
     new_text = widgets_image_get_text(data);
 
     /* if the text is not changed */
-    if (strcmp(new_text, data->current_img->text) == 0)
-    {
+    if (strcmp(new_text, data->current_img->text) == 0) {
         g_free(new_text);
         return;
     }
@@ -1058,7 +1043,7 @@ _make_thumbnails(struct data *data)
             gint r;
             
             if (threads[cpu_index] == NULL) {
-                    break;
+                break;
             }
             
             retval = g_thread_join(threads[cpu_index]);
@@ -1280,8 +1265,7 @@ sort_exif_timestamp(gconstpointer a, gconstpointer b)
 {
     const struct image *aimg, *bimg;
 
-    if (a == NULL || b == NULL)
-    {
+    if (a == NULL || b == NULL) {
         return 0;
     }
 
@@ -1290,8 +1274,7 @@ sort_exif_timestamp(gconstpointer a, gconstpointer b)
 
     /* If either one is missing the exif timestamp, compare the file names */
     if (aimg->exif == NULL || aimg->exif->timestamp == NULL ||
-        bimg->exif == NULL || bimg->exif->timestamp == NULL)
-    {
+        bimg->exif == NULL || bimg->exif->timestamp == NULL) {
         return g_str_equal(aimg->basefilename, bimg->basefilename);
     }
 
@@ -1765,7 +1748,7 @@ ss_show_image(struct data *data)
         pango_layout_set_width(pango_layout, 
                                PANGO_SCALE * (int)(screen_w * 0.9));
         pango_layout_set_height(pango_layout, 
-                               PANGO_SCALE * (int)(screen_w * 0.1));
+                                PANGO_SCALE * (int)(screen_w * 0.1));
         pango_layout_set_ellipsize(pango_layout, PANGO_ELLIPSIZE_END);
 
         /* Draw font */

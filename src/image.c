@@ -80,11 +80,10 @@ image_free(struct image *img)
 	g_assert(img != NULL);
 	
 	/* destroy widgets */
-	if (img->button)
-	{
-		gtk_widget_destroy(img->button);
+	if (img->button) {
+        gtk_widget_destroy(img->button);
         /* No need to destroy img->image, since its contained in the button */
-	}
+    }
 
     /* free list of image sizes */
     list = img->sizes;
@@ -139,15 +138,14 @@ image_open(struct data *data, gchar *uri, gint rotate)
 	result = gnome_vfs_open_uri(&handle, vfsuri,
 								GNOME_VFS_OPEN_READ);
 	gnome_vfs_uri_unref(vfsuri);
-	if (result != GNOME_VFS_OK)
-	{
-		/* FIXME: popup */
-		g_warning("Skipping image because of error opening '%s': %s", uri, 
-				  gnome_vfs_result_to_string(result));
-		g_free(uri);
-		/* FIXME: show invalid image? */
-		return NULL;
-	}
+	if (result != GNOME_VFS_OK) {
+        /* FIXME: popup */
+        g_warning("Skipping image because of error opening '%s': %s", uri, 
+                  gnome_vfs_result_to_string(result));
+        g_free(uri);
+        /* FIXME: show invalid image? */
+        return NULL;
+    }
 
 	img = image_init(data);
 
@@ -157,8 +155,7 @@ image_open(struct data *data, gchar *uri, gint rotate)
     /* load exif data and set rotation */
     exif_data_get(data, img);
     img->rotate = img->exif->orientation;
-    if (rotate != -1)
-    {
+    if (rotate != -1) {
         img->rotate = rotate;
     }
 
@@ -166,39 +163,36 @@ image_open(struct data *data, gchar *uri, gint rotate)
     g_signal_connect(loader, "size-prepared", G_CALLBACK(set_size), img);
 
 	/* read image from the file */
-	while (TRUE)
-	{
-		result = gnome_vfs_read(handle, buf,
-								PWGALLERY_IMG_READ_BUF_SIZE, &bytes);
+	while (TRUE) {
+        result = gnome_vfs_read(handle, buf,
+                                PWGALLERY_IMG_READ_BUF_SIZE, &bytes);
 
-		/* all read */
-		if (result == GNOME_VFS_ERROR_EOF)
-			break;
+        /* all read */
+        if (result == GNOME_VFS_ERROR_EOF)
+            break;
 		
-		/* error reading */
-		if (result != GNOME_VFS_OK)
-		{
-			/* FIXME: popup */
-			g_warning("Skipping image because of read error '%s': %s", uri, 
-					  gnome_vfs_result_to_string(result));
-			image_free(img);
+        /* error reading */
+        if (result != GNOME_VFS_OK) {
+            /* FIXME: popup */
+            g_warning("Skipping image because of read error '%s': %s", uri, 
+                      gnome_vfs_result_to_string(result));
+            image_free(img);
             gdk_pixbuf_loader_close (loader, NULL);
-			return NULL;
-		}
+            return NULL;
+        }
 
-		/* error parsing image data */
-		if (gdk_pixbuf_loader_write(loader, buf, bytes, &error) == FALSE)
-		{
-			gdk_pixbuf_loader_close (loader, NULL);
-			/* FIXME: popup */
-			g_warning("Skipping image because of parse error '%s': %s", uri,
-					  error->message);
-			g_error_free(error);
-			image_free(img);
-			return NULL;
-		}
+        /* error parsing image data */
+        if (gdk_pixbuf_loader_write(loader, buf, bytes, &error) == FALSE) {
+            gdk_pixbuf_loader_close (loader, NULL);
+            /* FIXME: popup */
+            g_warning("Skipping image because of parse error '%s': %s", uri,
+                      error->message);
+            g_error_free(error);
+            image_free(img);
+            return NULL;
+        }
 		
-	}
+    }
     
 	gnome_vfs_close(handle); /* ignore result */
 
@@ -226,24 +220,23 @@ image_open(struct data *data, gchar *uri, gint rotate)
         g_signal_connect( img->button, "button_press_event", 
                           G_CALLBACK( gallery_image_selected ), data );
         
-        if (img->rotate == 90 || img->rotate == 270)
-            {
-                GdkPixbuf *pix, *pix_rotated;
-                GdkPixbufRotation rot;
+        if (img->rotate == 90 || img->rotate == 270) {
+            GdkPixbuf *pix, *pix_rotated;
+            GdkPixbufRotation rot;
                 
-                if (img->rotate == 90)
-                    rot = GDK_PIXBUF_ROTATE_CLOCKWISE;
-                else
-                    rot = GDK_PIXBUF_ROTATE_COUNTERCLOCKWISE;
+            if (img->rotate == 90)
+                rot = GDK_PIXBUF_ROTATE_CLOCKWISE;
+            else
+                rot = GDK_PIXBUF_ROTATE_COUNTERCLOCKWISE;
                 
-                pix = gdk_pixbuf_loader_get_pixbuf(loader);
-                pix_rotated = gdk_pixbuf_rotate_simple(pix, rot);
+            pix = gdk_pixbuf_loader_get_pixbuf(loader);
+            pix_rotated = gdk_pixbuf_rotate_simple(pix, rot);
                 
-                img->image = gtk_image_new_from_pixbuf(pix_rotated);
-            } else {
-                img->image = gtk_image_new_from_pixbuf
-                    (gdk_pixbuf_loader_get_pixbuf(loader));
-            }
+            img->image = gtk_image_new_from_pixbuf(pix_rotated);
+        } else {
+            img->image = gtk_image_new_from_pixbuf
+                (gdk_pixbuf_loader_get_pixbuf(loader));
+        }
         
         gtk_container_add( GTK_CONTAINER( img->button ), img->image);
         gtk_container_set_border_width( GTK_CONTAINER( img->button ), 
@@ -315,50 +308,46 @@ image_load_ss_pixbuf(struct data *data, struct image *img)
 	/* open image */
 	result = gnome_vfs_open_uri(&handle, gnome_vfs_uri_new(img->uri),
 								GNOME_VFS_OPEN_READ);
-	if (result != GNOME_VFS_OK)
-	{
-		/* FIXME: popup */
-		g_warning("Failed to open slide show image '%s': %s", img->uri, 
-				  gnome_vfs_result_to_string(result));
-		return FALSE;
-	}
+	if (result != GNOME_VFS_OK) {
+        /* FIXME: popup */
+        g_warning("Failed to open slide show image '%s': %s", img->uri, 
+                  gnome_vfs_result_to_string(result));
+        return FALSE;
+    }
 
     data->ss_resize_img = img;
     loader = gdk_pixbuf_loader_new();
     g_signal_connect(loader, "size-prepared", G_CALLBACK(set_ss_size), data);
 
 	/* read image from the file */
-	while (TRUE)
-	{
-		result = gnome_vfs_read(handle, buf,
-								PWGALLERY_IMG_READ_BUF_SIZE, &bytes);
+	while (TRUE) {
+        result = gnome_vfs_read(handle, buf,
+                                PWGALLERY_IMG_READ_BUF_SIZE, &bytes);
 
-		/* all read */
-		if (result == GNOME_VFS_ERROR_EOF)
-			break;
+        /* all read */
+        if (result == GNOME_VFS_ERROR_EOF)
+            break;
 		
-		/* error reading */
-		if (result != GNOME_VFS_OK)
-		{
-			/* FIXME: popup */
-			g_warning("Failed to load slow show image '%s': %s", img->uri, 
-					  gnome_vfs_result_to_string(result));
+        /* error reading */
+        if (result != GNOME_VFS_OK) {
+            /* FIXME: popup */
+            g_warning("Failed to load slow show image '%s': %s", img->uri, 
+                      gnome_vfs_result_to_string(result));
             gdk_pixbuf_loader_close (loader, NULL);
-			return FALSE;
-		}
+            return FALSE;
+        }
 
-		/* error parsing image data */
-		if (gdk_pixbuf_loader_write(loader, buf, bytes, &error) == FALSE)
-		{
-			gdk_pixbuf_loader_close (loader, NULL);
-			/* FIXME: popup */
-			g_warning("Failed to parse slide show image '%s': %s", img->uri,
-					  error->message);
-			g_error_free(error);
-			return FALSE;
-		}
+        /* error parsing image data */
+        if (gdk_pixbuf_loader_write(loader, buf, bytes, &error) == FALSE) {
+            gdk_pixbuf_loader_close (loader, NULL);
+            /* FIXME: popup */
+            g_warning("Failed to parse slide show image '%s': %s", img->uri,
+                      error->message);
+            g_error_free(error);
+            return FALSE;
+        }
 		
-	}
+    }
     
 	gnome_vfs_close(handle); /* ignore result */
 
@@ -418,8 +407,7 @@ set_size( GdkPixbufLoader *gdkpixbufloader, gint arg1, gint arg2, gpointer data)
 
     img = data;
     
-    if (img->rotate == 90 || img->rotate == 270)
-    {
+    if (img->rotate == 90 || img->rotate == 270) {
         scale = (gdouble)arg2 / (gdouble)arg1;
         
         /* FIXME: get this from the width of the gtk_table? */
@@ -518,11 +506,6 @@ set_ss_size(GdkPixbufLoader *gdkpixbufloader,
 
     gdk_pixbuf_loader_set_size(gdkpixbufloader, w, h);
 }
-
-
-
-
-
 
 
 /* Emacs indentatation information
