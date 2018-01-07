@@ -1,3 +1,9 @@
+pwgallery (0.1.1) unstable; urgency=low
+
+  * Enable recreating galleries from a command line
+
+ -- Tuomas Kulve <tuomas@kulve.fi>  Sun, 07 Jan 2018 20:45:11 +0200
+
 pwgallery (0.1.0) unstable; urgency=low
 
   * Rewrote with a new name
